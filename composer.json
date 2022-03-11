@@ -1,0 +1,62 @@
+{
+    "name": "brd6/notion-sdk-php",
+    "description": "Notion SDK for PHP",
+    "license": "MIT",
+    "type": "library",
+    "keywords": [
+        "notion",
+        "notion-sdk",
+        "notion-api",
+        "php",
+        "notion-client"
+    ],
+    "authors": [
+        {
+            "name": "brd6",
+            "email": "hello@berdrigue.com",
+            "homepage": "https://berdrigue.com"
+        }
+    ],
+    "require": {
+        "php": "^7.4 || ^8"
+    },
+    "require-dev": {
+        "ramsey/devtools": "^1.7",
+        "ramsey/devtools-lib": "1.3.0"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "Brd6\\NotionSdkPhp\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Brd6\\Test\\NotionSdkPhp\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true,
+            "phpstan/extension-installer": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "ergebnis/composer-normalize": true,
+            "captainhook/plugin-composer": true,
+            "ramsey/devtools": true,
+            "ramsey/composer-repl": true
+        },
+        "sort-packages": true
+    },
+    "extra": {
+        "captainhook": {
+            "force-install": true
+        },
+        "ramsey/conventional-commits": {
+            "configFile": "conventional-commits.json"
+        },
+        "ramsey/devtools": {
+            "command-prefix": "dev"
+        }
+    }
+}
