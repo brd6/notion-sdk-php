@@ -18,7 +18,8 @@
         }
     ],
     "require": {
-        "php": "^7.4 || ^8"
+        "php": "^7.4 || ^8",
+        "symfony/http-client": "^6.0"
     },
     "require-dev": {
         "ramsey/devtools": "^1.7",
