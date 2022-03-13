@@ -17,9 +17,11 @@ class NotionErrorCodeConstant
     public const INVALID_REQUEST_URL = 'invalid_request_url';
     public const INVALID_REQUEST = 'invalid_request';
     public const VALIDATION_ERROR = 'validation_error';
+    public const MISSING_VERSION = 'missing_version';
     public const CONFLICT_ERROR = 'conflict_error';
     public const INTERNAL_SERVER_ERROR = 'internal_server_error';
     public const SERVICE_UNAVAILABLE = 'service_unavailable';
+    public const DATABASE_CONNECTION_UNAVAILABLE = 'database_connection_unavailable';
 
     public const CLIENT_ERROR_CODES = [
         self::REQUEST_TIMEOUT,
@@ -35,8 +37,10 @@ class NotionErrorCodeConstant
         self::INVALID_REQUEST_URL,
         self::INVALID_REQUEST,
         self::VALIDATION_ERROR,
+        self::MISSING_VERSION,
         self::CONFLICT_ERROR,
         self::INTERNAL_SERVER_ERROR,
         self::SERVICE_UNAVAILABLE,
+        self::DATABASE_CONNECTION_UNAVAILABLE,
     ];
 }
