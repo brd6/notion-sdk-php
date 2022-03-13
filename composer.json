@@ -19,7 +19,7 @@
     ],
     "require": {
         "php": "^7.4 || ^8",
-        "symfony/http-client": "^6.0"
+        "symfony/http-client": "^5.4"
     },
     "require-dev": {
         "ramsey/conventional-commits": "^1.3",
@@ -60,5 +60,12 @@
         "ramsey/devtools": {
             "command-prefix": "dev"
         }
+    },
+    "scripts": {
+        "dev:all": [
+            "@composer dev:analyze:all",
+            "@composer dev:lint:all",
+            "@composer dev:test:all"
+        ]
     }
 }
