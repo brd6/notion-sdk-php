@@ -1,0 +1,6 @@
+{
+    "object": "error",
+    "status": 400,
+    "code": "missing_version",
+    "message": "Notion-Version header failed validation: Notion-Version header should be `\"2021-05-11\"`, `\"2021-05-13\"`, `\"2021-08-16\"`, or `\"2022-02-22\"`, instead was `\"\"`."
+}
