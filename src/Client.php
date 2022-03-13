@@ -52,13 +52,13 @@ class Client
 
         try {
             $response = $this->httpClient->request($parameters->getMethod(), $parameters->getPath(), $httpOptions);
-        } catch (TransportExceptionInterface) {
+        } catch (TransportExceptionInterface $e) {
             throw new RequestTimeoutException();
         }
 
         try {
             return $response->toArray();
-        } catch (TransportExceptionInterface | DecodingExceptionInterface) {
+        } catch (TransportExceptionInterface | DecodingExceptionInterface $e) {
             throw new RequestTimeoutException();
         } catch (ClientExceptionInterface | RedirectionExceptionInterface | ServerExceptionInterface $e) {
             $response = $e->getResponse();
