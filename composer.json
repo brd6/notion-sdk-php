@@ -22,6 +22,7 @@
         "symfony/http-client": "^6.0"
     },
     "require-dev": {
+        "ramsey/conventional-commits": "^1.3",
         "ramsey/devtools": "^1.7",
         "ramsey/devtools-lib": "1.3.0"
     },

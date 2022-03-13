@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp;
 
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+
 class ClientOptions
 {
     public const DEFAULT_BASE_URL = 'https://api.notion.com/v1/';
@@ -14,6 +16,7 @@ class ClientOptions
     private string $baseUrl = self::DEFAULT_BASE_URL;
     private string $notionVersion = self::DEFAULT_NOTION_VERSION;
     private int $timeout = self::DEFAULT_TIMEOUT;
+    private ?HttpClientInterface $httpClient = null;
 
     public function getAuth(): string
     {
@@ -59,6 +62,18 @@ class ClientOptions
     public function setTimeout(int $timeout): self
     {
         $this->timeout = $timeout;
+
+        return $this;
+    }
+
+    public function getHttpClient(): ?HttpClientInterface
+    {
+        return $this->httpClient;
+    }
+
+    public function setHttpClient(HttpClientInterface $httpClient): self
+    {
+        $this->httpClient = $httpClient;
 
         return $this;
     }

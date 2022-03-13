@@ -75,6 +75,23 @@ class Client
 
     private function initializeHttpClient(): void
     {
+        $httpClient = $this->options->getHttpClient();
+
+        if ($httpClient === null) {
+            $httpClient = HttpClient::create();
+        }
+
+        $this->httpClient = $httpClient->withOptions($this->getDefaultHttpOptions());
+    }
+
+    private function isNotionClientError(array $responseData): bool
+    {
+        return isset($responseData['code']) &&
+            in_array($responseData['code'], NotionErrorCodeConstant::API_ERROR_CODES);
+    }
+
+    private function getDefaultHttpOptions(): array
+    {
         $httpOptions = [
             'base_uri' => $this->options->getBaseUrl(),
             'timeout' => $this->options->getTimeout(),
@@ -88,12 +105,6 @@ class Client
             $httpOptions['auth_bearer'] = $this->options->getAuth();
         }
 
-        $this->httpClient = HttpClient::create($httpOptions);
-    }
-
-    private function isNotionClientError(array $responseData): bool
-    {
-        return isset($responseData['code']) &&
-            in_array($responseData['code'], NotionErrorCodeConstant::API_ERROR_CODES);
+        return $httpOptions;
     }
 }
