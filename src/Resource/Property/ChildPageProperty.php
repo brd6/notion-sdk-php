@@ -8,7 +8,7 @@ use Brd6\NotionSdkPhp\Resource\AbstractProperty;
 
 class ChildPageProperty extends AbstractProperty
 {
-    private string $title = '';
+    protected string $title = '';
 
     public static function fromRawData(array $rawData): self
     {
@@ -23,11 +23,6 @@ class ChildPageProperty extends AbstractProperty
         return $this->title;
     }
 
-    /**
-     * @param string $title
-     *
-     * @return ChildPageProperty
-     */
     public function setTitle(string $title): self
     {
         $this->title = $title;
