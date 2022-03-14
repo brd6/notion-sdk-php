@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Property;
 
+use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
+use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
+use Brd6\NotionSdkPhp\Resource\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\AbstractProperty;
 use Brd6\NotionSdkPhp\Resource\AbstractRichText;
 
@@ -21,8 +24,19 @@ class ParagraphProperty extends AbstractProperty
     private array $richTexts = [];
 
     /**
+     * @var array|AbstractBlock[]
+     */
+    private array $children = [];
+
+    /**
+     * @param array $rawData
+     *
+     * @return ParagraphProperty
+     *
      * @throws InvalidRichTextException
      * @throws UnsupportedRichTextTypeException
+     * @throws InvalidResourceException
+     * @throws InvalidResourceTypeException
      */
     public static function fromRawData(array $rawData): self
     {
@@ -32,6 +46,11 @@ class ParagraphProperty extends AbstractProperty
             fn (array $richTextRawData) => AbstractRichText::fromRawData($richTextRawData),
             (array) $rawData['rich_text'],
         );
+
+        $property->children = isset($rawData['children']) ? array_map(
+            fn (array $childRawData) => AbstractBlock::fromRawData($childRawData),
+            (array) $rawData['children'],
+        ) : [];
 
         return $property;
     }
@@ -69,6 +88,26 @@ class ParagraphProperty extends AbstractProperty
     public function setRichTexts(array $richTexts): self
     {
         $this->richTexts = $richTexts;
+
+        return $this;
+    }
+
+    /**
+     * @return array|AbstractBlock[]
+     */
+    public function getChildren(): array
+    {
+        return $this->children;
+    }
+
+    /**
+     * @param array|AbstractBlock[] $children
+     *
+     * @return ParagraphProperty
+     */
+    public function setChildren(array $children): self
+    {
+        $this->children = $children;
 
         return $this;
     }
