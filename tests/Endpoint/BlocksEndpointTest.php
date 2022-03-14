@@ -83,5 +83,9 @@ class BlocksEndpointTest extends TestCase
         $this->assertInstanceOf(PartialUser::class, $block->getCreatedBy());
         $this->assertEquals('user', $block->getCreatedBy()->getObject());
         $this->assertNotEmpty($block->getCreatedBy()->getId());
+
+        $this->assertNotEmpty($block->getCreatedTime());
+        $this->assertNotEmpty($block->getLastEditedTime());
+        $this->assertNotEmpty($block->getLastEditedTime());
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource;
 
+use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Resource\Block\UnsupportedBlock;
 use Brd6\NotionSdkPhp\Util\StringHelper;
@@ -25,14 +26,18 @@ abstract class Block extends AbstractResource
 
     /**
      * @throws InvalidResourceTypeException
+     * @throws InvalidResourceException
      */
     public static function fromResponseData(array $responseData): self
     {
         if (
             !isset($responseData['object']) ||
-            !isset($responseData['type']) ||
-            $responseData['object'] !== static::getResourceType()
+            !isset($responseData['type'])
         ) {
+            throw new InvalidResourceException();
+        }
+
+        if ($responseData['object'] !== static::getResourceType()) {
             throw new InvalidResourceTypeException((string) $responseData['object']);
         }
 

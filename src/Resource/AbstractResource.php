@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource;
 
+use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use JsonSerializable;
 
@@ -24,16 +25,18 @@ abstract class AbstractResource implements JsonSerializable
 
     /**
      * @throws InvalidResourceTypeException
+     * @throws InvalidResourceException
      */
     public static function fromResponseData(array $responseData): self
     {
         $resource = new static();
         $resource->setResponseData($responseData);
 
-        if (
-            !isset($resource->responseData['object']) ||
-            $resource->responseData['object'] !== $resource->getResourceType()
-        ) {
+        if (!isset($responseData['object'])) {
+            throw new InvalidResourceException();
+        }
+
+        if ($resource->responseData['object'] !== $resource->getResourceType()) {
             throw new InvalidResourceTypeException((string) $resource->responseData['object']);
         }
 

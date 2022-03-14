@@ -7,6 +7,8 @@ namespace Brd6\Test\NotionSdkPhp;
 use Brd6\NotionSdkPhp\Client;
 use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Exception\ApiResponseException;
+use Brd6\NotionSdkPhp\Exception\HttpResponseException;
+use Brd6\NotionSdkPhp\Exception\RequestTimeoutException;
 use Brd6\NotionSdkPhp\RequestParameters;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -46,6 +48,66 @@ class ClientTest extends TestCase
 
         $this->expectException(ApiResponseException::class);
         $this->expectExceptionMessage('Invalid request URL');
+
+        $client->request($params);
+    }
+
+    public function testRequestInvalidResponse(): void
+    {
+        $options = (new ClientOptions())
+            ->setAuth('secret_valid-auth');
+
+        $params = new RequestParameters();
+        $params
+            ->setMethod('GET')
+            ->setPath('pages/valid-id');
+
+        $httpClient = new MockHttpClient();
+        $httpClient->setResponseFactory([
+            new MockResponse(
+                (string) file_get_contents('tests/fixtures/client_request_invalid_response_500.json'),
+                [
+                    'http_code' => 500,
+                ],
+            ),
+        ]);
+
+        $options->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $this->expectException(HttpResponseException::class);
+        $this->expectExceptionMessage('Request to Notion API failed with status: 500');
+
+        $client->request($params);
+    }
+
+    public function testRequestInvalidResponseContent(): void
+    {
+        $options = (new ClientOptions())
+            ->setAuth('secret_valid-auth');
+
+        $params = new RequestParameters();
+        $params
+            ->setMethod('GET')
+            ->setPath('pages/valid-id');
+
+        $httpClient = new MockHttpClient();
+        $httpClient->setResponseFactory([
+            new MockResponse(
+                (string) file_get_contents('tests/fixtures/client_request_invalid_response_content.txt'),
+                [
+                    'http_code' => 200,
+                ],
+            ),
+        ]);
+
+        $options->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $this->expectException(RequestTimeoutException::class);
+        $this->expectExceptionMessage('Request to Notion API has timed out');
 
         $client->request($params);
     }
