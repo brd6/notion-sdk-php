@@ -9,14 +9,15 @@ use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
 
 class ChildPageBlock extends Block
 {
-    protected ChildPageProperty $childPage;
+    protected ?ChildPageProperty $childPage = null;
 
     protected function initializeBlockProperty(): void
     {
-        $this->childPage = ChildPageProperty::fromData($this->getResponseData()[$this->getType()]);
+        $data = (array) $this->getResponseData()[$this->getType()];
+        $this->childPage = ChildPageProperty::fromData($data);
     }
 
-    public function getChildPage(): ChildPageProperty
+    public function getChildPage(): ?ChildPageProperty
     {
         return $this->childPage;
     }

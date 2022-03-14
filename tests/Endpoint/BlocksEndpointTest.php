@@ -18,7 +18,7 @@ use function file_get_contents;
 
 class BlocksEndpointTest extends TestCase
 {
-    public function testInstance()
+    public function testInstance(): void
     {
         $client = new Client();
         $blocks = new BlocksEndpoint($client);
@@ -27,7 +27,7 @@ class BlocksEndpointTest extends TestCase
         $this->assertInstanceOf(BlocksEndpoint::class, $blocks);
     }
 
-    public function testRetrieve()
+    public function testRetrieve(): void
     {
         $httpClient = new MockHttpClient();
         $httpClient->setResponseFactory([
@@ -52,7 +52,7 @@ class BlocksEndpointTest extends TestCase
         $this->assertNotEmpty($block->jsonSerialize());
     }
 
-    public function testRetrieveChildPage()
+    public function testRetrieveChildPage(): void
     {
         $httpClient = new MockHttpClient();
         $httpClient->setResponseFactory([

@@ -6,12 +6,12 @@ namespace Brd6\NotionSdkPhp\Resource\Property;
 
 class ChildPageProperty
 {
-    private string $title;
+    private string $title = '';
 
     public static function fromData(array $data): self
     {
-        $property = new static();
-        $property->title = $data['title'];
+        $property = new self();
+        $property->title = (string) $data['title'];
 
         return $property;
     }

@@ -14,9 +14,13 @@ use const ARRAY_FILTER_USE_KEY;
 
 abstract class AbstractResource implements JsonSerializable
 {
-    protected string $object;
-    protected string $id;
-    private array $responseData;
+    protected string $object = '';
+    protected string $id = '';
+    private array $responseData = [];
+
+    final public function __construct()
+    {
+    }
 
     /**
      * @throws InvalidResourceTypeException
@@ -30,7 +34,7 @@ abstract class AbstractResource implements JsonSerializable
             !isset($resource->responseData['object']) ||
             $resource->responseData['object'] !== $resource->getResourceType()
         ) {
-            throw new InvalidResourceTypeException($resource->responseData['object']);
+            throw new InvalidResourceTypeException((string) $resource->responseData['object']);
         }
 
         $resource->initialize();
@@ -40,10 +44,7 @@ abstract class AbstractResource implements JsonSerializable
 
     abstract protected function initialize(): void;
 
-    public static function getResourceType(): string
-    {
-        return static::RESOURCE_TYPE;
-    }
+    abstract public static function getResourceType(): string;
 
     /**
      * @return array
@@ -62,8 +63,8 @@ abstract class AbstractResource implements JsonSerializable
     {
         $this->responseData = $responseData;
 
-        $this->object = $this->getResponseData()['object'] ?? '';
-        $this->id = $this->getResponseData()['id'] ?? '';
+        $this->object = (string) ($this->getResponseData()['object'] ?? '');
+        $this->id = (string) ($this->getResponseData()['id'] ?? '');
 
         return $this;
     }

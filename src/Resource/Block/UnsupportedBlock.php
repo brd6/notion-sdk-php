@@ -10,7 +10,7 @@ class UnsupportedBlock extends Block
 {
     protected function initialize(): void
     {
-        $this->type = $this->getResponseData()['type'];
+        $this->type = (string) $this->getResponseData()['type'];
     }
 
     protected function initializeBlockProperty(): void
