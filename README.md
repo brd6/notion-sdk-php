@@ -27,21 +27,21 @@ Install this package as a dependency using [Composer](https://getcomposer.org).
 composer require brd6/notion-sdk-php
 ```
 
-<!--
 ## Usage
 
-Provide a brief description or short example of how to use this library.
-If you need to provide more detailed examples, use the `docs/` directory
-and provide a link here to the documentation.
+> Use Notion's [Getting Started Guide](https://developers.notion.com/docs/getting-started) to get set up to use Notion's API.
+
+Import and initialize a client using an **integration token** or an OAuth **access token**.
 
 ``` php
-use Brd6\NotionSdkPhp\Example;
+use Brd6\NotionSdkPhp\Client;
+use Brd6\NotionSdkPhp\ClientOptions;
 
-$example = new Example();
-echo $example->greet('fellow human');
+$options = (new ClientOptions())
+    ->setAuth(getenv('NOTION_TOKEN'));
+
+$notion = new Client($options);
 ```
--->
-
 
 ## Contributing
 
