@@ -9,7 +9,7 @@ use Brd6\NotionSdkPhp\Exception\HttpResponseException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\RequestTimeoutException;
 use Brd6\NotionSdkPhp\RequestParameters;
-use Brd6\NotionSdkPhp\Resource\Block;
+use Brd6\NotionSdkPhp\Resource\AbstractBlock;
 
 class BlocksEndpoint extends AbstractEndpoint
 {
@@ -19,14 +19,14 @@ class BlocksEndpoint extends AbstractEndpoint
      * @throws RequestTimeoutException
      * @throws InvalidResourceTypeException
      */
-    public function retrieve(string $blockId): Block
+    public function retrieve(string $blockId): AbstractBlock
     {
         $requestParameters = (new RequestParameters())
             ->setPath("blocks/$blockId")
             ->setMethod('GET');
 
-        $responseData = $this->getClient()->request($requestParameters);
+        $rawData = $this->getClient()->request($requestParameters);
 
-        return Block::fromResponseData($responseData);
+        return AbstractBlock::fromRawData($rawData);
     }
 }

@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Block;
 
-use Brd6\NotionSdkPhp\Resource\Block;
+use Brd6\NotionSdkPhp\Resource\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
 
-class ChildPageBlock extends Block
+class ChildPageBlock extends AbstractBlock
 {
     protected ?ChildPageProperty $childPage = null;
 
     protected function initializeBlockProperty(): void
     {
-        $data = (array) $this->getResponseData()[$this->getType()];
-        $this->childPage = ChildPageProperty::fromData($data);
+        $data = (array) $this->getRawData()[$this->getType()];
+        $this->childPage = ChildPageProperty::fromRawData($data);
     }
 
     public function getChildPage(): ?ChildPageProperty

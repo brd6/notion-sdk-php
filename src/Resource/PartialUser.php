@@ -8,10 +8,10 @@ class PartialUser extends AbstractResource
 {
     public const RESOURCE_TYPE = 'user';
 
-    public static function fromResponseData(array $responseData): self
+    public static function fromRawData(array $rawData): self
     {
         /** @var self $resource */
-        $resource = parent::fromResponseData($responseData);
+        $resource = parent::fromRawData($rawData);
 
         return $resource;
     }

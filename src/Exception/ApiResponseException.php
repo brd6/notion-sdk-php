@@ -11,14 +11,14 @@ class ApiResponseException extends HttpResponseException
     private string $messageCode;
     private int $status;
 
-    public function __construct(int $statusCode, array $headers = [], array $responseData = [], string $message = '')
+    public function __construct(int $statusCode, array $headers = [], array $rawData = [], string $message = '')
     {
-        $this->messageCode = (string) $responseData['code'];
-        $this->status = (int) $responseData['status'];
+        $this->messageCode = (string) $rawData['code'];
+        $this->status = (int) $rawData['status'];
 
-        $message = strlen($message) > 0 ? $message : (string) $responseData['message'];
+        $message = strlen($message) > 0 ? $message : (string) $rawData['message'];
 
-        parent::__construct($statusCode, $headers, $responseData, $message);
+        parent::__construct($statusCode, $headers, $rawData, $message);
     }
 
     public function getMessageCode(): string

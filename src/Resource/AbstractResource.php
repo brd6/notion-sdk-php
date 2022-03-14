@@ -17,7 +17,7 @@ abstract class AbstractResource implements JsonSerializable
 {
     protected string $object = '';
     protected string $id = '';
-    private array $responseData = [];
+    private array $rawData = [];
 
     final public function __construct()
     {
@@ -27,17 +27,17 @@ abstract class AbstractResource implements JsonSerializable
      * @throws InvalidResourceTypeException
      * @throws InvalidResourceException
      */
-    public static function fromResponseData(array $responseData): self
+    public static function fromRawData(array $rawData): self
     {
         $resource = new static();
-        $resource->setResponseData($responseData);
+        $resource->setRawData($rawData);
 
-        if (!isset($responseData['object'])) {
+        if (!isset($rawData['object'])) {
             throw new InvalidResourceException();
         }
 
-        if ($resource->responseData['object'] !== $resource->getResourceType()) {
-            throw new InvalidResourceTypeException((string) $resource->responseData['object']);
+        if ($resource->rawData['object'] !== $resource->getResourceType()) {
+            throw new InvalidResourceTypeException((string) $resource->rawData['object']);
         }
 
         $resource->initialize();
@@ -52,22 +52,22 @@ abstract class AbstractResource implements JsonSerializable
     /**
      * @return array
      */
-    public function getResponseData(): array
+    public function getRawData(): array
     {
-        return $this->responseData;
+        return $this->rawData;
     }
 
     public function jsonSerialize(): array
     {
-        return array_filter(get_object_vars($this), fn (string $key) => $key !== 'responseData', ARRAY_FILTER_USE_KEY);
+        return array_filter(get_object_vars($this), fn (string $key) => $key !== 'rawData', ARRAY_FILTER_USE_KEY);
     }
 
-    protected function setResponseData(array $responseData): self
+    protected function setRawData(array $rawData): self
     {
-        $this->responseData = $responseData;
+        $this->rawData = $rawData;
 
-        $this->object = (string) ($this->getResponseData()['object'] ?? '');
-        $this->id = (string) ($this->getResponseData()['id'] ?? '');
+        $this->object = (string) ($this->getRawData()['object'] ?? '');
+        $this->id = (string) ($this->getRawData()['id'] ?? '');
 
         return $this;
     }

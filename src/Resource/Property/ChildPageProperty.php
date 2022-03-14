@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Property;
 
-class ChildPageProperty
+use Brd6\NotionSdkPhp\Resource\AbstractProperty;
+
+class ChildPageProperty extends AbstractProperty
 {
     private string $title = '';
 
-    public static function fromData(array $data): self
+    public static function fromRawData(array $rawData): self
     {
         $property = new self();
-        $property->title = (string) $data['title'];
+        $property->title = (string) $rawData['title'];
 
         return $property;
     }

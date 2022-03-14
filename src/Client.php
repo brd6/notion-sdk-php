@@ -63,13 +63,13 @@ class Client
         } catch (ClientExceptionInterface | RedirectionExceptionInterface | ServerExceptionInterface $e) {
             $response = $e->getResponse();
             $headers = $response->getHeaders(false);
-            $responseData = $response->toArray(false);
+            $rawData = $response->toArray(false);
 
-            if ($this->isNotionClientError($responseData)) {
-                throw new ApiResponseException($response->getStatusCode(), $headers, $responseData);
+            if ($this->isNotionClientError($rawData)) {
+                throw new ApiResponseException($response->getStatusCode(), $headers, $rawData);
             }
 
-            throw new HttpResponseException($response->getStatusCode(), $headers, $responseData);
+            throw new HttpResponseException($response->getStatusCode(), $headers, $rawData);
         }
     }
 
@@ -84,10 +84,10 @@ class Client
         $this->httpClient = $httpClient->withOptions($this->getDefaultHttpOptions());
     }
 
-    private function isNotionClientError(array $responseData): bool
+    private function isNotionClientError(array $rawData): bool
     {
-        return isset($responseData['code']) &&
-            in_array($responseData['code'], NotionErrorCodeConstant::API_ERROR_CODES);
+        return isset($rawData['code']) &&
+            in_array($rawData['code'], NotionErrorCodeConstant::API_ERROR_CODES);
     }
 
     private function getDefaultHttpOptions(): array

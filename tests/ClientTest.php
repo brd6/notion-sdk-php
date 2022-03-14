@@ -193,12 +193,12 @@ class ClientTest extends TestCase
             ->setMethod('GET')
             ->setPath('pages/b55c9c91-384d-452b-81db-d1ef79372b75');
 
-        $responseData = $client->request($params);
+        $rawData = $client->request($params);
 
-        $this->assertArrayHasKey('id', $responseData);
-        $this->assertArrayHasKey('object', $responseData);
-        $this->assertEquals('b55c9c91-384d-452b-81db-d1ef79372b75', $responseData['id']);
-        $this->assertEquals('page', $responseData['object']);
+        $this->assertArrayHasKey('id', $rawData);
+        $this->assertArrayHasKey('object', $rawData);
+        $this->assertEquals('b55c9c91-384d-452b-81db-d1ef79372b75', $rawData['id']);
+        $this->assertEquals('page', $rawData['object']);
     }
 
     public function testRequestRetrieveInvalidPage(): void

@@ -7,9 +7,9 @@ namespace Brd6\NotionSdkPhp\Exception;
 use function sprintf;
 use function strlen;
 
-class InvalidResourceTypeException extends AbstractNotionException
+class UnsupportedRichTextTypeException extends AbstractNotionException
 {
-    public const MESSAGE = 'The given object "%s" is invalid.';
+    public const MESSAGE = 'The given rich text "%s" is unsupported.';
 
     public function __construct(string $type, string $message = '')
     {
