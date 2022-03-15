@@ -73,7 +73,7 @@ class BlockTest extends TestCase
         $this->assertNotEmpty($richText->getContent());
     }
 
-    public function testHeading1Block(): void
+    public function testHeadingsBlock(): void
     {
         $headings = [
             'heading_1',
