@@ -6,7 +6,9 @@ namespace Brd6\Test\NotionSdkPhp\Resource;
 
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Resource\AbstractBlock;
+use Brd6\NotionSdkPhp\Resource\Block\ChildPageBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
+use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
 use Brd6\NotionSdkPhp\Resource\Property\HeadingProperty;
 use Brd6\NotionSdkPhp\Resource\Property\ParagraphProperty;
 use Brd6\NotionSdkPhp\Resource\RichText\TextRichText;
@@ -47,6 +49,22 @@ class BlockTest extends TestCase
 
         $this->assertNotEmpty($block->getType());
         $this->assertNotEmpty($block->getId());
+    }
+
+    public function testChildPageBlock(): void
+    {
+        $block = AbstractBlock::fromRawData(
+            (array) json_decode(
+                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_child_page_200.json'),
+                true,
+            ),
+        );
+
+        $this->assertInstanceOf(ChildPageBlock::class, $block);
+        $this->assertEquals('child_page', $block->getType());
+        $this->assertNotNull($block->getChildPage());
+        $this->assertInstanceOf(ChildPageProperty::class, $block->getChildPage());
+        $this->assertNotEmpty($block->getChildPage()->getTitle());
     }
 
     public function testParagraphBlock(): void

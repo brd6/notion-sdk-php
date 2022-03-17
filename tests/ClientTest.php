@@ -197,6 +197,11 @@ class ClientTest extends TestCase
 
         $this->assertArrayHasKey('id', $rawData);
         $this->assertArrayHasKey('object', $rawData);
+        $this->assertArrayHasKey('created_time', $rawData);
+        $this->assertArrayHasKey('last_edited_time', $rawData);
+        $this->assertArrayHasKey('created_by', $rawData);
+        $this->assertArrayHasKey('last_edited_by', $rawData);
+        $this->assertArrayHasKey('archived', $rawData);
         $this->assertEquals('b55c9c91-384d-452b-81db-d1ef79372b75', $rawData['id']);
         $this->assertEquals('page', $rawData['object']);
     }
@@ -228,5 +233,36 @@ class ClientTest extends TestCase
         $this->expectExceptionMessage('Could not find page with ID: 4a808e6e-8845-4d49-a447-fb2a4c460f0f');
 
         $client->request($params);
+    }
+
+    public function testRequestRetrieveBlock(): void
+    {
+        $httpClient = new MockHttpClient();
+        $httpClient->setResponseFactory([
+            new MockResponse(
+                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            ),
+        ]);
+
+        $options = (new ClientOptions())
+            ->setAuth('secret_valid-auth')
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $params = new RequestParameters();
+        $params
+            ->setMethod('GET')
+            ->setPath('blocks/0c940186-ab70-4351-bb34-2d16f0635d49');
+
+        $rawData = $client->request($params);
+
+        $this->assertArrayHasKey('id', $rawData);
+        $this->assertArrayHasKey('object', $rawData);
+        $this->assertEquals('0c940186-ab70-4351-bb34-2d16f0635d49', $rawData['id']);
+        $this->assertEquals('block', $rawData['object']);
     }
 }
