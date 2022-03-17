@@ -41,7 +41,7 @@ abstract class AbstractBlock extends AbstractResource
             throw new InvalidResourceTypeException((string) $rawData['object']);
         }
 
-        $class = static::getBlockMapClassFromType((string) $rawData['type']);
+        $class = static::getMapClassFromType((string) $rawData['type']);
 
         /** @var static $resource */
         $resource = new $class();
@@ -54,6 +54,7 @@ abstract class AbstractBlock extends AbstractResource
     }
 
     /**
+     * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
      */
     protected function initialize(): void
@@ -71,7 +72,7 @@ abstract class AbstractBlock extends AbstractResource
 
     abstract protected function initializeBlockProperty(): void;
 
-    protected static function getBlockMapClassFromType(string $type): string
+    protected static function getMapClassFromType(string $type): string
     {
         $typeFormatted = StringHelper::snakeCaseToCamelCase($type);
         $class = "Brd6\\NotionSdkPhp\\Resource\Block\\${typeFormatted}Block";

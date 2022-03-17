@@ -28,7 +28,7 @@ abstract class AbstractRichText
             throw new InvalidRichTextException();
         }
 
-        $class = static::getRichTextMapClassFromType((string) $rawData['type']);
+        $class = static::getMapClassFromType((string) $rawData['type']);
 
         /** @var static $resource */
         $resource = new $class();
@@ -55,10 +55,10 @@ abstract class AbstractRichText
     /**
      * @throws UnsupportedRichTextTypeException
      */
-    protected static function getRichTextMapClassFromType(string $type): string
+    protected static function getMapClassFromType(string $type): string
     {
         $typeFormatted = StringHelper::snakeCaseToCamelCase($type);
-        $class = "Brd6\\NotionSdkPhp\\Resource\RichText\\${typeFormatted}RichText";
+        $class = "Brd6\\NotionSdkPhp\\Resource\RichText\\$typeFormatted";
 
         if (!class_exists($class)) {
             throw new UnsupportedRichTextTypeException($type);

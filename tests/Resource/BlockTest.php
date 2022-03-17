@@ -6,12 +6,16 @@ namespace Brd6\Test\NotionSdkPhp\Resource;
 
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Resource\AbstractBlock;
+use Brd6\NotionSdkPhp\Resource\AbstractFile;
+use Brd6\NotionSdkPhp\Resource\Block\CalloutBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ChildPageBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
+use Brd6\NotionSdkPhp\Resource\File\Emoji;
+use Brd6\NotionSdkPhp\Resource\Property\CalloutProperty;
 use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
 use Brd6\NotionSdkPhp\Resource\Property\HeadingProperty;
 use Brd6\NotionSdkPhp\Resource\Property\ParagraphProperty;
-use Brd6\NotionSdkPhp\Resource\RichText\TextRichText;
+use Brd6\NotionSdkPhp\Resource\RichText\Text;
 use Brd6\NotionSdkPhp\Util\StringHelper;
 use PHPUnit\Framework\TestCase;
 
@@ -84,7 +88,7 @@ class BlockTest extends TestCase
 
         $richText = $block->getParagraph()->getRichTexts()[0];
 
-        $this->assertInstanceOf(TextRichText::class, $richText);
+        $this->assertInstanceOf(Text::class, $richText);
         $this->assertEquals('text', $richText->getType());
 
         $this->assertNotEmpty($richText->getAnnotations());
@@ -121,11 +125,44 @@ class BlockTest extends TestCase
 
             $richText = $block->$getterMethodName()->getRichTexts()[0];
 
-            $this->assertInstanceOf(TextRichText::class, $richText);
+            $this->assertInstanceOf(Text::class, $richText);
             $this->assertEquals('text', $richText->getType());
 
             $this->assertNotEmpty($richText->getAnnotations());
             $this->assertNotEmpty($richText->getContent());
         }
+    }
+
+    public function testCalloutBlock(): void
+    {
+        $block = AbstractBlock::fromRawData(
+            (array) json_decode(
+                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_callout_200.json'),
+                true,
+            ),
+        );
+
+        $this->assertInstanceOf(CalloutBlock::class, $block);
+        $this->assertEquals('callout', $block->getType());
+        $this->assertNotNull($block->getCallout());
+        $this->assertInstanceOf(CalloutProperty::class, $block->getCallout());
+        $this->assertGreaterThan(0, count($block->getCallout()->getRichTexts()));
+
+        $this->assertNotNull($block->getCallout()->getIcon());
+        $this->assertInstanceOf(AbstractFile::class, $block->getCallout()->getIcon());
+
+        $this->assertEquals('emoji', $block->getCallout()->getIcon()->getType());
+        $this->assertInstanceOf(Emoji::class, $block->getCallout()->getIcon());
+        $this->assertNotEmpty($block->getCallout()->getIcon()->getEmoji());
+
+        $richText = $block->getCallout()->getRichTexts()[0];
+
+        $this->assertInstanceOf(Text::class, $richText);
+        $this->assertEquals('text', $richText->getType());
+
+        $this->assertNotEmpty($richText->getAnnotations());
+        $this->assertNotEmpty($richText->getContent());
+
+        $this->assertNotEmpty($block->getCallout()->getColor());
     }
 }
