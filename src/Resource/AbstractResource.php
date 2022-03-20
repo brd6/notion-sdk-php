@@ -6,14 +6,8 @@ namespace Brd6\NotionSdkPhp\Resource;
 
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
-use JsonSerializable;
 
-use function array_filter;
-use function get_object_vars;
-
-use const ARRAY_FILTER_USE_KEY;
-
-abstract class AbstractResource implements JsonSerializable
+abstract class AbstractResource extends AbstractJsonSerializable
 {
     protected string $object = '';
     protected string $id = '';
@@ -55,11 +49,6 @@ abstract class AbstractResource implements JsonSerializable
     public function getRawData(): array
     {
         return $this->rawData;
-    }
-
-    public function jsonSerialize(): array
-    {
-        return array_filter(get_object_vars($this), fn (string $key) => $key !== 'rawData', ARRAY_FILTER_USE_KEY);
     }
 
     protected function setRawData(array $rawData): self

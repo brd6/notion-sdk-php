@@ -84,15 +84,16 @@ class BlockTest extends TestCase
         $this->assertEquals('paragraph', $block->getType());
         $this->assertNotNull($block->getParagraph());
         $this->assertInstanceOf(ParagraphProperty::class, $block->getParagraph());
-        $this->assertGreaterThan(0, count($block->getParagraph()->getRichTexts()));
+        $this->assertGreaterThan(0, count($block->getParagraph()->getRichText()));
 
-        $richText = $block->getParagraph()->getRichTexts()[0];
+        $richText = $block->getParagraph()->getRichText()[0];
 
         $this->assertInstanceOf(Text::class, $richText);
         $this->assertEquals('text', $richText->getType());
 
         $this->assertNotEmpty($richText->getAnnotations());
-        $this->assertNotEmpty($richText->getContent());
+        $this->assertNotNull($richText->getText());
+        $this->assertNotEmpty($richText->getText()->getContent());
     }
 
     public function testHeadingsBlock(): void
@@ -121,15 +122,16 @@ class BlockTest extends TestCase
             $this->assertEquals($heading, $block->getType());
             $this->assertNotNull($block->$getterMethodName());
             $this->assertInstanceOf(HeadingProperty::class, $block->$getterMethodName());
-            $this->assertGreaterThan(0, count($block->$getterMethodName()->getRichTexts()));
+            $this->assertGreaterThan(0, count($block->$getterMethodName()->getRichText()));
 
-            $richText = $block->$getterMethodName()->getRichTexts()[0];
+            $richText = $block->$getterMethodName()->getRichText()[0];
 
             $this->assertInstanceOf(Text::class, $richText);
             $this->assertEquals('text', $richText->getType());
 
             $this->assertNotEmpty($richText->getAnnotations());
-            $this->assertNotEmpty($richText->getContent());
+            $this->assertNotNull($richText->getText());
+            $this->assertNotEmpty($richText->getText()->getContent());
         }
     }
 
@@ -146,7 +148,7 @@ class BlockTest extends TestCase
         $this->assertEquals('callout', $block->getType());
         $this->assertNotNull($block->getCallout());
         $this->assertInstanceOf(CalloutProperty::class, $block->getCallout());
-        $this->assertGreaterThan(0, count($block->getCallout()->getRichTexts()));
+        $this->assertGreaterThan(0, count($block->getCallout()->getRichText()));
 
         $this->assertNotNull($block->getCallout()->getIcon());
         $this->assertInstanceOf(AbstractFile::class, $block->getCallout()->getIcon());
@@ -155,13 +157,14 @@ class BlockTest extends TestCase
         $this->assertInstanceOf(Emoji::class, $block->getCallout()->getIcon());
         $this->assertNotEmpty($block->getCallout()->getIcon()->getEmoji());
 
-        $richText = $block->getCallout()->getRichTexts()[0];
+        $richText = $block->getCallout()->getRichText()[0];
 
         $this->assertInstanceOf(Text::class, $richText);
         $this->assertEquals('text', $richText->getType());
 
         $this->assertNotEmpty($richText->getAnnotations());
-        $this->assertNotEmpty($richText->getContent());
+        $this->assertNotNull($richText->getText());
+        $this->assertNotEmpty($richText->getText()->getContent());
 
         $this->assertNotEmpty($block->getCallout()->getColor());
     }

@@ -18,7 +18,7 @@ class HeadingProperty extends AbstractProperty
     /**
      * @var array|AbstractRichText[]
      */
-    protected array $richTexts = [];
+    protected array $richText = [];
 
     /**
      * @throws InvalidRichTextException
@@ -29,7 +29,7 @@ class HeadingProperty extends AbstractProperty
         $property = new self();
         $property->color = (string) $rawData['color'];
 
-        $property->richTexts = array_map(
+        $property->richText = array_map(
             fn (array $richTextRawData) => AbstractRichText::fromRawData($richTextRawData),
             (array) $rawData['rich_text'],
         );
@@ -52,14 +52,14 @@ class HeadingProperty extends AbstractProperty
     /**
      * @return array|AbstractRichText[]
      */
-    public function getRichTexts(): array
+    public function getRichText(): array
     {
-        return $this->richTexts;
+        return $this->richText;
     }
 
-    public function setRichTexts(array $richTexts): self
+    public function setRichText(array $richText): self
     {
-        $this->richTexts = $richTexts;
+        $this->richText = $richText;
 
         return $this;
     }

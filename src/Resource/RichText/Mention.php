@@ -14,9 +14,9 @@ class Mention extends AbstractRichText
     protected string $content = '';
     protected ?Link $link = null;
 
-    public static function getRichTextType(): string
+    public function __construct()
     {
-        return self::RICH_TEXT_TYPE;
+        $this->type = self::RICH_TEXT_TYPE;
     }
 
     protected function initialize(): void

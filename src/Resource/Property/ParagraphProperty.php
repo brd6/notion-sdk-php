@@ -21,7 +21,7 @@ class ParagraphProperty extends AbstractProperty
     /**
      * @var array|AbstractRichText[]
      */
-    protected array $richTexts = [];
+    protected array $richText = [];
 
     /**
      * @var array|AbstractBlock[]
@@ -42,7 +42,7 @@ class ParagraphProperty extends AbstractProperty
     {
         $property = new self();
         $property->color = (string) $rawData['color'];
-        $property->richTexts = array_map(
+        $property->richText = array_map(
             fn (array $richTextRawData) => AbstractRichText::fromRawData($richTextRawData),
             (array) $rawData['rich_text'],
         );
@@ -75,19 +75,19 @@ class ParagraphProperty extends AbstractProperty
     /**
      * @return array|AbstractRichText[]
      */
-    public function getRichTexts(): array
+    public function getRichText(): array
     {
-        return $this->richTexts;
+        return $this->richText;
     }
 
     /**
-     * @param array|AbstractRichText[] $richTexts
+     * @param array|AbstractRichText[] $richText
      *
      * @return ParagraphProperty
      */
-    public function setRichTexts(array $richTexts): self
+    public function setRichText(array $richText): self
     {
-        $this->richTexts = $richTexts;
+        $this->richText = $richText;
 
         return $this;
     }

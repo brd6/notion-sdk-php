@@ -23,7 +23,7 @@ class File extends AbstractFile
     {
         $data = (array) $this->getRawData()[$this->getType()];
         $this->url = (string) $data['url'];
-        $this->expiryTime = new DateTimeImmutable((string) $this->getRawData()['expiry_time']);
+        $this->expiryTime = new DateTimeImmutable((string) $data['expiry_time']);
     }
 
     public function getUrl(): string

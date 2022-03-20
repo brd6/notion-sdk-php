@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource;
 
-class Annotations
+class Annotations extends AbstractJsonSerializable
 {
     protected bool $bold = false;
     protected bool $italic = false;

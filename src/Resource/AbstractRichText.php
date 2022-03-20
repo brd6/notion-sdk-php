@@ -10,7 +10,7 @@ use Brd6\NotionSdkPhp\Util\StringHelper;
 
 use function class_exists;
 
-abstract class AbstractRichText
+abstract class AbstractRichText extends AbstractJsonSerializable
 {
     private array $rawData = [];
     protected string $plainText = '';
@@ -65,11 +65,6 @@ abstract class AbstractRichText
         }
 
         return $class;
-    }
-
-    public static function getRichTextType(): string
-    {
-        return '';
     }
 
     abstract protected function initialize(): void;

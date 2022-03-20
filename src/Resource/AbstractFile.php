@@ -10,7 +10,7 @@ use Brd6\NotionSdkPhp\Util\StringHelper;
 
 use function class_exists;
 
-abstract class AbstractFile
+abstract class AbstractFile extends AbstractJsonSerializable
 {
     private array $rawData = [];
     protected string $type = '';
