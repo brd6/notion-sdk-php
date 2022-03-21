@@ -9,11 +9,11 @@ use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
 use Brd6\NotionSdkPhp\Resource\AbstractBlock;
-use Brd6\NotionSdkPhp\Resource\Property\BulletedListItemProperty;
+use Brd6\NotionSdkPhp\Resource\Property\NumberedListItemProperty;
 
-class BulletedListItemBlock extends AbstractBlock
+class NumberedListItemBlock extends AbstractBlock
 {
-    protected ?BulletedListItemProperty $bulletedListItem = null;
+    protected ?NumberedListItemProperty $numberedListItem = null;
 
     /**
      * @throws InvalidResourceException
@@ -25,20 +25,20 @@ class BulletedListItemBlock extends AbstractBlock
     {
         $data = (array) $this->getRawData()[$this->getType()];
 
-        /** @var BulletedListItemProperty $property */
-        $property = BulletedListItemProperty::fromRawData($data);
+        /** @var NumberedListItemProperty $property */
+        $property = NumberedListItemProperty::fromRawData($data);
 
-        $this->bulletedListItem = $property;
+        $this->numberedListItem = $property;
     }
 
-    public function getBulletedListItem(): ?BulletedListItemProperty
+    public function getNumberedListItem(): ?NumberedListItemProperty
     {
-        return $this->bulletedListItem;
+        return $this->numberedListItem;
     }
 
-    public function setBulletedListItem(?BulletedListItemProperty $bulletedListItem): self
+    public function setNumberedListItem(?NumberedListItemProperty $numberedListItem): self
     {
-        $this->bulletedListItem = $bulletedListItem;
+        $this->numberedListItem = $numberedListItem;
 
         return $this;
     }
