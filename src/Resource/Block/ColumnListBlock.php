@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Brd6\NotionSdkPhp\Resource\Block;
 
 use Brd6\NotionSdkPhp\Resource\AbstractBlock;
-use Brd6\NotionSdkPhp\Resource\Property\ColumnListProperty;
 
 use function array_map;
 
 class ColumnListBlock extends AbstractBlock
 {
     /**
-     * @var array|ColumnBlock[]
+     * @var array|AbstractBlock[]
      */
     protected array $children = [];
 
@@ -21,19 +20,19 @@ class ColumnListBlock extends AbstractBlock
         $data = (array) $this->getRawData()[$this->getType()];
 
         $this->children = isset($data['children']) ? array_map(
-            fn (array $childRawData) => ColumnBlock::fromRawData($childRawData),
+            fn (array $childRawData) => AbstractBlock::fromRawData($childRawData),
             (array) $data['children'],
         ) : [];
     }
 
-    public function getColumnList(): ?ColumnListProperty
+    public function getChildren(): array
     {
-        return $this->columnList;
+        return $this->children;
     }
 
-    public function setColumnList(?ColumnListProperty $columnList): self
+    public function setChildren(array $children): self
     {
-        $this->columnList = $columnList;
+        $this->children = $children;
 
         return $this;
     }
