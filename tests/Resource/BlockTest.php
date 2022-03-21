@@ -97,6 +97,7 @@ class BlockTest extends TestCase
         $this->assertNotEmpty($richText->getAnnotations());
         $this->assertNotNull($richText->getText());
         $this->assertNotEmpty($richText->getText()->getContent());
+        $this->assertNotEmpty($richText->getPlainText());
     }
 
     public function testHeadingsBlock(): void

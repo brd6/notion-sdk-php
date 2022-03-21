@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Block;
 
+use Brd6\NotionSdkPhp\Exception\InvalidFileException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
 use Brd6\NotionSdkPhp\Resource\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Property\CalloutProperty;
@@ -16,10 +18,12 @@ class CalloutBlock extends AbstractBlock
     protected ?CalloutProperty $callout = null;
 
     /**
+     * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
      * @throws InvalidRichTextException
      * @throws UnsupportedRichTextTypeException
-     * @throws InvalidResourceException
+     * @throws InvalidFileException
+     * @throws UnsupportedFileTypeException
      */
     protected function initializeBlockProperty(): void
     {

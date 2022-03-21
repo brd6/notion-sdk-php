@@ -6,6 +6,6 @@ namespace Brd6\NotionSdkPhp\Resource\Property;
 
 use Brd6\NotionSdkPhp\Resource\AbstractParagraphProperty;
 
-class HeadingProperty extends AbstractParagraphProperty
+class QuoteProperty extends AbstractParagraphProperty
 {
 }

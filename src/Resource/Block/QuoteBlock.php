@@ -9,41 +9,41 @@ use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
 use Brd6\NotionSdkPhp\Resource\AbstractBlock;
-use Brd6\NotionSdkPhp\Resource\Property\ParagraphProperty;
+use Brd6\NotionSdkPhp\Resource\Property\QuoteProperty;
 
-class ParagraphBlock extends AbstractBlock
+class QuoteBlock extends AbstractBlock
 {
-    protected ?ParagraphProperty $paragraph = null;
+    protected ?QuoteProperty $quote = null;
 
     /**
+     * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
      * @throws InvalidRichTextException
      * @throws UnsupportedRichTextTypeException
-     * @throws InvalidResourceException
      */
     protected function initializeBlockProperty(): void
     {
         $data = (array) $this->getRawData()[$this->getType()];
 
-        /** @var ParagraphProperty $property */
-        $property = ParagraphProperty::fromRawData($data);
+        /** @var QuoteProperty $property */
+        $property = QuoteProperty::fromRawData($data);
 
-        $this->paragraph = $property;
+        $this->quote = $property;
     }
 
-    public function getParagraph(): ?ParagraphProperty
+    public function getQuote(): ?QuoteProperty
     {
-        return $this->paragraph;
+        return $this->quote;
     }
 
     /**
-     * @param ParagraphProperty|null $paragraph
+     * @param QuoteProperty|null $quote
      *
-     * @return ParagraphBlock
+     * @return QuoteBlock
      */
-    public function setParagraph(?ParagraphProperty $paragraph): self
+    public function setQuote(?QuoteProperty $quote): self
     {
-        $this->paragraph = $paragraph;
+        $this->quote = $quote;
 
         return $this;
     }

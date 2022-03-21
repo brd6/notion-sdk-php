@@ -10,28 +10,12 @@ use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
-use Brd6\NotionSdkPhp\Resource\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\AbstractFile;
-use Brd6\NotionSdkPhp\Resource\AbstractProperty;
-use Brd6\NotionSdkPhp\Resource\AbstractRichText;
+use Brd6\NotionSdkPhp\Resource\AbstractParagraphProperty;
 
-use function array_map;
-
-class CalloutProperty extends AbstractProperty
+class CalloutProperty extends AbstractParagraphProperty
 {
-    /**
-     * @var array|AbstractRichText[]
-     */
-    protected array $richText = [];
-
     protected ?AbstractFile $icon = null;
-
-    protected string $color = '';
-
-    /**
-     * @var array|AbstractBlock[]
-     */
-    protected array $children = [];
 
     /**
      * @param array $rawData
@@ -47,78 +31,13 @@ class CalloutProperty extends AbstractProperty
      */
     public static function fromRawData(array $rawData): self
     {
-        $property = new self();
+        /** @var self $property */
+        $property = parent::fromRawData($rawData);
+
         $property->color = (string) $rawData['color'];
-        $property->richText = array_map(
-            fn (array $richTextRawData) => AbstractRichText::fromRawData($richTextRawData),
-            (array) $rawData['rich_text'],
-        );
-
-        $property->children = isset($rawData['children']) ? array_map(
-            fn (array $childRawData) => AbstractBlock::fromRawData($childRawData),
-            (array) $rawData['children'],
-        ) : [];
-
         $property->icon = AbstractFile::fromRawData((array) $rawData['icon']);
 
         return $property;
-    }
-
-    public function getColor(): string
-    {
-        return $this->color;
-    }
-
-    /**
-     * @param string $color
-     *
-     * @return CalloutProperty
-     */
-    public function setColor(string $color): self
-    {
-        $this->color = $color;
-
-        return $this;
-    }
-
-    /**
-     * @return array|AbstractRichText[]
-     */
-    public function getRichText(): array
-    {
-        return $this->richText;
-    }
-
-    /**
-     * @param array|AbstractRichText[] $richText
-     *
-     * @return CalloutProperty
-     */
-    public function setRichText(array $richText): self
-    {
-        $this->richText = $richText;
-
-        return $this;
-    }
-
-    /**
-     * @return array|AbstractBlock[]
-     */
-    public function getChildren(): array
-    {
-        return $this->children;
-    }
-
-    /**
-     * @param array|AbstractBlock[] $children
-     *
-     * @return CalloutProperty
-     */
-    public function setChildren(array $children): self
-    {
-        $this->children = $children;
-
-        return $this;
     }
 
     public function getIcon(): ?AbstractFile
