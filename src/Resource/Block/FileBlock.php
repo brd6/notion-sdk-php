@@ -32,9 +32,9 @@ class FileBlock extends AbstractBlock
     {
         $data = (array) $this->getRawData()[$this->getType()];
         $this->file = AbstractFile::fromRawData($data);
-        $this->caption = isset($rawData['caption']) ? array_map(
+        $this->caption = isset($data['caption']) ? array_map(
             fn (array $richTextRawData) => AbstractRichText::fromRawData($richTextRawData),
-            (array) $rawData['caption'],
+            (array) $data['caption'],
         ) : [];
     }
 
