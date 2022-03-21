@@ -24,7 +24,11 @@ class ToggleBlock extends AbstractBlock
     protected function initializeBlockProperty(): void
     {
         $data = (array) $this->getRawData()[$this->getType()];
-        $this->toggle = ToggleProperty::fromRawData($data);
+
+        /** @var ToggleProperty $property */
+        $property = ToggleProperty::fromRawData($data);
+
+        $this->toggle = $property;
     }
 
     public function getToggle(): ?ToggleProperty
