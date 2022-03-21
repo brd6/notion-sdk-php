@@ -22,7 +22,7 @@ class DividerBlock extends AbstractBlock
         return $this->divider;
     }
 
-    public function setDivider(?DividerProperty $divider): DividerBlock
+    public function setDivider(?DividerProperty $divider): self
     {
         $this->divider = $divider;
 
