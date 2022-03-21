@@ -32,6 +32,7 @@ class BookmarkProperty extends AbstractProperty
             fn (array $richTextRawData) => AbstractRichText::fromRawData($richTextRawData),
             (array) $rawData['caption'],
         ) : [];
+        $property->url = (string) $rawData['url'];
 
         return $property;
     }
