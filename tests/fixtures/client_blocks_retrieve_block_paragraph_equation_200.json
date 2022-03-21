@@ -1,0 +1,38 @@
+{
+    "object": "block",
+    "id": "0fa9b432-4d6e-4bf5-9a17-35bea6f5aca4",
+    "created_time": "2022-03-21T11:47:00.000Z",
+    "last_edited_time": "2022-03-21T11:48:00.000Z",
+    "created_by": {
+        "object": "user",
+        "id": "7f03dda0-a132-49d7-b8b2-29c9ed1b1f0e"
+    },
+    "last_edited_by": {
+        "object": "user",
+        "id": "7f03dda0-a132-49d7-b8b2-29c9ed1b1f0e"
+    },
+    "has_children": false,
+    "archived": false,
+    "type": "paragraph",
+    "paragraph": {
+        "rich_text": [
+            {
+                "type": "equation",
+                "equation": {
+                    "expression": "1 = 1 + x"
+                },
+                "annotations": {
+                    "bold": false,
+                    "italic": false,
+                    "strikethrough": false,
+                    "underline": false,
+                    "code": false,
+                    "color": "default"
+                },
+                "plain_text": "1 = 1 + x",
+                "href": null
+            }
+        ],
+        "color": "default"
+    }
+}

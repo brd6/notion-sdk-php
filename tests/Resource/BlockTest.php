@@ -15,6 +15,7 @@ use Brd6\NotionSdkPhp\Resource\Property\CalloutProperty;
 use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
 use Brd6\NotionSdkPhp\Resource\Property\HeadingProperty;
 use Brd6\NotionSdkPhp\Resource\Property\ParagraphProperty;
+use Brd6\NotionSdkPhp\Resource\RichText\Equation;
 use Brd6\NotionSdkPhp\Resource\RichText\Mention;
 use Brd6\NotionSdkPhp\Resource\RichText\MentionInterface;
 use Brd6\NotionSdkPhp\Resource\RichText\Text;
@@ -195,5 +196,29 @@ class BlockTest extends TestCase
 
             $this->assertNotEmpty($richText->getMention()->getType());
         }
+    }
+
+    public function testEquationRichText(): void
+    {
+        $block = AbstractBlock::fromRawData(
+            (array) json_decode(
+                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_paragraph_equation_200.json'),
+                true,
+            ),
+        );
+
+        $this->assertInstanceOf(ParagraphBlock::class, $block);
+        $this->assertEquals('paragraph', $block->getType());
+        $this->assertNotNull($block->getParagraph());
+        $this->assertInstanceOf(ParagraphProperty::class, $block->getParagraph());
+        $this->assertGreaterThan(0, count($block->getParagraph()->getRichText()));
+
+        $richText = $block->getParagraph()->getRichText()[0];
+
+        $this->assertEquals('equation', $richText->getType());
+        $this->assertInstanceOf(Equation::class, $richText);
+
+        $this->assertNotNull($richText->getEquation());
+        $this->assertNotEmpty($richText->getEquation()->getExpression());
     }
 }
