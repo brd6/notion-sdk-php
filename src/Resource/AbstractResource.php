@@ -7,7 +7,7 @@ namespace Brd6\NotionSdkPhp\Resource;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 
-abstract class AbstractResource extends AbstractJsonSerializable
+abstract class AbstractResource extends AbstractJsonSerializable implements ResourceInterface
 {
     protected string $object = '';
     protected string $id = '';

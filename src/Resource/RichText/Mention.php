@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace Brd6\NotionSdkPhp\Resource\RichText;
 
 use Brd6\NotionSdkPhp\Resource\AbstractRichText;
-use Brd6\NotionSdkPhp\Resource\Link;
 
 class Mention extends AbstractRichText
 {
     public const RICH_TEXT_TYPE = 'mention';
-
-    protected string $content = '';
-    protected ?Link $link = null;
+    protected string $type = '';
+    protected ?MentionInterface $mention = null;
 
     public function __construct()
     {
@@ -22,7 +20,30 @@ class Mention extends AbstractRichText
     protected function initialize(): void
     {
         $data = (array) $this->getRawData()[$this->getType()];
-        $this->content = (string) $data['content'];
-        $this->link = $data['link'] !== null ? Link::fromRawData((array) $data['link']) : null;
+        $this->mention = AbstractMention::fromRawData($data);
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getMention(): ?MentionInterface
+    {
+        return $this->mention;
+    }
+
+    public function setMention(MentionInterface $mention): self
+    {
+        $this->mention = $mention;
+
+        return $this;
     }
 }

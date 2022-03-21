@@ -9,9 +9,9 @@ use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Endpoint\BlocksEndpoint;
 use Brd6\NotionSdkPhp\Resource\Block\ChildPageBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
-use Brd6\NotionSdkPhp\Resource\PartialUser;
 use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
 use Brd6\NotionSdkPhp\Resource\RichText\Text;
+use Brd6\NotionSdkPhp\Resource\UserInterface;
 use Brd6\Test\NotionSdkPhp\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -83,7 +83,7 @@ class BlocksEndpointTest extends TestCase
         $this->assertInstanceOf(ChildPageProperty::class, $block->getChildPage());
         $this->assertNotEmpty($block->getChildPage()->getTitle());
 
-        $this->assertInstanceOf(PartialUser::class, $block->getCreatedBy());
+        $this->assertInstanceOf(UserInterface::class, $block->getCreatedBy());
         $this->assertEquals('user', $block->getCreatedBy()->getObject());
         $this->assertNotEmpty($block->getCreatedBy()->getId());
 

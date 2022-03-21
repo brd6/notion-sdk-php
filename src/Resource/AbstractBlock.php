@@ -18,9 +18,9 @@ abstract class AbstractBlock extends AbstractResource
 
     protected string $type = '';
     protected ?DateTimeImmutable $createdTime = null;
-    protected ?PartialUser $createdBy = null;
+    protected ?UserInterface $createdBy = null;
     protected ?DateTimeImmutable $lastEditedTime = null;
-    protected ?PartialUser $lastEditedBy = null;
+    protected ?UserInterface $lastEditedBy = null;
     protected bool $archived = false;
     protected bool $hasChildren = false;
 
@@ -61,9 +61,9 @@ abstract class AbstractBlock extends AbstractResource
     {
         $this->type = (string) $this->getRawData()['type'];
         $this->createdTime = new DateTimeImmutable((string) $this->getRawData()['created_time']);
-        $this->createdBy = PartialUser::fromRawData((array) $this->getRawData()['created_by']);
+        $this->createdBy = AbstractUser::fromRawData((array) $this->getRawData()['created_by']);
         $this->lastEditedTime = new DateTimeImmutable((string) $this->getRawData()['last_edited_time']);
-        $this->lastEditedBy = PartialUser::fromRawData((array) $this->getRawData()['last_edited_by']);
+        $this->lastEditedBy = AbstractUser::fromRawData((array) $this->getRawData()['last_edited_by']);
         $this->archived = (bool) $this->getRawData()['archived'];
         $this->hasChildren = (bool) $this->getRawData()['has_children'];
 
@@ -85,7 +85,7 @@ abstract class AbstractBlock extends AbstractResource
         return $this->type;
     }
 
-    public function setType(string $type): AbstractBlock
+    public function setType(string $type): self
     {
         $this->type = $type;
 
@@ -97,19 +97,19 @@ abstract class AbstractBlock extends AbstractResource
         return $this->createdTime;
     }
 
-    public function setCreatedTime(?DateTimeImmutable $createdTime): AbstractBlock
+    public function setCreatedTime(?DateTimeImmutable $createdTime): self
     {
         $this->createdTime = $createdTime;
 
         return $this;
     }
 
-    public function getCreatedBy(): ?PartialUser
+    public function getCreatedBy(): ?UserInterface
     {
         return $this->createdBy;
     }
 
-    public function setCreatedBy(?PartialUser $createdBy): AbstractBlock
+    public function setCreatedBy(?UserInterface $createdBy): self
     {
         $this->createdBy = $createdBy;
 
@@ -121,19 +121,19 @@ abstract class AbstractBlock extends AbstractResource
         return $this->lastEditedTime;
     }
 
-    public function setLastEditedTime(?DateTimeImmutable $lastEditedTime): AbstractBlock
+    public function setLastEditedTime(?DateTimeImmutable $lastEditedTime): self
     {
         $this->lastEditedTime = $lastEditedTime;
 
         return $this;
     }
 
-    public function getLastEditedBy(): ?PartialUser
+    public function getLastEditedBy(): ?UserInterface
     {
         return $this->lastEditedBy;
     }
 
-    public function setLastEditedBy(?PartialUser $lastEditedBy): AbstractBlock
+    public function setLastEditedBy(?UserInterface $lastEditedBy): self
     {
         $this->lastEditedBy = $lastEditedBy;
 
@@ -145,7 +145,7 @@ abstract class AbstractBlock extends AbstractResource
         return $this->archived;
     }
 
-    public function setArchived(bool $archived): AbstractBlock
+    public function setArchived(bool $archived): self
     {
         $this->archived = $archived;
 
@@ -157,7 +157,7 @@ abstract class AbstractBlock extends AbstractResource
         return $this->hasChildren;
     }
 
-    public function setHasChildren(bool $hasChildren): AbstractBlock
+    public function setHasChildren(bool $hasChildren): self
     {
         $this->hasChildren = $hasChildren;
 

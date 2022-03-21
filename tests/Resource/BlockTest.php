@@ -15,6 +15,8 @@ use Brd6\NotionSdkPhp\Resource\Property\CalloutProperty;
 use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
 use Brd6\NotionSdkPhp\Resource\Property\HeadingProperty;
 use Brd6\NotionSdkPhp\Resource\Property\ParagraphProperty;
+use Brd6\NotionSdkPhp\Resource\RichText\Mention;
+use Brd6\NotionSdkPhp\Resource\RichText\MentionInterface;
 use Brd6\NotionSdkPhp\Resource\RichText\Text;
 use Brd6\NotionSdkPhp\Util\StringHelper;
 use PHPUnit\Framework\TestCase;
@@ -167,5 +169,31 @@ class BlockTest extends TestCase
         $this->assertNotEmpty($richText->getText()->getContent());
 
         $this->assertNotEmpty($block->getCallout()->getColor());
+    }
+
+    public function testMentionsBlock(): void
+    {
+        $block = AbstractBlock::fromRawData(
+            (array) json_decode(
+                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_paragraph_mention_200.json'),
+                true,
+            ),
+        );
+
+        $this->assertInstanceOf(ParagraphBlock::class, $block);
+        $this->assertNotNull($block->getParagraph());
+        $this->assertInstanceOf(ParagraphProperty::class, $block->getParagraph());
+        $this->assertGreaterThan(0, count($block->getParagraph()->getRichText()));
+
+        foreach ($block->getParagraph()->getRichText() as $richText) {
+            if ($richText->getType() !== 'mention') {
+                continue;
+            }
+
+            $this->assertInstanceOf(Mention::class, $richText);
+            $this->assertInstanceOf(MentionInterface::class, $richText->getMention());
+
+            $this->assertNotEmpty($richText->getMention()->getType());
+        }
     }
 }
