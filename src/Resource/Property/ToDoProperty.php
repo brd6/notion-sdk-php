@@ -4,49 +4,44 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Property;
 
-use Brd6\NotionSdkPhp\Exception\InvalidFileException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
-use Brd6\NotionSdkPhp\Resource\AbstractFile;
 use Brd6\NotionSdkPhp\Resource\AbstractParagraphProperty;
 
-class CalloutProperty extends AbstractParagraphProperty
+class ToDoProperty extends AbstractParagraphProperty
 {
-    protected ?AbstractFile $icon = null;
+    protected ?bool $checked = null;
 
     /**
      * @param array $rawData
      *
-     * @return CalloutProperty
+     * @return ToDoProperty
      *
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
      * @throws InvalidRichTextException
      * @throws UnsupportedRichTextTypeException
-     * @throws InvalidFileException
-     * @throws UnsupportedFileTypeException
      */
     public static function fromRawData(array $rawData): self
     {
         /** @var self $property */
         $property = parent::fromRawData($rawData);
 
-        $property->icon = AbstractFile::fromRawData((array) $rawData['icon']);
+        $property->checked = isset($rawData['checked']) ? (bool) $rawData['checked'] : null;
 
         return $property;
     }
 
-    public function getIcon(): ?AbstractFile
+    public function getChecked(): ?bool
     {
-        return $this->icon;
+        return $this->checked;
     }
 
-    public function setIcon(?AbstractFile $icon): self
+    public function setChecked(bool $checked): self
     {
-        $this->icon = $icon;
+        $this->checked = $checked;
 
         return $this;
     }
