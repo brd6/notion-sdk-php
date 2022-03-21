@@ -36,11 +36,6 @@ class CalloutBlock extends AbstractBlock
         return $this->callout;
     }
 
-    /**
-     * @param CalloutProperty|null $callout
-     *
-     * @return CalloutBlock
-     */
     public function setCallout(?CalloutProperty $callout): self
     {
         $this->callout = $callout;
