@@ -10,10 +10,8 @@ use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
 use Brd6\NotionSdkPhp\Resource\AbstractParagraphProperty;
 
-class ToDoProperty extends AbstractParagraphProperty
+class ToggleProperty extends AbstractParagraphProperty
 {
-    protected ?bool $checked = null;
-
     /**
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
@@ -25,20 +23,6 @@ class ToDoProperty extends AbstractParagraphProperty
         /** @var self $property */
         $property = parent::fromRawData($rawData);
 
-        $property->checked = isset($rawData['checked']) ? (bool) $rawData['checked'] : null;
-
         return $property;
-    }
-
-    public function getChecked(): ?bool
-    {
-        return $this->checked;
-    }
-
-    public function setChecked(bool $checked): self
-    {
-        $this->checked = $checked;
-
-        return $this;
     }
 }
