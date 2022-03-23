@@ -168,4 +168,24 @@ abstract class AbstractBlock extends AbstractResource
     {
         return self::RESOURCE_TYPE;
     }
+
+    protected function getProperty(): ?AbstractProperty
+    {
+        $typeFormatted = StringHelper::snakeCaseToCamelCase($this->getType());
+        $getterMethodName = "get$typeFormatted";
+
+        /** @var AbstractProperty|null $property */
+        $property = $this->$getterMethodName();
+
+        return $property;
+    }
+
+    /**
+     * @psalm-suppress PossiblyNullReference
+     * @return array
+     */
+    public function propertyToJson(): array
+    {
+        return $this->getProperty() !== null ? $this->getProperty()->toJson() : [];
+    }
 }

@@ -11,8 +11,6 @@ use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\RequestTimeoutException;
 use Brd6\NotionSdkPhp\RequestParameters;
 use Brd6\NotionSdkPhp\Resource\AbstractBlock;
-use Brd6\NotionSdkPhp\Resource\AbstractProperty;
-use Brd6\NotionSdkPhp\Util\StringHelper;
 
 class BlocksEndpoint extends AbstractEndpoint
 {
@@ -35,8 +33,6 @@ class BlocksEndpoint extends AbstractEndpoint
     }
 
     /**
-     * @param AbstractBlock $block
-     *
      * @throws ApiResponseException
      * @throws HttpResponseException
      * @throws InvalidResourceException
@@ -45,12 +41,7 @@ class BlocksEndpoint extends AbstractEndpoint
      */
     public function update(AbstractBlock $block): AbstractBlock
     {
-        $typeFormatted = StringHelper::snakeCaseToCamelCase($block->getType());
-        $getterMethodName = "get$typeFormatted";
-
-        /** @var AbstractProperty $property */
-        $property = $block->$getterMethodName();
-        $data = $property->toJson();
+        $data = $block->propertyToJson();
 
         $requestParameters = (new RequestParameters())
             ->setPath("blocks/{$block->getId()}")
