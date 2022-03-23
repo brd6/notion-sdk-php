@@ -181,8 +181,9 @@ abstract class AbstractBlock extends AbstractResource
     }
 
     /**
-     * @psalm-suppress PossiblyNullReference
      * @return array
+     *
+     * @psalm-suppress PossiblyNullReference
      */
     public function propertyToJson(): array
     {
