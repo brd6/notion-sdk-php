@@ -8,7 +8,6 @@ use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
-use Brd6\NotionSdkPhp\Resource\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Property\QuoteProperty;
 
 class QuoteBlock extends AbstractBlock

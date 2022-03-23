@@ -10,8 +10,7 @@ use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
-use Brd6\NotionSdkPhp\Resource\AbstractFile;
-use Brd6\NotionSdkPhp\Resource\AbstractParagraphProperty;
+use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
 
 class CalloutProperty extends AbstractParagraphProperty
 {

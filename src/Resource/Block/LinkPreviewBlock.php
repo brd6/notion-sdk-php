@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Block;
 
-use Brd6\NotionSdkPhp\Resource\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Property\LinkPreviewProperty;
 
 class LinkPreviewBlock extends AbstractBlock

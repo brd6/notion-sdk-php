@@ -8,9 +8,8 @@ use Brd6\NotionSdkPhp\Exception\InvalidFileException;
 use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
-use Brd6\NotionSdkPhp\Resource\AbstractBlock;
-use Brd6\NotionSdkPhp\Resource\AbstractFile;
-use Brd6\NotionSdkPhp\Resource\AbstractRichText;
+use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
+use Brd6\NotionSdkPhp\Resource\RichText\AbstractRichText;
 
 use function array_map;
 

@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Brd6\NotionSdkPhp\Resource;
+namespace Brd6\NotionSdkPhp\Resource\RichText;
 
 use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
+use Brd6\NotionSdkPhp\Resource\AbstractJsonSerializable;
+use Brd6\NotionSdkPhp\Resource\Annotations;
 use Brd6\NotionSdkPhp\Util\StringHelper;
 
 use function class_exists;

@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Brd6\NotionSdkPhp\Resource;
+namespace Brd6\NotionSdkPhp\Resource\Property;
+
+use Brd6\NotionSdkPhp\Resource\AbstractJsonSerializable;
 
 abstract class AbstractProperty extends AbstractJsonSerializable
 {

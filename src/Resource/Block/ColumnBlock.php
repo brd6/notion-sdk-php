@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Block;
 
-use Brd6\NotionSdkPhp\Resource\AbstractBlock;
-
 use function array_map;
 
 class ColumnBlock extends AbstractBlock

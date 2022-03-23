@@ -10,7 +10,7 @@ use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\RequestTimeoutException;
 use Brd6\NotionSdkPhp\RequestParameters;
-use Brd6\NotionSdkPhp\Resource\AbstractBlock;
+use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 
 class BlocksEndpoint extends AbstractEndpoint
 {

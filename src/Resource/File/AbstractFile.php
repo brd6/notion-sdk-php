@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Brd6\NotionSdkPhp\Resource;
+namespace Brd6\NotionSdkPhp\Resource\File;
 
 use Brd6\NotionSdkPhp\Exception\InvalidFileException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
+use Brd6\NotionSdkPhp\Resource\AbstractJsonSerializable;
 use Brd6\NotionSdkPhp\Util\StringHelper;
 
 use function class_exists;

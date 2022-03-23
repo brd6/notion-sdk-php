@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Brd6\NotionSdkPhp\Resource;
+namespace Brd6\NotionSdkPhp\Resource\Block;
 
 use Brd6\NotionSdkPhp\Resource\Property\HeadingProperty;
 use Brd6\NotionSdkPhp\Util\StringHelper;

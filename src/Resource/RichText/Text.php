@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\RichText;
 
-use Brd6\NotionSdkPhp\Resource\AbstractRichText;
 use Brd6\NotionSdkPhp\Resource\Property\TextProperty;
 
 class Text extends AbstractRichText

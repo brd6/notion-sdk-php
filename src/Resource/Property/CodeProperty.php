@@ -6,8 +6,7 @@ namespace Brd6\NotionSdkPhp\Resource\Property;
 
 use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
-use Brd6\NotionSdkPhp\Resource\AbstractParagraphProperty;
-use Brd6\NotionSdkPhp\Resource\AbstractRichText;
+use Brd6\NotionSdkPhp\Resource\RichText\AbstractRichText;
 
 use function array_map;
 

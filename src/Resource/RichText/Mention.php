@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\RichText;
 
-use Brd6\NotionSdkPhp\Resource\AbstractRichText;
-
 class Mention extends AbstractRichText
 {
     public const RICH_TEXT_TYPE = 'mention';

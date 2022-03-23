@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\RichText\Mention;
 
-use Brd6\NotionSdkPhp\Resource\AbstractUser;
 use Brd6\NotionSdkPhp\Resource\RichText\AbstractMention;
+use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
 use Brd6\NotionSdkPhp\Resource\UserInterface;
 
 class UserMention extends AbstractMention

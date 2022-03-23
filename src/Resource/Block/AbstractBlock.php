@@ -2,11 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Brd6\NotionSdkPhp\Resource;
+namespace Brd6\NotionSdkPhp\Resource\Block;
 
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
-use Brd6\NotionSdkPhp\Resource\Block\UnsupportedBlock;
+use Brd6\NotionSdkPhp\Resource\AbstractResource;
+use Brd6\NotionSdkPhp\Resource\Property\AbstractProperty;
+use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
+use Brd6\NotionSdkPhp\Resource\UserInterface;
 use Brd6\NotionSdkPhp\Util\StringHelper;
 use DateTimeImmutable;
 

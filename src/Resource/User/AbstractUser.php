@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Brd6\NotionSdkPhp\Resource;
+namespace Brd6\NotionSdkPhp\Resource\User;
 
 use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
+use Brd6\NotionSdkPhp\Resource\AbstractResource;
+use Brd6\NotionSdkPhp\Resource\UserInterface;
 use Brd6\NotionSdkPhp\Util\StringHelper;
 
 use function class_exists;

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\File;
 
-use Brd6\NotionSdkPhp\Resource\AbstractFile;
-
 class External extends AbstractFile
 {
     public const FILE_TYPE = 'external';

@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Property;
 
-use Brd6\NotionSdkPhp\Resource\AbstractProperty;
-use Brd6\NotionSdkPhp\Resource\AbstractUser;
+use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
 use Brd6\NotionSdkPhp\Resource\UserInterface;
 
 use function array_key_exists;

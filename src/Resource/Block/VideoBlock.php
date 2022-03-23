@@ -6,8 +6,7 @@ namespace Brd6\NotionSdkPhp\Resource\Block;
 
 use Brd6\NotionSdkPhp\Exception\InvalidFileException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
-use Brd6\NotionSdkPhp\Resource\AbstractBlock;
-use Brd6\NotionSdkPhp\Resource\AbstractFile;
+use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
 
 class VideoBlock extends AbstractBlock
 {

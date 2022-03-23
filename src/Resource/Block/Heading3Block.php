@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Block;
 
-use Brd6\NotionSdkPhp\Resource\AbstractHeadingBlock;
 use Brd6\NotionSdkPhp\Resource\Property\HeadingProperty;
 
 class Heading3Block extends AbstractHeadingBlock

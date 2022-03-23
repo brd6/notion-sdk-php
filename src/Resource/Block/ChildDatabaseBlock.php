@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Block;
 
-use Brd6\NotionSdkPhp\Resource\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Property\ChildDatabaseProperty;
 
 class ChildDatabaseBlock extends AbstractBlock

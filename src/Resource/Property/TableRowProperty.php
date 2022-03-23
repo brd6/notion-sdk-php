@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Property;
 
-use Brd6\NotionSdkPhp\Resource\AbstractBlock;
-use Brd6\NotionSdkPhp\Resource\AbstractProperty;
+use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 
 use function array_map;
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\User;
 
-use Brd6\NotionSdkPhp\Resource\AbstractUser;
 use Brd6\NotionSdkPhp\Resource\Property\BotProperty;
 
 class BotUser extends AbstractUser

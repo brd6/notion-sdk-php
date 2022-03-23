@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\File;
 
-use Brd6\NotionSdkPhp\Resource\AbstractFile;
 use DateTimeImmutable;
 
 class File extends AbstractFile
