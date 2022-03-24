@@ -13,6 +13,7 @@ use Brd6\NotionSdkPhp\RequestParameters;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
+use function count;
 use function file_get_contents;
 
 class ClientTest extends TestCase
@@ -264,5 +265,36 @@ class ClientTest extends TestCase
         $this->assertArrayHasKey('object', $rawData);
         $this->assertEquals('0c940186-ab70-4351-bb34-2d16f0635d49', $rawData['id']);
         $this->assertEquals('block', $rawData['object']);
+    }
+
+    public function testRetrieveBlockChildren(): void
+    {
+        $httpClient = new MockHttpClient();
+        $httpClient->setResponseFactory([
+            new MockResponse(
+                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_children_page_size_4_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            ),
+        ]);
+
+        $options = (new ClientOptions())
+            ->setAuth('secret_valid-auth')
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $params = new RequestParameters();
+        $params
+            ->setMethod('GET')
+            ->setPath('blocks/03cd5dca-84f7-456f-b7e6-aad92d5f69fd/children');
+
+        $rawData = $client->request($params);
+
+        $this->assertArrayHasKey('type', $rawData);
+        $this->assertArrayHasKey('object', $rawData);
+        $this->assertArrayHasKey('results', $rawData);
+        $this->assertGreaterThan(0, count($rawData['results']));
     }
 }
