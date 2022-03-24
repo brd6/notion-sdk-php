@@ -20,10 +20,19 @@ class ArrayHelper
         foreach (array_keys($data) as $key) {
             $value = &$data[$key];
             unset($data[$key]);
-            $transformedKey = strtolower((string) preg_replace('/([a-z])([A-Z])/', '$1_$2', ltrim((string) $key, '!')));
+
+            $transformedKey = strtolower(
+                (string) preg_replace(
+                    '/([a-z0-9])([A-Z0-9])/',
+                    '$1_$2',
+                    ltrim((string) $key, '!'),
+                ),
+            );
+
             if (is_array($value)) {
                 self::transformKeysToSnakeCase($value);
             }
+
             $data[$transformedKey] = $value;
             unset($value);
         }
