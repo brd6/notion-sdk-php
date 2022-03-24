@@ -7,11 +7,15 @@ namespace Brd6\Test\NotionSdkPhp\Endpoint;
 use Brd6\NotionSdkPhp\Client;
 use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Endpoint\BlocksEndpoint;
+use Brd6\NotionSdkPhp\Resource\Annotations;
 use Brd6\NotionSdkPhp\Resource\Block\ChildPageBlock;
+use Brd6\NotionSdkPhp\Resource\Block\Heading3Block;
 use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
 use Brd6\NotionSdkPhp\Resource\Pagination\BlockResponse;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
+use Brd6\NotionSdkPhp\Resource\Property\HeadingProperty;
+use Brd6\NotionSdkPhp\Resource\Property\TextProperty;
 use Brd6\NotionSdkPhp\Resource\RichText\Text;
 use Brd6\NotionSdkPhp\Resource\UserInterface;
 use Brd6\Test\NotionSdkPhp\TestCase;
@@ -248,5 +252,62 @@ class BlocksEndpointTest extends TestCase
             ->list('03cd5dca-84f7-456f-b7e6-aad92d5f69fd', $paginationRequest);
 
         $this->assertNotNull($paginationResponse);
+    }
+
+    public function testAppendBlockChildren(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            if ($method === 'PATCH') {
+                $this->assertStringContainsString('blocks/03cd5dca-84f7-456f-b7e6-aad92d5f69fd/children', $url);
+
+                /** @var array $body */
+                $body = json_decode($options['body'], true);
+
+                $this->assertArrayHasKey('children', $body);
+                $this->assertArrayHasKey('object', $body['children'][0]);
+                $this->assertArrayHasKey('type', $body['children'][0]);
+                $this->assertArrayHasKey('heading_3', $body['children'][0]);
+                $this->assertArrayHasKey('rich_text', $body['children'][0]['heading_3']);
+                $this->assertNotEmpty($body['children'][0]['heading_3']['rich_text']);
+                $this->assertStringContainsString(
+                    'New title here',
+                    $body['children'][0]['heading_3']['rich_text'][0]['text']['content'],
+                );
+            }
+
+            return new MockResponse(
+                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_children_page_size_4_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setAuth('secret_valid-auth')
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $richText = (new Text())
+            ->setText((new TextProperty())->setContent('New title here'))
+            ->setAnnotations((new Annotations())->setColor('default'));
+
+        $heading3 = new Heading3Block();
+        $heading3->setObject('block');
+        $heading3->setType('heading_3');
+
+        $heading3Property = new HeadingProperty();
+        $heading3Property->setRichText([$richText]);
+        $heading3->setHeading3($heading3Property);
+
+        /** @var BlockResponse $paginationResponse */
+        $paginationResponse = $client
+            ->blocks()
+            ->children()
+            ->append('03cd5dca-84f7-456f-b7e6-aad92d5f69fd', [$heading3]);
+
+        $this->assertNotNull($paginationResponse);
+        $this->assertInstanceOf(BlockResponse::class, $paginationResponse);
     }
 }
