@@ -12,7 +12,7 @@ class Link
     public static function fromRawData(array $rawData): self
     {
         $link = new self();
-        $link->type = (string) $rawData['type'];
+        $link->type = (string) ($rawData['type'] ?? '');
         $link->url = (string) $rawData['url'];
 
         return $link;
