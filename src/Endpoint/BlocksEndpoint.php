@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Endpoint;
 
+use Brd6\NotionSdkPhp\Client;
 use Brd6\NotionSdkPhp\Exception\ApiResponseException;
 use Brd6\NotionSdkPhp\Exception\HttpResponseException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
@@ -14,6 +15,15 @@ use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 
 class BlocksEndpoint extends AbstractEndpoint
 {
+    private BlocksChildrenEndpoint $childrenEndpoint;
+
+    public function __construct(Client $client)
+    {
+        parent::__construct($client);
+
+        $this->childrenEndpoint = new BlocksChildrenEndpoint($client);
+    }
+
     /**
      * @throws ApiResponseException
      * @throws HttpResponseException
@@ -54,5 +64,10 @@ class BlocksEndpoint extends AbstractEndpoint
         $rawData = $this->getClient()->request($requestParameters);
 
         return AbstractBlock::fromRawData($rawData);
+    }
+
+    public function children(): BlocksChildrenEndpoint
+    {
+        return $this->childrenEndpoint;
     }
 }
