@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\RichText;
 
+use Brd6\NotionSdkPhp\Resource\Annotations;
 use Brd6\NotionSdkPhp\Resource\Property\TextProperty;
 
 class Text extends AbstractRichText
@@ -14,6 +15,7 @@ class Text extends AbstractRichText
     public function __construct()
     {
         $this->type = self::RICH_TEXT_TYPE;
+        $this->annotations = new Annotations();
     }
 
     protected function initialize(): void

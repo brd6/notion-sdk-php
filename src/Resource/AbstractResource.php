@@ -7,13 +7,16 @@ namespace Brd6\NotionSdkPhp\Resource;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 
+/**
+ * @psalm-consistent-constructor
+ */
 abstract class AbstractResource extends AbstractJsonSerializable implements ResourceInterface
 {
     protected string $object = '';
     protected string $id = '';
     private array $rawData = [];
 
-    final public function __construct()
+    public function __construct()
     {
     }
 

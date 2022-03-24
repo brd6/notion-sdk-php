@@ -7,7 +7,6 @@ namespace Brd6\Test\NotionSdkPhp\Endpoint;
 use Brd6\NotionSdkPhp\Client;
 use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Endpoint\BlocksEndpoint;
-use Brd6\NotionSdkPhp\Resource\Annotations;
 use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ChildPageBlock;
 use Brd6\NotionSdkPhp\Resource\Block\Heading3Block;
@@ -290,13 +289,14 @@ class BlocksEndpointTest extends TestCase
 
         $client = new Client($options);
 
-        $richText = (new Text())
-            ->setText((new TextProperty())->setContent('New title here'))
-            ->setAnnotations((new Annotations())->setColor('default'));
+        $richText = new Text();
+
+        $textProperty = new TextProperty();
+        $textProperty->setContent('New title here');
+
+        $richText->setText($textProperty);
 
         $heading3 = new Heading3Block();
-        $heading3->setObject('block');
-        $heading3->setType('heading_3');
 
         $heading3Property = new HeadingProperty();
         $heading3Property->setRichText([$richText]);

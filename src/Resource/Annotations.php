@@ -6,12 +6,19 @@ namespace Brd6\NotionSdkPhp\Resource;
 
 class Annotations extends AbstractJsonSerializable
 {
+    public const DEFAULT_COLOR = 'default';
+
     protected bool $bold = false;
     protected bool $italic = false;
     protected bool $strikethrough = false;
     protected bool $underline = false;
     protected bool $code = false;
     protected string $color = '';
+
+    public function __construct()
+    {
+        $this->color = self::DEFAULT_COLOR;
+    }
 
     public static function fromRawData(array $rawData): self
     {

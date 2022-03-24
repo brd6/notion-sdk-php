@@ -6,9 +6,6 @@ namespace Brd6\NotionSdkPhp\Util;
 
 use function array_keys;
 use function is_array;
-use function ltrim;
-use function preg_replace;
-use function strtolower;
 
 class ArrayHelper
 {
@@ -21,13 +18,7 @@ class ArrayHelper
             $value = &$data[$key];
             unset($data[$key]);
 
-            $transformedKey = strtolower(
-                (string) preg_replace(
-                    '/([a-z0-9])([A-Z0-9])/',
-                    '$1_$2',
-                    ltrim((string) $key, '!'),
-                ),
-            );
+            $transformedKey = StringHelper::camelCaseToSnakeCase((string) $key);
 
             if (is_array($value)) {
                 self::transformKeysToSnakeCase($value);

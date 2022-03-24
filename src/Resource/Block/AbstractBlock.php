@@ -12,8 +12,10 @@ use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
 use Brd6\NotionSdkPhp\Resource\UserInterface;
 use Brd6\NotionSdkPhp\Util\StringHelper;
 use DateTimeImmutable;
+use ReflectionClass;
 
 use function class_exists;
+use function str_replace;
 
 abstract class AbstractBlock extends AbstractResource
 {
@@ -26,6 +28,14 @@ abstract class AbstractBlock extends AbstractResource
     protected ?UserInterface $lastEditedBy = null;
     protected bool $archived = false;
     protected bool $hasChildren = false;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->object = self::RESOURCE_TYPE;
+        $this->type = self::resolveType();
+    }
 
     /**
      * @throws InvalidResourceTypeException
@@ -81,6 +91,15 @@ abstract class AbstractBlock extends AbstractResource
         $class = "Brd6\\NotionSdkPhp\\Resource\Block\\${typeFormatted}Block";
 
         return class_exists($class) ? $class : UnsupportedBlock::class;
+    }
+
+    private static function resolveType(): string
+    {
+        return str_replace(
+            self::getResourceType(),
+            '',
+            StringHelper::camelCaseToSnakeCase((new ReflectionClass(static::class))->getShortName()),
+        );
     }
 
     public function getType(): string

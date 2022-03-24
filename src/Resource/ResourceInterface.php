@@ -6,6 +6,8 @@ namespace Brd6\NotionSdkPhp\Resource;
 
 interface ResourceInterface
 {
+    public function __construct();
+
     public static function fromRawData(array $rawData): self;
 
     public static function getResourceType(): string;
