@@ -1,0 +1,10 @@
+{
+    "object": "user",
+    "id": "7f03dda0-a132-49d7-b8b2-29c9ed1b1f0e",
+    "name": "Firstname Lastname",
+    "avatar_url": "https://s3-us-west-2.amazonaws.com/public.notion-static.com/521dfd9z-fp21-4dq8-a0cb-e40ff71283e5/39989484_10217103981381443_4621803518267752448_n.jpg",
+    "type": "person",
+    "person": {
+        "email": "xxxx@gmail.com"
+    }
+}

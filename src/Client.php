@@ -6,6 +6,7 @@ namespace Brd6\NotionSdkPhp;
 
 use Brd6\NotionSdkPhp\Constant\NotionErrorCodeConstant;
 use Brd6\NotionSdkPhp\Endpoint\BlocksEndpoint;
+use Brd6\NotionSdkPhp\Endpoint\UsersEndpoint;
 use Brd6\NotionSdkPhp\Exception\ApiResponseException;
 use Brd6\NotionSdkPhp\Exception\HttpResponseException;
 use Brd6\NotionSdkPhp\Exception\RequestTimeoutException;
@@ -26,6 +27,7 @@ class Client
     private ClientOptions $options;
     private HttpClientInterface $httpClient;
     private BlocksEndpoint $blocksEndpoint;
+    private UsersEndpoint $usersEndpoint;
 
     public function __construct(?ClientOptions $options = null)
     {
@@ -33,6 +35,7 @@ class Client
         $this->initializeHttpClient();
 
         $this->blocksEndpoint = new BlocksEndpoint($this);
+        $this->usersEndpoint = new UsersEndpoint($this);
     }
 
     /**
@@ -111,5 +114,10 @@ class Client
     public function blocks(): BlocksEndpoint
     {
         return $this->blocksEndpoint;
+    }
+
+    public function users(): UsersEndpoint
+    {
+        return $this->usersEndpoint;
     }
 }
