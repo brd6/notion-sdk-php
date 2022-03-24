@@ -70,4 +70,22 @@ class BlocksEndpoint extends AbstractEndpoint
     {
         return $this->childrenEndpoint;
     }
+
+    /**
+     * @throws ApiResponseException
+     * @throws HttpResponseException
+     * @throws InvalidResourceException
+     * @throws InvalidResourceTypeException
+     * @throws RequestTimeoutException
+     */
+    public function delete(string $blockId): AbstractBlock
+    {
+        $requestParameters = (new RequestParameters())
+            ->setPath("blocks/$blockId")
+            ->setMethod('DELETE');
+
+        $rawData = $this->getClient()->request($requestParameters);
+
+        return AbstractBlock::fromRawData($rawData);
+    }
 }

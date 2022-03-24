@@ -8,6 +8,7 @@ use Brd6\NotionSdkPhp\Client;
 use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Endpoint\BlocksEndpoint;
 use Brd6\NotionSdkPhp\Resource\Annotations;
+use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ChildPageBlock;
 use Brd6\NotionSdkPhp\Resource\Block\Heading3Block;
 use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
@@ -309,5 +310,30 @@ class BlocksEndpointTest extends TestCase
 
         $this->assertNotNull($paginationResponse);
         $this->assertInstanceOf(BlockResponse::class, $paginationResponse);
+    }
+
+    public function testDeleteBlock(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            $this->assertStringContainsString('DELETE', $method);
+            $this->assertStringContainsString('blocks/0c940186-ab70-4351-bb34-2d16f0635d49', $url);
+
+            return new MockResponse(
+                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        /** @var ParagraphBlock $block */
+        $block = $client->blocks()->delete('0c940186-ab70-4351-bb34-2d16f0635d49');
+        $this->assertNotNull($block);
+        $this->assertInstanceOf(AbstractBlock::class, $block);
     }
 }
