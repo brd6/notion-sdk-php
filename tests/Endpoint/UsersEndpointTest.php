@@ -19,10 +19,10 @@ class UsersEndpointTest extends TestCase
     public function testInstance(): void
     {
         $client = new Client();
-        $blocks = new UsersEndpoint($client);
+        $users = new UsersEndpoint($client);
 
-        $this->assertInstanceOf(UsersEndpoint::class, $client->blocks());
-        $this->assertInstanceOf(UsersEndpoint::class, $blocks);
+        $this->assertInstanceOf(UsersEndpoint::class, $client->users());
+        $this->assertInstanceOf(UsersEndpoint::class, $users);
     }
 
     public function testRetrieve(): void
