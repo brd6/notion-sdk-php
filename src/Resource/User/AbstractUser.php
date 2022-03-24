@@ -20,6 +20,9 @@ abstract class AbstractUser extends AbstractResource implements UserInterface
     protected ?string $name = null;
     protected ?string $avatarUrl = null;
 
+    /**
+     * @throws UnsupportedUserTypeException
+     */
     public static function fromRawData(array $rawData): self
     {
         $type = isset($rawData['type']) ? (string) $rawData['type'] : self::DEFAULT_TYPE;
@@ -49,6 +52,9 @@ abstract class AbstractUser extends AbstractResource implements UserInterface
         return $this;
     }
 
+    /**
+     * @throws UnsupportedUserTypeException
+     */
     protected static function getMapClassFromType(string $type): string
     {
         $typeFormatted = StringHelper::snakeCaseToCamelCase($type);
