@@ -14,8 +14,6 @@ use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
 class UsersEndpoint extends AbstractEndpoint
 {
     /**
-     * @param string $userId
-     *
      * @throws ApiResponseException
      * @throws HttpResponseException
      * @throws RequestTimeoutException
