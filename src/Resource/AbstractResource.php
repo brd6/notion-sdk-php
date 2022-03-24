@@ -66,6 +66,20 @@ abstract class AbstractResource extends AbstractJsonSerializable implements Reso
         return $this->object;
     }
 
+    public function setObject(string $object): self
+    {
+        $this->object = $object;
+
+        return $this;
+    }
+
+    public function setId(string $id): self
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
     public function getId(): string
     {
         return $this->id;
