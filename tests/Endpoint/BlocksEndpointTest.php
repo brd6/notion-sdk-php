@@ -9,6 +9,8 @@ use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Endpoint\BlocksEndpoint;
 use Brd6\NotionSdkPhp\Resource\Block\ChildPageBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
+use Brd6\NotionSdkPhp\Resource\Pagination\BlockResponse;
+use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
 use Brd6\NotionSdkPhp\Resource\RichText\Text;
 use Brd6\NotionSdkPhp\Resource\UserInterface;
@@ -16,6 +18,7 @@ use Brd6\Test\NotionSdkPhp\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
+use function count;
 use function file_get_contents;
 use function json_decode;
 
@@ -136,5 +139,114 @@ class BlocksEndpointTest extends TestCase
         $richText->getText()->setContent('Hello world!');
 
         $client->blocks()->update($block);
+    }
+
+    public function testRetrieveBlockChildren(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            if ($method === 'GET') {
+                $this->assertStringContainsString('blocks/03cd5dca-84f7-456f-b7e6-aad92d5f69fd/children', $url);
+                $this->assertStringContainsString('page_size', $url);
+                $this->assertArrayHasKey('page_size', $options['query']);
+                $this->assertNotEmpty($options['query']['page_size']);
+            }
+
+            return new MockResponse(
+                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_children_default_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setAuth('secret_valid-auth')
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        /** @var BlockResponse $paginationResponse */
+        $paginationResponse = $client->blocks()->children()->list('03cd5dca-84f7-456f-b7e6-aad92d5f69fd');
+
+        $this->assertNotNull($paginationResponse);
+        $this->assertInstanceOf(BlockResponse::class, $paginationResponse);
+
+        $this->assertEquals('block', $paginationResponse->getType());
+        $this->assertEquals('list', $paginationResponse->getObject());
+        $this->assertGreaterThan(0, count($paginationResponse->getResults()));
+
+        $resultBlock = $paginationResponse->getResults()[0];
+
+        $this->assertEquals('block', $resultBlock->getObject());
+        $this->assertNotEmpty($resultBlock->getId());
+    }
+
+    public function testRetrieveBlockChildrenWithPagination(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            if ($method === 'GET') {
+                $this->assertEquals(4, $options['query']['page_size']);
+            }
+
+            return new MockResponse(
+                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_children_page_size_4_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setAuth('secret_valid-auth')
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $paginationRequest = (new PaginationRequest())
+            ->setPageSize(4);
+
+        /** @var BlockResponse $paginationResponse */
+        $paginationResponse = $client
+            ->blocks()
+            ->children()
+            ->list('03cd5dca-84f7-456f-b7e6-aad92d5f69fd', $paginationRequest);
+
+        $this->assertTrue($paginationResponse->isHasMore());
+        $this->assertNotEmpty($paginationResponse->getNextCursor());
+        $this->assertLessThanOrEqual(4, count($paginationResponse->getResults()));
+    }
+
+    public function testRetrieveBlockChildrenWithPaginationNextCursor(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            if ($method === 'GET') {
+                $this->assertEquals('052e99f4-5a5e-4b2c-acd5-8ad240aeb719', $options['query']['start_cursor']);
+            }
+
+            return new MockResponse(
+                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_children_page_size_4_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setAuth('secret_valid-auth')
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $paginationRequest = (new PaginationRequest())
+            ->setPageSize(4)
+            ->setStartCursor('052e99f4-5a5e-4b2c-acd5-8ad240aeb719');
+
+        /** @var BlockResponse $paginationResponse */
+        $paginationResponse = $client
+            ->blocks()
+            ->children()
+            ->list('03cd5dca-84f7-456f-b7e6-aad92d5f69fd', $paginationRequest);
+
+        $this->assertNotNull($paginationResponse);
     }
 }
