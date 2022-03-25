@@ -96,7 +96,7 @@ abstract class AbstractBlock extends AbstractResource
     private static function resolveType(): string
     {
         return str_replace(
-            self::getResourceType(),
+            '_' . self::getResourceType(),
             '',
             StringHelper::camelCaseToSnakeCase((new ReflectionClass(static::class))->getShortName()),
         );
