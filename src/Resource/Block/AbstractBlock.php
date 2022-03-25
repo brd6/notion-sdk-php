@@ -6,6 +6,7 @@ namespace Brd6\NotionSdkPhp\Resource\Block;
 
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\AbstractResource;
 use Brd6\NotionSdkPhp\Resource\Property\AbstractProperty;
 use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
@@ -38,8 +39,9 @@ abstract class AbstractBlock extends AbstractResource
     }
 
     /**
-     * @throws InvalidResourceTypeException
      * @throws InvalidResourceException
+     * @throws InvalidResourceTypeException
+     * @throws UnsupportedUserTypeException
      */
     public static function fromRawData(array $rawData): self
     {
@@ -67,8 +69,7 @@ abstract class AbstractBlock extends AbstractResource
     }
 
     /**
-     * @throws InvalidResourceException
-     * @throws InvalidResourceTypeException
+     * @throws UnsupportedUserTypeException
      */
     protected function initialize(): void
     {
