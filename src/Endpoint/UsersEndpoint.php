@@ -54,4 +54,21 @@ class UsersEndpoint extends AbstractEndpoint
 
         return AbstractPaginationResponse::fromRawData($rawData);
     }
+
+    /**
+     * @throws ApiResponseException
+     * @throws HttpResponseException
+     * @throws RequestTimeoutException
+     * @throws UnsupportedUserTypeException
+     */
+    public function me(): AbstractUser
+    {
+        $requestParameters = (new RequestParameters())
+            ->setPath('users/me')
+            ->setMethod('GET');
+
+        $rawData = $this->getClient()->request($requestParameters);
+
+        return AbstractUser::fromRawData($rawData);
+    }
 }

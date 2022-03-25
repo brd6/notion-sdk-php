@@ -8,6 +8,7 @@ use Brd6\NotionSdkPhp\Client;
 use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Endpoint\UsersEndpoint;
 use Brd6\NotionSdkPhp\Resource\Pagination\UserResponse;
+use Brd6\NotionSdkPhp\Resource\User\BotUser;
 use Brd6\NotionSdkPhp\Resource\User\PersonUser;
 use Brd6\Test\NotionSdkPhp\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -64,7 +65,7 @@ class UsersEndpointTest extends TestCase
             }
 
             return new MockResponse(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_users_list_default_200.json'),
+                (string) file_get_contents('tests/fixtures/client_users_retrieve_list_default_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -91,5 +92,31 @@ class UsersEndpointTest extends TestCase
 
         $this->assertEquals('user', $resultUser->getObject());
         $this->assertNotEmpty($resultUser->getId());
+    }
+
+    public function testRetrieveBotUser(): void
+    {
+        $httpClient = new MockHttpClient();
+        $httpClient->setResponseFactory([
+            new MockResponse(
+                (string) file_get_contents('tests/fixtures/client_users_retrieve_bot_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            ),
+        ]);
+
+        $options = (new ClientOptions())
+            ->setAuth('secret_valid-auth')
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        /** @var BotUser $user */
+        $user = $client->users()->me();
+
+        $this->assertEquals('bot', $user::getResourceType());
+        $this->assertNotEmpty($user->getType());
+        $this->assertNotEmpty($user->getName());
     }
 }
