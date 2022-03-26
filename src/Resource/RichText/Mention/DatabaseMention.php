@@ -9,7 +9,7 @@ use Brd6\NotionSdkPhp\Resource\RichText\AbstractMention;
 
 class DatabaseMention extends AbstractMention
 {
-    private ?PartialDatabaseProperty $database = null;
+    protected ?PartialDatabaseProperty $database = null;
 
     protected function initialize(): void
     {

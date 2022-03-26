@@ -9,7 +9,7 @@ use Brd6\NotionSdkPhp\Resource\RichText\AbstractMention;
 
 class PageMention extends AbstractMention
 {
-    private ?PartialPageProperty $page = null;
+    protected ?PartialPageProperty $page = null;
 
     protected function initialize(): void
     {

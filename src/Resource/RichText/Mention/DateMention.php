@@ -9,7 +9,7 @@ use Brd6\NotionSdkPhp\Resource\RichText\AbstractMention;
 
 class DateMention extends AbstractMention
 {
-    private ?DateProperty $date = null;
+    protected ?DateProperty $date = null;
 
     protected function initialize(): void
     {

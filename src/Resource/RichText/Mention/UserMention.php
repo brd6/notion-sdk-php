@@ -10,7 +10,7 @@ use Brd6\NotionSdkPhp\Resource\UserInterface;
 
 class UserMention extends AbstractMention
 {
-    private ?UserInterface $user = null;
+    protected ?UserInterface $user = null;
 
     protected function initialize(): void
     {

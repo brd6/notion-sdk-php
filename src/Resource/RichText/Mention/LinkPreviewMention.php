@@ -9,7 +9,7 @@ use Brd6\NotionSdkPhp\Resource\RichText\AbstractMention;
 
 class LinkPreviewMention extends AbstractMention
 {
-    private ?LinkPreviewProperty $linkPreview = null;
+    protected ?LinkPreviewProperty $linkPreview = null;
 
     protected function initialize(): void
     {
