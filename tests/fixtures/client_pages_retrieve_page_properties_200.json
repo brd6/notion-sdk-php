@@ -1,0 +1,134 @@
+{
+    "object": "page",
+    "id": "1101fb68-d6f1-48c9-bdd4-25004315fda1",
+    "created_time": "2022-03-26T18:52:00.000Z",
+    "last_edited_time": "2022-03-26T19:10:00.000Z",
+    "created_by": {
+        "object": "user",
+        "id": "7f03dda0-a132-49d7-b8b2-29c9ed1b1f0e"
+    },
+    "last_edited_by": {
+        "object": "user",
+        "id": "7f03dda0-a132-49d7-b8b2-29c9ed1b1f0e"
+    },
+    "cover": null,
+    "icon": null,
+    "parent": {
+        "type": "database_id",
+        "database_id": "c3b5ecd0-4402-4c55-a396-be829b2407b8"
+    },
+    "archived": false,
+    "properties": {
+        "Created By": {
+            "id": "(kk8",
+            "type": "created_by",
+            "created_by": {
+                "object": "user",
+                "id": "7f03dda0-a132-49d7-b8b2-29c9ed1b1f0e",
+                "name": "FirstName Lastname",
+                "avatar_url": "https://s3-us-west-2.amazonaws.com/public.notion-static.com/521dfe9c-f821-4de8-a0bb-e40ff71283e5/39989484_10217003981481443_4621803518267752448_n.jpg",
+                "type": "person",
+                "person": {
+                    "email": "xxxxx@gmail.com"
+                }
+            }
+        },
+        "Created": {
+            "id": "0jxo",
+            "type": "created_time",
+            "created_time": "2022-03-26T18:52:00.000Z"
+        },
+        "Type": {
+            "id": "8nXq",
+            "type": "select",
+            "select": {
+                "id": "58c118e3-b58c-435e-820d-5a2a5a39a817",
+                "name": "One Pager",
+                "color": "default"
+            }
+        },
+        "My number": {
+            "id": "%40aiA",
+            "type": "number",
+            "number": 42
+        },
+        "formula2": {
+            "id": "H%3BxC",
+            "type": "formula",
+            "formula": {
+                "type": "boolean",
+                "boolean": true
+            }
+        },
+        "Status": {
+            "id": "jJIv",
+            "type": "select",
+            "select": {
+                "id": "cacc7450-51ff-4d3e-89d2-6b6a9bc23f8f",
+                "name": "Completed 🏁",
+                "color": "green"
+            }
+        },
+        "Last Edited Time": {
+            "id": "u_Xe",
+            "type": "last_edited_time",
+            "last_edited_time": "2022-03-26T19:10:00.000Z"
+        },
+        "Last Edited By": {
+            "id": "u%60%5C%7B",
+            "type": "last_edited_by",
+            "last_edited_by": {
+                "object": "user",
+                "id": "7f03dda0-a132-49d7-b8b2-29c9ed1b1f0e",
+                "name": "FirstName Lastname",
+                "avatar_url": "https://s3-us-west-2.amazonaws.com/public.notion-static.com/521dfe9c-f821-4de8-a0bb-e40ff71283e5/39989484_10217003981481443_4621803518267752448_n.jpg",
+                "type": "person",
+                "person": {
+                    "email": "xxxxx@gmail.com"
+                }
+            }
+        },
+        "Stakeholders": {
+            "id": "x%3C%24~",
+            "type": "people",
+            "people": [
+                {
+                    "object": "user",
+                    "id": "6d73c3a2-b973-4e72-9d3b-5b9924cf7a73"
+                }
+            ]
+        },
+        "formulaTest1": {
+            "id": "zrqT",
+            "type": "formula",
+            "formula": {
+                "type": "string",
+                "string": "Completed 🏁"
+            }
+        },
+        "Name": {
+            "id": "title",
+            "type": "title",
+            "title": [
+                {
+                    "type": "text",
+                    "text": {
+                        "content": "Database relation properties",
+                        "link": null
+                    },
+                    "annotations": {
+                        "bold": false,
+                        "italic": false,
+                        "strikethrough": false,
+                        "underline": false,
+                        "code": false,
+                        "color": "default"
+                    },
+                    "plain_text": "Database relation properties",
+                    "href": null
+                }
+            ]
+        }
+    },
+    "url": "https://www.notion.so/Database-relation-properties-1101fb68d6f148c9bdd425004315fda1"
+}
