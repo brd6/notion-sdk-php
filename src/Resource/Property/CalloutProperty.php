@@ -10,6 +10,7 @@ use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
 
 class CalloutProperty extends AbstractParagraphProperty
@@ -21,12 +22,13 @@ class CalloutProperty extends AbstractParagraphProperty
      *
      * @return CalloutProperty
      *
+     * @throws InvalidFileException
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
      * @throws InvalidRichTextException
-     * @throws UnsupportedRichTextTypeException
-     * @throws InvalidFileException
      * @throws UnsupportedFileTypeException
+     * @throws UnsupportedRichTextTypeException
+     * @throws UnsupportedUserTypeException
      */
     public static function fromRawData(array $rawData): self
     {
