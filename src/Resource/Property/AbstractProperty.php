@@ -8,5 +8,7 @@ use Brd6\NotionSdkPhp\Resource\AbstractJsonSerializable;
 
 abstract class AbstractProperty extends AbstractJsonSerializable
 {
+    public const PROPERTY_BASE_TYPE = '';
+
     abstract public static function fromRawData(array $rawData): self;
 }
