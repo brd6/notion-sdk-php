@@ -5,24 +5,24 @@ declare(strict_types=1);
 namespace Brd6\NotionSdkPhp\Resource\Page\PropertyValue;
 
 use Brd6\NotionSdkPhp\Resource\Page\AbstractPropertyValue;
-use Brd6\NotionSdkPhp\Resource\Property\Formula\AbstractFormulaProperty;
+use Brd6\NotionSdkPhp\Resource\Property\Value\AbstractValueProperty;
 
 class FormulaPropertyValue extends AbstractPropertyValue
 {
-    protected ?AbstractFormulaProperty $formula = null;
+    protected ?AbstractValueProperty $formula = null;
 
     protected function initialize(): void
     {
         $data = (array) $this->getRawData()[$this->getType()];
-        $this->formula = AbstractFormulaProperty::fromRawData($data);
+        $this->formula = AbstractValueProperty::fromRawData($data);
     }
 
-    public function getFormula(): ?AbstractFormulaProperty
+    public function getFormula(): ?AbstractValueProperty
     {
         return $this->formula;
     }
 
-    public function setFormula(?AbstractFormulaProperty $formula): self
+    public function setFormula(?AbstractValueProperty $formula): self
     {
         $this->formula = $formula;
 
