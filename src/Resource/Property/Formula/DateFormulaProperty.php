@@ -12,8 +12,8 @@ class DateFormulaProperty extends AbstractFormulaProperty
 
     protected function initialize(): void
     {
-        $this->string = isset($this->getRawData()['date']) ?
-            DateProperty::fromRawData($this->getRawData()['date']) :
+        $this->date = isset($this->getRawData()['date']) ?
+            DateProperty::fromRawData((array) $this->getRawData()['date']) :
             null;
     }
 

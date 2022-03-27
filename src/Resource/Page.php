@@ -166,7 +166,7 @@ class Page extends AbstractResource
     }
 
     /**
-     * @return AbstractPropertyValue[]
+     * @return array<string, AbstractPropertyValue>
      */
     public function getProperties(): array
     {
@@ -174,7 +174,7 @@ class Page extends AbstractResource
     }
 
     /**
-     * @param AbstractPropertyValue[] $properties
+     * @param array<string, AbstractPropertyValue> $properties
      */
     public function setProperties(array $properties): self
     {

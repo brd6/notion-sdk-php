@@ -15,7 +15,7 @@ class NumberFormulaProperty extends AbstractFormulaProperty
             null;
     }
 
-    public function getNumber(): int
+    public function getNumber(): ?int
     {
         return $this->number;
     }

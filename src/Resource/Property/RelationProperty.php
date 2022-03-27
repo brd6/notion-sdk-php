@@ -11,7 +11,7 @@ class RelationProperty extends AbstractProperty
     public static function fromRawData(array $rawData): self
     {
         $property = new self();
-        $property->id = isset($rawData['id']) ? (string) $rawData['id'] : null;
+        $property->id = (string) $rawData['id'];
 
         return $property;
     }
