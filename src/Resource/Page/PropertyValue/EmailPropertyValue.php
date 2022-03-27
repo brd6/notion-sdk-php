@@ -12,8 +12,7 @@ class EmailPropertyValue extends AbstractPropertyValue
 
     protected function initialize(): void
     {
-        $data = (array) $this->getRawData()[$this->getType()];
-        $this->email = (string) ($data['email'] ?? '');
+        $this->email = (string) ($this->getRawData()[$this->getType()] ?? '');
     }
 
     public function getEmail(): string

@@ -12,8 +12,7 @@ class UrlPropertyValue extends AbstractPropertyValue
 
     protected function initialize(): void
     {
-        $data = (array) $this->getRawData()[$this->getType()];
-        $this->url = (string) ($data['url'] ?? '');
+        $this->url = (string) ($this->getRawData()[$this->getType()] ?? '');
     }
 
     public function getUrl(): string

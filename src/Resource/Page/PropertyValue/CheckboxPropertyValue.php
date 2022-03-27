@@ -12,8 +12,7 @@ class CheckboxPropertyValue extends AbstractPropertyValue
 
     protected function initialize(): void
     {
-        $data = (array) $this->getRawData()[$this->getType()];
-        $this->checkbox = (bool) $data['checkbox'];
+        $this->checkbox = (bool) $this->getRawData()[$this->getType()];
     }
 
     public function getCheckbox(): bool
