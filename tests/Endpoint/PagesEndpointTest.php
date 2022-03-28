@@ -175,4 +175,49 @@ class PagesEndpointTest extends TestCase
 
         $this->assertNotEmpty($pageCreated->getProperties());
     }
+
+    public function testUpdatePage(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            $this->assertStringContainsString('PATCH', $method);
+            $this->assertStringContainsString('pages/1e7e638f78864ec591ea54ec7016e146', $url);
+
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertArrayHasKey('icon', $body);
+            $this->assertArrayHasKey('properties', $body);
+            $this->assertNotEmpty($body['properties']['title']);
+            $this->assertStringContainsString(
+                'New title',
+                $body['properties']['title']['title'][0]['text']['content'],
+            );
+
+            return new MockResponse(
+                (string) file_get_contents('tests/fixtures/client_pages_retrieve_page_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $page = new Page();
+        $page->setId('1e7e638f78864ec591ea54ec7016e146');
+        $page->setIcon((new Emoji())->setEmoji('🖖'));
+
+        $titleProperty = (new TitlePropertyValue())->setTitle([Text::fromContent('New title!')]);
+        $pageProperties = [
+            'title' => $titleProperty,
+        ];
+        $page->setProperties($pageProperties);
+
+        $pageUpdated = $client->pages()->update($page);
+
+        $this->assertNotEmpty($pageUpdated->getProperties());
+    }
 }

@@ -13,11 +13,16 @@ use Brd6\NotionSdkPhp\RequestParameters;
 use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Page;
 
+use function array_filter;
 use function array_map;
 use function array_merge;
 
+use const ARRAY_FILTER_USE_KEY;
+
 class PagesEndpoint extends AbstractEndpoint
 {
+    private const PAGE_ID_KEY = 'id';
+
     /**
      * @throws ApiResponseException
      * @throws HttpResponseException
@@ -40,7 +45,6 @@ class PagesEndpoint extends AbstractEndpoint
     }
 
     /**
-     * @param Page $page
      * @param array|AbstractBlock[] $children
      *
      * @throws ApiResponseException
@@ -66,5 +70,33 @@ class PagesEndpoint extends AbstractEndpoint
         $pageCreated = Page::fromRawData($rawData);
 
         return $pageCreated;
+    }
+
+    /**
+     * @throws ApiResponseException
+     * @throws HttpResponseException
+     * @throws InvalidResourceException
+     * @throws InvalidResourceTypeException
+     * @throws RequestTimeoutException
+     */
+    public function update(Page $page): Page
+    {
+        $data = array_filter(
+            $page->toJson(),
+            fn (string $key) => $key !== self::PAGE_ID_KEY,
+            ARRAY_FILTER_USE_KEY,
+        );
+
+        $requestParameters = (new RequestParameters())
+            ->setPath("pages/{$page->getId()}")
+            ->setMethod('PATCH')
+            ->setBody($data);
+
+        $rawData = $this->getClient()->request($requestParameters);
+
+        /** @var Page $pageUpdated */
+        $pageUpdated = Page::fromRawData($rawData);
+
+        return $pageUpdated;
     }
 }
