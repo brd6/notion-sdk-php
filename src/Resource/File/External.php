@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\File;
 
+use Brd6\NotionSdkPhp\Resource\Property\ExternalProperty;
+
 class External extends AbstractFile
 {
     public const FILE_TYPE = 'external';
 
-    protected string $url = '';
+    protected ?ExternalProperty $external = null;
 
     public static function getFileType(): string
     {
@@ -18,17 +20,17 @@ class External extends AbstractFile
     protected function initialize(): void
     {
         $data = (array) $this->getRawData()[$this->getType()];
-        $this->url = (string) $data['url'];
+        $this->external = ExternalProperty::fromRawData($data);
     }
 
-    public function getUrl(): string
+    public function getExternal(): ?ExternalProperty
     {
-        return $this->url;
+        return $this->external;
     }
 
-    public function setUrl(string $url): self
+    public function setExternal(ExternalProperty $external): self
     {
-        $this->url = $url;
+        $this->external = $external;
 
         return $this;
     }

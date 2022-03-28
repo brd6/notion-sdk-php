@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Brd6\Test\NotionSdkPhp\Resource;
 
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
+use Brd6\NotionSdkPhp\Resource\File\Emoji;
+use Brd6\NotionSdkPhp\Resource\File\External;
 use Brd6\NotionSdkPhp\Resource\Page;
 use PHPUnit\Framework\TestCase;
 
@@ -33,6 +35,38 @@ class PageTest extends TestCase
 
         $this->assertNotEmpty($page->getId());
         $this->assertNotEmpty($page->toJson());
+    }
+
+    public function testPageWithPageObject(): void
+    {
+        /** @var Page $page */
+        $page = Page::fromRawData(
+            (array) json_decode(
+                (string) file_get_contents('tests/fixtures/client_request_retrieve_page_200.json'),
+                true,
+            ),
+        );
+
+        $this->assertNotEmpty($page->getId());
+        $this->assertNotEmpty($page->toJson());
+
+        $icon = $page->getIcon();
+
+        $this->assertNotEmpty($icon);
+        $this->assertInstanceOf(Emoji::class, $icon);
+        $this->assertEquals('emoji', $icon->getType());
+        $this->assertNotEmpty($icon->getEmoji());
+
+        $cover = $page->getCover();
+
+        $this->assertNotEmpty($cover);
+        $this->assertInstanceOf(External::class, $cover);
+        $this->assertEquals('external', $cover->getType());
+
+        $external = $cover->getExternal();
+
+        $this->assertNotNull($external);
+        $this->assertNotEmpty($external->getUrl());
     }
 
     public function testPageProperties(): void

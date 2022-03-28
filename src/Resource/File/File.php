@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\File;
 
-use DateTimeImmutable;
+use Brd6\NotionSdkPhp\Resource\Property\FileProperty;
 
 class File extends AbstractFile
 {
     public const FILE_TYPE = 'file';
 
-    protected string $url = '';
-    protected ?DateTimeImmutable $expiryTime = null;
+    protected ?FileProperty $file = null;
 
     public static function getFileType(): string
     {
@@ -21,30 +20,17 @@ class File extends AbstractFile
     protected function initialize(): void
     {
         $data = (array) $this->getRawData()[$this->getType()];
-        $this->url = (string) $data['url'];
-        $this->expiryTime = new DateTimeImmutable((string) $data['expiry_time']);
+        $this->file = FileProperty::fromRawData($data);
     }
 
-    public function getUrl(): string
+    public function getFile(): ?FileProperty
     {
-        return $this->url;
+        return $this->file;
     }
 
-    public function setUrl(string $url): self
+    public function setFile(FileProperty $file): self
     {
-        $this->url = $url;
-
-        return $this;
-    }
-
-    public function getExpiryTime(): ?DateTimeImmutable
-    {
-        return $this->expiryTime;
-    }
-
-    public function setExpiryTime(?DateTimeImmutable $expiryTime): self
-    {
-        $this->expiryTime = $expiryTime;
+        $this->file = $file;
 
         return $this;
     }

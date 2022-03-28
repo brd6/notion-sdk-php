@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Brd6\NotionSdkPhp\Resource\Page;
+namespace Brd6\NotionSdkPhp\Resource\Page\Parent;
 
 use Brd6\NotionSdkPhp\Exception\InvalidParentException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedParentTypeException;

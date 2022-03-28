@@ -12,8 +12,8 @@ use Brd6\NotionSdkPhp\Exception\UnsupportedParentTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyValueException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
-use Brd6\NotionSdkPhp\Resource\Page\AbstractParentProperty;
-use Brd6\NotionSdkPhp\Resource\Page\AbstractPropertyValue;
+use Brd6\NotionSdkPhp\Resource\Page\Parent\AbstractParentProperty;
+use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\AbstractPropertyValue;
 use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
 use DateTimeImmutable;
 

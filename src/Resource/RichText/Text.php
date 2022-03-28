@@ -18,6 +18,11 @@ class Text extends AbstractRichText
         $this->annotations = new Annotations();
     }
 
+    public static function fromContent(string $content): self
+    {
+        return (new self())->setText((new TextProperty())->setContent($content));
+    }
+
     protected function initialize(): void
     {
         $data = (array) $this->getRawData()[$this->getType()];

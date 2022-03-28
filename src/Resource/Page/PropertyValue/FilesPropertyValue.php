@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Page\PropertyValue;
 
-use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
-use Brd6\NotionSdkPhp\Resource\Page\AbstractPropertyValue;
-
 use function array_map;
 
 class FilesPropertyValue extends AbstractPropertyValue
 {
     /**
-     * @var array|AbstractFile[]
+     * @var array|AbstractFilePropertyValue[]
      */
     protected array $files = [];
 
@@ -21,13 +18,13 @@ class FilesPropertyValue extends AbstractPropertyValue
         $data = (array) $this->getRawData()[$this->getType()];
 
         $this->files = array_map(
-            fn (array $filesRawData) => AbstractFile::fromRawData($filesRawData),
+            fn (array $filesRawData) => AbstractFilePropertyValue::fromRawData($filesRawData),
             $data,
         );
     }
 
     /**
-     * @return array|AbstractFile[]
+     * @return array|AbstractFilePropertyValue[]
      */
     public function getFiles(): array
     {
@@ -35,7 +32,7 @@ class FilesPropertyValue extends AbstractPropertyValue
     }
 
     /**
-     * @param array|AbstractFile[] $files
+     * @param array|AbstractFilePropertyValue[] $files
      */
     public function setFiles(array $files): self
     {

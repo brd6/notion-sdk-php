@@ -16,7 +16,7 @@ use DateTimeImmutable;
 use ReflectionClass;
 
 use function class_exists;
-use function str_replace;
+use function preg_replace;
 
 abstract class AbstractBlock extends AbstractResource
 {
@@ -96,10 +96,12 @@ abstract class AbstractBlock extends AbstractResource
 
     private static function resolveType(): string
     {
-        return str_replace(
-            '_' . self::getResourceType(),
+        return (string) preg_replace(
+            '/(_?' . self::getResourceType() . ')$/i',
             '',
-            StringHelper::camelCaseToSnakeCase((new ReflectionClass(static::class))->getShortName()),
+            StringHelper::camelCaseToSnakeCase(
+                (new ReflectionClass(static::class))->getShortName(),
+            ),
         );
     }
 

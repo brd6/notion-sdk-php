@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Page\PropertyValue;
 
-use Brd6\NotionSdkPhp\Resource\Page\AbstractPropertyValue;
-
 class PhoneNumberPropertyValue extends AbstractPropertyValue
 {
     protected string $phoneNumber = '';

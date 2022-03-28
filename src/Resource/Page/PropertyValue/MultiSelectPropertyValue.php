@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Page\PropertyValue;
 
-use Brd6\NotionSdkPhp\Resource\Page\AbstractPropertyValue;
 use Brd6\NotionSdkPhp\Resource\Property\SelectProperty;
 
 use function array_map;

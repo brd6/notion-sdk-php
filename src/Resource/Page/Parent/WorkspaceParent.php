@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Page\Parent;
 
-use Brd6\NotionSdkPhp\Resource\Page\AbstractParentProperty;
-
 class WorkspaceParent extends AbstractParentProperty
 {
     protected bool $workspace = false;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Brd6\NotionSdkPhp\Resource\Page;
+namespace Brd6\NotionSdkPhp\Resource\Page\PropertyValue;
 
 use Brd6\NotionSdkPhp\Exception\InvalidPropertyValueException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyValueException;
@@ -11,11 +11,11 @@ use Brd6\NotionSdkPhp\Util\StringHelper;
 
 use function class_exists;
 
-abstract class AbstractPropertyValue extends AbstractProperty
+abstract class AbstractFilePropertyValue extends AbstractProperty
 {
     private array $rawData = [];
     protected string $type = '';
-    protected string $id = '';
+    protected string $name = '';
 
     /**
      * @param array $rawData
@@ -48,7 +48,7 @@ abstract class AbstractPropertyValue extends AbstractProperty
         $this->rawData = $rawData;
 
         $this->type = (string) ($this->rawData['type'] ?? '');
-        $this->id = (string) ($this->rawData['id'] ?? '');
+        $this->name = (string) ($this->rawData['name'] ?? '');
 
         return $this;
     }
@@ -87,14 +87,14 @@ abstract class AbstractPropertyValue extends AbstractProperty
         return $this;
     }
 
-    public function getId(): string
+    public function getName(): string
     {
-        return $this->id;
+        return $this->name;
     }
 
-    public function setId(string $id): self
+    public function setName(string $name): self
     {
-        $this->id = $id;
+        $this->name = $name;
 
         return $this;
     }

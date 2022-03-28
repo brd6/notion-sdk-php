@@ -7,11 +7,27 @@ namespace Brd6\Test\NotionSdkPhp\Endpoint;
 use Brd6\NotionSdkPhp\Client;
 use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Endpoint\PagesEndpoint;
+use Brd6\NotionSdkPhp\Resource\Block\CalloutBlock;
+use Brd6\NotionSdkPhp\Resource\Block\FileBlock;
+use Brd6\NotionSdkPhp\Resource\Block\Heading1Block;
+use Brd6\NotionSdkPhp\Resource\Block\ImageBlock;
+use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
+use Brd6\NotionSdkPhp\Resource\File\Emoji;
+use Brd6\NotionSdkPhp\Resource\File\External;
+use Brd6\NotionSdkPhp\Resource\Page;
+use Brd6\NotionSdkPhp\Resource\Page\Parent\PageIdParent;
+use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\TitlePropertyValue;
+use Brd6\NotionSdkPhp\Resource\Property\CalloutProperty;
+use Brd6\NotionSdkPhp\Resource\Property\ExternalProperty;
+use Brd6\NotionSdkPhp\Resource\Property\HeadingProperty;
+use Brd6\NotionSdkPhp\Resource\Property\ParagraphProperty;
+use Brd6\NotionSdkPhp\Resource\RichText\Text;
 use Brd6\Test\NotionSdkPhp\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
 use function file_get_contents;
+use function json_decode;
 
 class PagesEndpointTest extends TestCase
 {
@@ -69,5 +85,94 @@ class PagesEndpointTest extends TestCase
         $page = $client->pages()->retrieve('1101fb68-d6f1-48c9-bdd4-25004315fda1');
 
         $this->assertNotEmpty($page->getProperties());
+    }
+
+    public function testCreatePage(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            $this->assertStringContainsString('POST', $method);
+            $this->assertStringContainsString('pages', $url);
+
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertArrayHasKey('icon', $body);
+            $this->assertArrayHasKey('children', $body);
+            $this->assertArrayHasKey('properties', $body);
+            $this->assertNotEmpty($body['properties']['title']);
+            $this->assertStringContainsString(
+                'works',
+                $body['properties']['title']['title'][0]['text']['content'],
+            );
+
+            return new MockResponse(
+                (string) file_get_contents('tests/fixtures/client_pages_retrieve_page_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $page = new Page();
+        $page->setParent((new PageIdParent())->setPageId('4a808e6e88454d49a447fb2a4c460f6f'));
+        $page->setIcon((new Emoji())->setEmoji('🎉'));
+
+        $titleProperty = (new TitlePropertyValue())->setTitle([Text::fromContent("It's works!")]);
+        $pageProperties = [
+            'title' => $titleProperty,
+        ];
+        $page->setProperties($pageProperties);
+
+        $heading1 = new Heading1Block();
+        $heading1Property = new HeadingProperty();
+        $heading1Property->setRichText([Text::fromContent('This is a big title')]);
+
+        $heading1->setHeading1($heading1Property);
+
+        $callout = new CalloutBlock();
+        $calloutProperty = new CalloutProperty();
+        $calloutProperty->setIcon((new Emoji())->setEmoji('😎'));
+        $calloutProperty->setRichText([
+            Text::fromContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit.'),
+        ]);
+
+        $callout->setCallout($calloutProperty);
+
+        $externalFileBlock = new FileBlock();
+        $file = (new External())
+            ->setExternal((new ExternalProperty())
+                ->setUrl('https://images.unsplash.com/photo-1648138754688-377bbdf661d9'));
+        $externalFileBlock->setFile($file);
+
+        $imageBlock = new ImageBlock();
+        $imageFile = (new External())
+            ->setExternal((new ExternalProperty())
+                ->setUrl('https://images.unsplash.com/photo-1648138754688-377bbdf661d9'));
+        $imageBlock->setImage($imageFile);
+
+        $paragraphBlock = new ParagraphBlock();
+        $paragraphProperty = new ParagraphProperty();
+        $paragraphProperty->setRichText([Text::fromContent('Ut tristique, nisi nec vulputate pellentesque, ' .
+                'ipsum lacus aliquet diam, placerat porta est risus sit amet mi. Nunc dictum posuere nibh. ' .
+                'Maecenas vitae mollis leo. Praesent vitae eros at ligula convallis luctus eu nec enim'),
+        ]);
+
+        $paragraphBlock->setParagraph($paragraphProperty);
+
+        $children = [
+            $heading1,
+            $imageBlock,
+            $externalFileBlock,
+            $paragraphBlock,
+            $callout,
+        ];
+        $pageCreated = $client->pages()->create($page, $children);
+
+        $this->assertNotEmpty($pageCreated->getProperties());
     }
 }

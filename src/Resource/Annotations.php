@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource;
 
+use Brd6\NotionSdkPhp\Constant\ColorConstant;
+
 class Annotations extends AbstractJsonSerializable
 {
-    public const DEFAULT_COLOR = 'default';
-
     protected bool $bold = false;
     protected bool $italic = false;
     protected bool $strikethrough = false;
@@ -17,7 +17,7 @@ class Annotations extends AbstractJsonSerializable
 
     public function __construct()
     {
-        $this->color = self::DEFAULT_COLOR;
+        $this->color = ColorConstant::DEFAULT;
     }
 
     public static function fromRawData(array $rawData): self

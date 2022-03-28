@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Page\PropertyValue;
 
-use Brd6\NotionSdkPhp\Resource\Page\AbstractPropertyValue;
 use DateTimeImmutable;
 
 class LastEditedTimePropertyValue extends AbstractPropertyValue

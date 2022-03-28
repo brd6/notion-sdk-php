@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Property;
 
+use Brd6\NotionSdkPhp\Constant\ColorConstant;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
@@ -30,6 +31,7 @@ abstract class AbstractParagraphProperty extends AbstractProperty
 
     final public function __construct()
     {
+        $this->color = ColorConstant::DEFAULT;
     }
 
     /**

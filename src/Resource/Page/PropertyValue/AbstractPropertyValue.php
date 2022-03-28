@@ -2,33 +2,33 @@
 
 declare(strict_types=1);
 
-namespace Brd6\NotionSdkPhp\Resource\File;
+namespace Brd6\NotionSdkPhp\Resource\Page\PropertyValue;
 
-use Brd6\NotionSdkPhp\Exception\InvalidFileException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
-use Brd6\NotionSdkPhp\Resource\AbstractJsonSerializable;
+use Brd6\NotionSdkPhp\Exception\InvalidPropertyValueException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyValueException;
+use Brd6\NotionSdkPhp\Resource\Property\AbstractProperty;
 use Brd6\NotionSdkPhp\Util\StringHelper;
 
 use function class_exists;
 
-abstract class AbstractFile extends AbstractJsonSerializable
+abstract class AbstractPropertyValue extends AbstractProperty
 {
     private array $rawData = [];
     protected string $type = '';
-
-    public function __construct()
-    {
-        $this->type = static::getFileType();
-    }
+    protected string $id = '';
 
     /**
-     * @throws InvalidFileException
-     * @throws UnsupportedFileTypeException
+     * @param array $rawData
+     *
+     * @return static
+     *
+     * @throws InvalidPropertyValueException
+     * @throws UnsupportedPropertyValueException
      */
     public static function fromRawData(array $rawData): self
     {
         if (!isset($rawData['type'])) {
-            throw new InvalidFileException();
+            throw new InvalidPropertyValueException();
         }
 
         $class = static::getMapClassFromType((string) $rawData['type']);
@@ -48,28 +48,24 @@ abstract class AbstractFile extends AbstractJsonSerializable
         $this->rawData = $rawData;
 
         $this->type = (string) ($this->rawData['type'] ?? '');
+        $this->id = (string) ($this->rawData['id'] ?? '');
 
         return $this;
     }
 
     /**
-     * @throws UnsupportedFileTypeException
+     * @throws UnsupportedPropertyValueException
      */
     protected static function getMapClassFromType(string $type): string
     {
         $typeFormatted = StringHelper::snakeCaseToCamelCase($type);
-        $class = "Brd6\\NotionSdkPhp\\Resource\\File\\$typeFormatted";
+        $class = "Brd6\\NotionSdkPhp\\Resource\\Page\\PropertyValue\\{$typeFormatted}PropertyValue";
 
         if (!class_exists($class)) {
-            throw new UnsupportedFileTypeException($type);
+            throw new UnsupportedPropertyValueException($type);
         }
 
         return $class;
-    }
-
-    public static function getFileType(): string
-    {
-        return '';
     }
 
     abstract protected function initialize(): void;
@@ -87,6 +83,18 @@ abstract class AbstractFile extends AbstractJsonSerializable
     public function setType(string $type): self
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    public function setId(string $id): self
+    {
+        $this->id = $id;
 
         return $this;
     }
