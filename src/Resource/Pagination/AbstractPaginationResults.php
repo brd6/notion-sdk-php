@@ -11,7 +11,7 @@ use Brd6\NotionSdkPhp\Util\StringHelper;
 
 use function class_exists;
 
-abstract class AbstractPaginationResponse extends AbstractJsonSerializable
+abstract class AbstractPaginationResults extends AbstractJsonSerializable
 {
     protected bool $hasMore = false;
     protected ?string $nextCursor = null;
@@ -51,7 +51,7 @@ abstract class AbstractPaginationResponse extends AbstractJsonSerializable
     protected static function getMapClassFromType(string $type): string
     {
         $typeFormatted = StringHelper::snakeCaseToCamelCase($type);
-        $class = "Brd6\\NotionSdkPhp\\Resource\Pagination\\${typeFormatted}Response";
+        $class = "Brd6\\NotionSdkPhp\\Resource\Pagination\\${typeFormatted}Results";
 
         if (!class_exists($class)) {
             throw new UnsupportedPaginationResponseTypeException($type);

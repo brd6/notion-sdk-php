@@ -11,7 +11,7 @@ use Brd6\NotionSdkPhp\Exception\RequestTimeoutException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedPaginationResponseTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\RequestParameters;
-use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResponse;
+use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
 
@@ -41,7 +41,7 @@ class UsersEndpoint extends AbstractEndpoint
      * @throws RequestTimeoutException
      * @throws UnsupportedPaginationResponseTypeException
      */
-    public function list(?PaginationRequest $paginationRequest = null): AbstractPaginationResponse
+    public function list(?PaginationRequest $paginationRequest = null): AbstractPaginationResults
     {
         $paginationRequest = $paginationRequest ?? new PaginationRequest();
 
@@ -52,7 +52,7 @@ class UsersEndpoint extends AbstractEndpoint
 
         $rawData = $this->getClient()->request($requestParameters);
 
-        return AbstractPaginationResponse::fromRawData($rawData);
+        return AbstractPaginationResults::fromRawData($rawData);
     }
 
     /**

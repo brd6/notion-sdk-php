@@ -28,9 +28,10 @@ class BlocksEndpoint extends AbstractEndpoint
     /**
      * @throws ApiResponseException
      * @throws HttpResponseException
+     * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
      * @throws RequestTimeoutException
-     * @throws InvalidResourceException
+     * @throws UnsupportedUserTypeException
      */
     public function retrieve(string $blockId): AbstractBlock
     {

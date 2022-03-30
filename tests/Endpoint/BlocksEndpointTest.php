@@ -11,7 +11,7 @@ use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ChildPageBlock;
 use Brd6\NotionSdkPhp\Resource\Block\Heading3Block;
 use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
-use Brd6\NotionSdkPhp\Resource\Pagination\BlockResponse;
+use Brd6\NotionSdkPhp\Resource\Pagination\BlockResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
 use Brd6\NotionSdkPhp\Resource\Property\HeadingProperty;
@@ -169,11 +169,11 @@ class BlocksEndpointTest extends TestCase
 
         $client = new Client($options);
 
-        /** @var BlockResponse $paginationResponse */
+        /** @var BlockResults $paginationResponse */
         $paginationResponse = $client->blocks()->children()->list('03cd5dca-84f7-456f-b7e6-aad92d5f69fd');
 
         $this->assertNotNull($paginationResponse);
-        $this->assertInstanceOf(BlockResponse::class, $paginationResponse);
+        $this->assertInstanceOf(BlockResults::class, $paginationResponse);
 
         $this->assertEquals('block', $paginationResponse->getType());
         $this->assertEquals('list', $paginationResponse->getObject());
@@ -209,7 +209,7 @@ class BlocksEndpointTest extends TestCase
         $paginationRequest = (new PaginationRequest())
             ->setPageSize(4);
 
-        /** @var BlockResponse $paginationResponse */
+        /** @var BlockResults $paginationResponse */
         $paginationResponse = $client
             ->blocks()
             ->children()
@@ -245,7 +245,7 @@ class BlocksEndpointTest extends TestCase
             ->setPageSize(4)
             ->setStartCursor('052e99f4-5a5e-4b2c-acd5-8ad240aeb719');
 
-        /** @var BlockResponse $paginationResponse */
+        /** @var BlockResults $paginationResponse */
         $paginationResponse = $client
             ->blocks()
             ->children()
@@ -302,14 +302,14 @@ class BlocksEndpointTest extends TestCase
         $heading3Property->setRichText([$richText]);
         $heading3->setHeading3($heading3Property);
 
-        /** @var BlockResponse $paginationResponse */
+        /** @var BlockResults $paginationResponse */
         $paginationResponse = $client
             ->blocks()
             ->children()
             ->append('03cd5dca-84f7-456f-b7e6-aad92d5f69fd', [$heading3]);
 
         $this->assertNotNull($paginationResponse);
-        $this->assertInstanceOf(BlockResponse::class, $paginationResponse);
+        $this->assertInstanceOf(BlockResults::class, $paginationResponse);
     }
 
     public function testDeleteBlock(): void

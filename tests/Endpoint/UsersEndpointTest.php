@@ -7,7 +7,7 @@ namespace Brd6\Test\NotionSdkPhp\Endpoint;
 use Brd6\NotionSdkPhp\Client;
 use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Endpoint\UsersEndpoint;
-use Brd6\NotionSdkPhp\Resource\Pagination\UserResponse;
+use Brd6\NotionSdkPhp\Resource\Pagination\UserResults;
 use Brd6\NotionSdkPhp\Resource\User\BotUser;
 use Brd6\NotionSdkPhp\Resource\User\PersonUser;
 use Brd6\Test\NotionSdkPhp\TestCase;
@@ -78,11 +78,11 @@ class UsersEndpointTest extends TestCase
 
         $client = new Client($options);
 
-        /** @var UserResponse $paginationResponse */
+        /** @var UserResults $paginationResponse */
         $paginationResponse = $client->users()->list();
 
         $this->assertNotNull($paginationResponse);
-        $this->assertInstanceOf(UserResponse::class, $paginationResponse);
+        $this->assertInstanceOf(UserResults::class, $paginationResponse);
 
         $this->assertEquals('user', $paginationResponse->getType());
         $this->assertEquals('list', $paginationResponse->getObject());

@@ -11,7 +11,7 @@ use Brd6\NotionSdkPhp\Exception\RequestTimeoutException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedPaginationResponseTypeException;
 use Brd6\NotionSdkPhp\RequestParameters;
 use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
-use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResponse;
+use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 
 use function array_map;
@@ -25,7 +25,7 @@ class BlocksChildrenEndpoint extends AbstractEndpoint
      * @throws RequestTimeoutException
      * @throws UnsupportedPaginationResponseTypeException
      */
-    public function list(string $blockId, ?PaginationRequest $paginationRequest = null): AbstractPaginationResponse
+    public function list(string $blockId, ?PaginationRequest $paginationRequest = null): AbstractPaginationResults
     {
         $paginationRequest = $paginationRequest ?? new PaginationRequest();
 
@@ -36,11 +36,10 @@ class BlocksChildrenEndpoint extends AbstractEndpoint
 
         $rawData = $this->getClient()->request($requestParameters);
 
-        return AbstractPaginationResponse::fromRawData($rawData);
+        return AbstractPaginationResults::fromRawData($rawData);
     }
 
     /**
-     * @param string $blockId
      * @param array|AbstractBlock[] $children
      *
      * @throws ApiResponseException
@@ -49,7 +48,7 @@ class BlocksChildrenEndpoint extends AbstractEndpoint
      * @throws RequestTimeoutException
      * @throws UnsupportedPaginationResponseTypeException
      */
-    public function append(string $blockId, array $children): AbstractPaginationResponse
+    public function append(string $blockId, array $children): AbstractPaginationResults
     {
         $childrenData = array_map(fn (AbstractBlock $block) => $block->toJson(), $children);
 
@@ -62,6 +61,6 @@ class BlocksChildrenEndpoint extends AbstractEndpoint
 
         $rawData = $this->getClient()->request($requestParameters);
 
-        return AbstractPaginationResponse::fromRawData($rawData);
+        return AbstractPaginationResults::fromRawData($rawData);
     }
 }
