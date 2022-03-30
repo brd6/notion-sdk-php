@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Endpoint;
 
+use Brd6\NotionSdkPhp\Client;
 use Brd6\NotionSdkPhp\Exception\ApiResponseException;
 use Brd6\NotionSdkPhp\Exception\HttpResponseException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
@@ -22,6 +23,15 @@ use const ARRAY_FILTER_USE_KEY;
 class PagesEndpoint extends AbstractEndpoint
 {
     private const PAGE_ID_KEY = 'id';
+
+    private PagesPropertiesEndpoint $pagesPropertiesEndpoint;
+
+    public function __construct(Client $client)
+    {
+        parent::__construct($client);
+
+        $this->pagesPropertiesEndpoint = new PagesPropertiesEndpoint($client);
+    }
 
     /**
      * @throws ApiResponseException
@@ -98,5 +108,10 @@ class PagesEndpoint extends AbstractEndpoint
         $pageUpdated = Page::fromRawData($rawData);
 
         return $pageUpdated;
+    }
+
+    public function properties(): PagesPropertiesEndpoint
+    {
+        return $this->pagesPropertiesEndpoint;
     }
 }

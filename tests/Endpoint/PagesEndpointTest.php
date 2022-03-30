@@ -16,8 +16,15 @@ use Brd6\NotionSdkPhp\Resource\File\Emoji;
 use Brd6\NotionSdkPhp\Resource\File\External;
 use Brd6\NotionSdkPhp\Resource\Page;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\PageIdParent;
+use Brd6\NotionSdkPhp\Resource\Page\PropertyItem\AbstractPropertyItem;
+use Brd6\NotionSdkPhp\Resource\Page\PropertyItem\TitlePropertyItem;
+use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\AbstractPropertyValue;
+use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\DatePropertyValue;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\TitlePropertyValue;
+use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
+use Brd6\NotionSdkPhp\Resource\Pagination\PropertyItemResults;
 use Brd6\NotionSdkPhp\Resource\Property\CalloutProperty;
+use Brd6\NotionSdkPhp\Resource\Property\DateProperty;
 use Brd6\NotionSdkPhp\Resource\Property\ExternalProperty;
 use Brd6\NotionSdkPhp\Resource\Property\HeadingProperty;
 use Brd6\NotionSdkPhp\Resource\Property\ParagraphProperty;
@@ -219,5 +226,96 @@ class PagesEndpointTest extends TestCase
         $pageUpdated = $client->pages()->update($page);
 
         $this->assertNotEmpty($pageUpdated->getProperties());
+    }
+
+    public function testRetrieveProperty(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            $this->assertStringContainsString('GET', $method);
+            $this->assertStringContainsString(
+                'pages/fed90baa77e9404d80ba3e2736fc8ac4/properties/%3AIiY',
+                $url,
+            );
+            $this->assertStringContainsString('page_size', $url);
+            $this->assertArrayHasKey('page_size', $options['query']);
+            $this->assertNotEmpty($options['query']['page_size']);
+
+            return new MockResponse(
+                (string) file_get_contents('tests/fixtures/client_pages_retrieve_page_property_item_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        /** @var DatePropertyValue $propertyItem */
+        $propertyItem = $client->pages()
+            ->properties()
+            ->retrieve('fed90baa77e9404d80ba3e2736fc8ac4', '%3AIiY');
+
+        $this->assertInstanceOf(AbstractPropertyValue::class, $propertyItem);
+        $this->assertEquals('property_item', $propertyItem->getObject());
+        $this->assertEquals('date', $propertyItem->getType());
+        $this->assertNotEmpty($propertyItem->getId());
+
+        $date = $propertyItem->getDate();
+        $this->assertInstanceOf(DateProperty::class, $date);
+
+        $this->assertNotEmpty($date->getStart());
+    }
+
+    public function testRetrievePropertyPaginated(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            $this->assertStringContainsString('GET', $method);
+            $this->assertStringContainsString(
+                'pages/fed90baa77e9404d80ba3e2736fc8ac4/properties/title',
+                $url,
+            );
+            $this->assertStringContainsString('page_size', $url);
+            $this->assertArrayHasKey('page_size', $options['query']);
+            $this->assertNotEmpty($options['query']['page_size']);
+
+            return new MockResponse(
+                (string) file_get_contents(
+                    'tests/fixtures/client_pages_retrieve_page_property_item_paginated_200.json',
+                ),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        /** @var PropertyItemResults $propertyItem */
+        $propertyItem = $client->pages()
+            ->properties()
+            ->retrieve('fed90baa77e9404d80ba3e2736fc8ac4', 'title');
+
+        $this->assertInstanceOf(AbstractPaginationResults::class, $propertyItem);
+        $this->assertEquals('list', $propertyItem->getObject());
+        $this->assertEquals('property_item', $propertyItem->getType());
+        $this->assertNotEmpty($propertyItem->getResults());
+
+        $resultItem = $propertyItem->getResults()[0];
+        $this->assertInstanceOf(AbstractPropertyItem::class, $resultItem);
+        $this->assertInstanceOf(TitlePropertyItem::class, $resultItem);
+
+        /** @var Text $text */
+        $text = $resultItem->getTitle();
+        $textProperty = $text->getText();
+
+        $this->assertNotNull($textProperty);
+
+        $this->assertEquals('Test', $textProperty->getContent());
     }
 }

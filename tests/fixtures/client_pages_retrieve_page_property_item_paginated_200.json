@@ -1,0 +1,36 @@
+{
+    "object": "list",
+    "results": [
+        {
+            "object": "property_item",
+            "type": "title",
+            "id": "title",
+            "title": {
+                "type": "text",
+                "text": {
+                    "content": "Test",
+                    "link": null
+                },
+                "annotations": {
+                    "bold": false,
+                    "italic": false,
+                    "strikethrough": false,
+                    "underline": false,
+                    "code": false,
+                    "color": "default"
+                },
+                "plain_text": "Test",
+                "href": null
+            }
+        }
+    ],
+    "next_cursor": null,
+    "has_more": false,
+    "type": "property_item",
+    "property_item": {
+        "id": "title",
+        "next_url": null,
+        "type": "title",
+        "title": {}
+    }
+}
