@@ -26,9 +26,7 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
         "ergebnis/composer-normalize": "^2.25",
         "hamcrest/hamcrest-php": "^2.0",
-        "madewithlove/license-checker": "^1.2",
         "mockery/mockery": "^1.5",
-        "phly/keep-a-changelog": "^2.11",
         "php-parallel-lint/php-console-highlighter": "^1.0",
         "php-parallel-lint/php-parallel-lint": "^1.3",
         "phpstan/phpstan": "^1.5",
@@ -85,7 +83,6 @@
         "dev:build:clean:cache": "git clean -fX build/cache/.",
         "dev:build:clean:coverage": "git clean -fX build/coverage/.",
         "dev:changelog": "keep-a-changelog --ansi",
-        "dev:license": "license-checker --ansi",
         "dev:lint:all": [
             "@dev:lint:syntax",
             "@dev:lint:style"
@@ -106,7 +103,6 @@
         "dev:build:clean:cache": "Cleans the build/cache/ directory.",
         "dev:build:clean:coverage": "Cleans the build/coverage/ directory.",
         "dev:changelog": "Support for working with Keep A Changelog.",
-        "dev:license": "Checks dependency licenses.",
         "dev:lint:fix": "Auto-fixes coding standards issues, if possible.",
         "dev:lint:style": "Checks for coding standards issues.",
         "dev:lint:syntax": "Checks for syntax errors.",
