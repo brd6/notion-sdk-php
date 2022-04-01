@@ -33,7 +33,7 @@ composer require brd6/notion-sdk-php
 
 Import and initialize a client using an **integration token** or an OAuth **access token**.
 
-``` php
+```php
 use Brd6\NotionSdkPhp\Client;
 use Brd6\NotionSdkPhp\ClientOptions;
 
@@ -41,6 +41,42 @@ $options = (new ClientOptions())
     ->setAuth(getenv('NOTION_TOKEN'));
 
 $notion = new Client($options);
+```
+
+Make a request to any Notion API endpoint.
+
+> See the complete list of endpoints in the [API reference](https://developers.notion.com/reference).
+```php
+$listUsersResponse = $notion->users()->list();
+var_dump($listUsersResponse->toArray());
+```
+
+```php
+array (size=4)
+  'has_more' => boolean false
+  'results' =>
+    array (size=2)
+      0 =>
+        array (size=6)
+          'object' => string 'user' (length=4)
+          'id' => string '7f03dda0-a132-49d7-b8b2-29c9ed1b1f0e' (length=36)
+          'type' => string 'person' (length=6)
+          'name' => string 'John Doe' (length=8)
+          'avatar_url' => string 'https://s3-us-west-2.amazonaws.com/public.notion-static.com/521dfe9c-f821-4de8-a0bb-e40ff71283e5/39989484_10217003981481443_4621803518267752448_n.jpg' (length=149)
+          'person' =>
+            array (size=1)
+              ...
+      1 =>
+        array (size=5)
+          'object' => string 'user' (length=4)
+          'id' => string '8dee9e49-7369-4a6d-a11f-7db625b2448c' (length=36)
+          'type' => string 'bot' (length=3)
+          'name' => string 'MyBot' (length=5)
+          'bot' =>
+            array (size=1)
+              ...
+  'object' => string 'list' (length=4)
+  'type' => string 'user' (length=4)
 ```
 
 ## Contributing
