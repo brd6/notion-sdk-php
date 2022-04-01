@@ -32,7 +32,7 @@ abstract class AbstractJsonSerializable implements JsonSerializable
         );
     }
 
-    public function toJson(bool $ignoreEmptyValue = true): array
+    public function toArray(bool $ignoreEmptyValue = true): array
     {
         $this->ignoreEmptyValue = $ignoreEmptyValue;
 

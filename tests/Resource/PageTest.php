@@ -34,7 +34,7 @@ class PageTest extends TestCase
         );
 
         $this->assertNotEmpty($page->getId());
-        $this->assertNotEmpty($page->toJson());
+        $this->assertNotEmpty($page->toArray());
     }
 
     public function testPageWithPageObject(): void
@@ -48,7 +48,7 @@ class PageTest extends TestCase
         );
 
         $this->assertNotEmpty($page->getId());
-        $this->assertNotEmpty($page->toJson());
+        $this->assertNotEmpty($page->toArray());
 
         $icon = $page->getIcon();
 
@@ -85,7 +85,7 @@ class PageTest extends TestCase
 
         foreach ($properties as $property) {
             $this->assertNotEmpty($property->getType());
-            $this->assertNotEmpty($property->toJson());
+            $this->assertNotEmpty($property->toArray());
         }
     }
 }

@@ -54,7 +54,7 @@ class BlocksEndpoint extends AbstractEndpoint
      */
     public function update(AbstractBlock $block): AbstractBlock
     {
-        $data = $block->propertyToJson();
+        $data = $block->propertyToArray();
 
         $requestParameters = (new RequestParameters())
             ->setPath("blocks/{$block->getId()}")

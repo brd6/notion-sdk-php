@@ -47,7 +47,7 @@ class UsersEndpoint extends AbstractEndpoint
 
         $requestParameters = (new RequestParameters())
             ->setPath('users')
-            ->setQuery($paginationRequest->toJson())
+            ->setQuery($paginationRequest->toArray())
             ->setMethod('GET');
 
         $rawData = $this->getClient()->request($requestParameters);

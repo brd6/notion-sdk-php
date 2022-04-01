@@ -210,8 +210,8 @@ abstract class AbstractBlock extends AbstractResource
      *
      * @psalm-suppress PossiblyNullReference
      */
-    public function propertyToJson(): array
+    public function propertyToArray(): array
     {
-        return $this->getProperty() !== null ? $this->getProperty()->toJson() : [];
+        return $this->getProperty() !== null ? $this->getProperty()->toArray() : [];
     }
 }

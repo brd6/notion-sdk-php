@@ -42,7 +42,7 @@ class PagesPropertiesEndpoint extends AbstractEndpoint
 
         $requestParameters = (new RequestParameters())
             ->setPath("pages/$pageId/properties/$propertyId")
-            ->setQuery($paginationRequest->toJson())
+            ->setQuery($paginationRequest->toArray())
             ->setMethod('GET');
 
         $rawData = $this->getClient()->request($requestParameters);

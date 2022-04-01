@@ -31,7 +31,7 @@ class BlocksChildrenEndpoint extends AbstractEndpoint
 
         $requestParameters = (new RequestParameters())
             ->setPath("blocks/$blockId/children")
-            ->setQuery($paginationRequest->toJson())
+            ->setQuery($paginationRequest->toArray())
             ->setMethod('GET');
 
         $rawData = $this->getClient()->request($requestParameters);
@@ -50,7 +50,7 @@ class BlocksChildrenEndpoint extends AbstractEndpoint
      */
     public function append(string $blockId, array $children): AbstractPaginationResults
     {
-        $childrenData = array_map(fn (AbstractBlock $block) => $block->toJson(), $children);
+        $childrenData = array_map(fn (AbstractBlock $block) => $block->toArray(), $children);
 
         $requestParameters = (new RequestParameters())
             ->setPath("blocks/$blockId/children")

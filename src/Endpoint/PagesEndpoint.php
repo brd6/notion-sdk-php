@@ -65,9 +65,9 @@ class PagesEndpoint extends AbstractEndpoint
      */
     public function create(Page $page, array $children = []): Page
     {
-        $childrenData = array_map(fn (AbstractBlock $block) => $block->toJson(), $children);
+        $childrenData = array_map(fn (AbstractBlock $block) => $block->toArray(), $children);
 
-        $data = array_merge($page->toJson(), ['children' => $childrenData]);
+        $data = array_merge($page->toArray(), ['children' => $childrenData]);
 
         $requestParameters = (new RequestParameters())
             ->setPath('pages')
@@ -92,7 +92,7 @@ class PagesEndpoint extends AbstractEndpoint
     public function update(Page $page): Page
     {
         $data = array_filter(
-            $page->toJson(),
+            $page->toArray(),
             fn (string $key) => $key !== self::PAGE_ID_KEY,
             ARRAY_FILTER_USE_KEY,
         );
