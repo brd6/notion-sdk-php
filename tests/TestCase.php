@@ -4,11 +4,44 @@ declare(strict_types=1);
 
 namespace Brd6\Test\NotionSdkPhp;
 
-use Ramsey\Dev\Tools\TestCase as BaseTestCase;
+use Hamcrest\Util;
+use Mockery;
+use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use Mockery\MockInterface;
+use PHPUnit\Framework\TestCase as PHPUnitTestCase;
 
 /**
  * A base test case for common test functionality
  */
-class TestCase extends BaseTestCase
+abstract class TestCase extends PHPUnitTestCase
 {
+    use MockeryPHPUnitIntegration;
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public static function setUpBeforeClass(): void
+    {
+        Util::registerGlobalFunctions();
+    }
+
+    /**
+     * Configures and returns a mock object
+     *
+     * @param class-string<T> $class
+     * @param mixed ...$arguments
+     *
+     * @return T & MockInterface
+     *
+     * @template T
+     *
+     * phpcs:disable SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingNativeTypeHint
+     */
+    public function mockery(string $class, ...$arguments)
+    {
+        /** @var T & MockInterface $mock */
+        $mock = Mockery::mock($class, ...$arguments);
+
+        return $mock;
+    }
 }

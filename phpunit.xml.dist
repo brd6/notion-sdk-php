@@ -4,6 +4,7 @@
          bootstrap="./vendor/autoload.php"
          cacheResultFile="./build/cache/phpunit.result.cache"
          colors="true"
+         testdox="true"
          verbose="true">
 
     <testsuites>
@@ -16,6 +17,16 @@
         <include>
             <directory suffix=".php">./src</directory>
         </include>
+        <report>
+            <clover outputFile="./build/coverage/clover.xml"/>
+            <html outputDirectory="./build/coverage/coverage-html"/>
+            <cobertura outputFile="./build/coverage/cobertura.xml"/>
+            <crap4j outputFile="./build/coverage/crap4j.xml"/>
+            <xml outputDirectory="./build/coverage/coverage-xml.xml"/>
+        </report>
     </coverage>
+    <logging>
+        <junit outputFile="./build/junit.xml"/>
+    </logging>
 
 </phpunit>

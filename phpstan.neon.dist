@@ -3,5 +3,4 @@ parameters:
     level: max
     paths:
         - ./src
-        - ./tests
     checkMissingIterableValueType: false
