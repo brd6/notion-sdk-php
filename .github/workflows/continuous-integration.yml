@@ -90,7 +90,7 @@ jobs:
 
       - name: "Run unit tests (PHPUnit)"
         shell: "bash"
-        run: "composer dev:test:coverage:ci"
+        run: "composer dev:test:unit"
 
       - name: "Publish coverage report to Codecov"
         uses: "codecov/codecov-action@v2.1.0"
