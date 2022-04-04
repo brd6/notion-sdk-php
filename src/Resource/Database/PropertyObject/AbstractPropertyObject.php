@@ -2,35 +2,34 @@
 
 declare(strict_types=1);
 
-namespace Brd6\NotionSdkPhp\Resource\Page\PropertyItem;
+namespace Brd6\NotionSdkPhp\Resource\Database\PropertyObject;
 
-use Brd6\NotionSdkPhp\Exception\InvalidPropertyItemException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyItemException;
+use Brd6\NotionSdkPhp\Exception\InvalidPropertyObjectException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyObjectException;
 use Brd6\NotionSdkPhp\Resource\Property\AbstractProperty;
 use Brd6\NotionSdkPhp\Util\StringHelper;
 
 use function class_exists;
 
-abstract class AbstractPropertyItem extends AbstractProperty
+abstract class AbstractPropertyObject extends AbstractProperty
 {
     private array $rawData = [];
-    protected string $object = '';
-    protected ?string $nextUrl = null;
     protected string $type = '';
     protected string $id = '';
+    protected string $name = '';
 
     /**
      * @param array $rawData
      *
      * @return static
      *
-     * @throws InvalidPropertyItemException
-     * @throws UnsupportedPropertyItemException
+     * @throws InvalidPropertyObjectException
+     * @throws UnsupportedPropertyObjectException
      */
     public static function fromRawData(array $rawData): self
     {
         if (!isset($rawData['type'])) {
-            throw new InvalidPropertyItemException();
+            throw new InvalidPropertyObjectException();
         }
 
         $class = static::getMapClassFromType((string) $rawData['type']);
@@ -50,23 +49,22 @@ abstract class AbstractPropertyItem extends AbstractProperty
         $this->rawData = $rawData;
 
         $this->type = (string) ($this->rawData['type'] ?? '');
+        $this->name = (string) ($this->rawData['name'] ?? '');
         $this->id = (string) ($this->rawData['id'] ?? '');
-        $this->object = (string) ($this->rawData['object'] ?? '');
-        $this->nextUrl = isset($this->rawData['next_url']) ? (string) $this->rawData['next_url'] : null;
 
         return $this;
     }
 
     /**
-     * @throws UnsupportedPropertyItemException
+     * @throws UnsupportedPropertyObjectException
      */
     protected static function getMapClassFromType(string $type): string
     {
         $typeFormatted = StringHelper::snakeCaseToCamelCase($type);
-        $class = "Brd6\\NotionSdkPhp\\Resource\\Page\\PropertyItem\\{$typeFormatted}PropertyItem";
+        $class = "Brd6\\NotionSdkPhp\\Resource\\Database\\PropertyObject\\{$typeFormatted}PropertyObject";
 
         if (!class_exists($class)) {
-            throw new UnsupportedPropertyItemException($type);
+            throw new UnsupportedPropertyObjectException($type);
         }
 
         return $class;
@@ -91,26 +89,14 @@ abstract class AbstractPropertyItem extends AbstractProperty
         return $this;
     }
 
-    public function getObject(): string
+    public function getName(): string
     {
-        return $this->object;
+        return $this->name;
     }
 
-    public function setObject(string $object): self
+    public function setName(string $name): self
     {
-        $this->object = $object;
-
-        return $this;
-    }
-
-    public function getNextUrl(): ?string
-    {
-        return $this->nextUrl;
-    }
-
-    public function setNextUrl(string $nextUrl): self
-    {
-        $this->nextUrl = $nextUrl;
+        $this->name = $name;
 
         return $this;
     }

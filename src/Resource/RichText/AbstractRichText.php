@@ -47,7 +47,7 @@ abstract class AbstractRichText extends AbstractJsonSerializable
         $this->rawData = $rawData;
 
         $this->plainText = (string) ($this->rawData['plain_text'] ?? '');
-        $this->href = (string) ($this->rawData['href'] ?? null);
+        $this->href = isset($this->rawData['href']) ? (string) $this->rawData['href'] : null;
         $this->annotations = Annotations::fromRawData((array) $rawData['annotations']);
         $this->type = (string) ($this->rawData['type'] ?? '');
 

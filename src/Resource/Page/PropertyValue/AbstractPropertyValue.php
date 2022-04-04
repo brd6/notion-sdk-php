@@ -51,7 +51,7 @@ abstract class AbstractPropertyValue extends AbstractProperty
 
         $this->type = (string) ($this->rawData['type'] ?? '');
         $this->object = (string) ($this->rawData['object'] ?? '');
-        $this->nextUrl = (string) ($this->rawData['next_url'] ?? null);
+        $this->nextUrl = isset($this->rawData['next_url']) ? (string) $this->rawData['next_url'] : null;
         $this->id = (string) ($this->rawData['id'] ?? '');
 
         return $this;
