@@ -8,6 +8,7 @@ use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\Property\ToggleProperty;
 
 class ToggleBlock extends AbstractBlock
@@ -19,6 +20,7 @@ class ToggleBlock extends AbstractBlock
      * @throws InvalidResourceTypeException
      * @throws InvalidRichTextException
      * @throws UnsupportedRichTextTypeException
+     * @throws UnsupportedUserTypeException
      */
     protected function initializeBlockProperty(): void
     {

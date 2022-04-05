@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Property\Value;
 
+use Brd6\NotionSdkPhp\Exception\InvalidPropertyException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyTypeException;
+
 use function array_map;
 
 class ArrayValueProperty extends AbstractValueProperty
@@ -13,6 +16,10 @@ class ArrayValueProperty extends AbstractValueProperty
      */
     protected array $array = [];
 
+    /**
+     * @throws InvalidPropertyException
+     * @throws UnsupportedPropertyTypeException
+     */
     protected function initialize(): void
     {
         $this->array = array_map(

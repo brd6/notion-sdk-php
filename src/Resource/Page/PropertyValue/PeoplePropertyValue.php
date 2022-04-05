@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Page\PropertyValue;
 
+use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
 
 use function array_map;
@@ -15,6 +16,9 @@ class PeoplePropertyValue extends AbstractPropertyValue
      */
     protected array $people = [];
 
+    /**
+     * @throws UnsupportedUserTypeException
+     */
     protected function initialize(): void
     {
         $data = (array) $this->getRawData()[$this->getType()];

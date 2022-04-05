@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Page\PropertyValue;
 
+use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
 
 class LastEditedByPropertyValue extends AbstractPropertyValue
 {
     protected ?AbstractUser $lastEditedBy = null;
 
+    /**
+     * @throws UnsupportedUserTypeException
+     */
     protected function initialize(): void
     {
         $this->lastEditedBy = AbstractUser::fromRawData((array) $this->getRawData()[$this->getType()]);

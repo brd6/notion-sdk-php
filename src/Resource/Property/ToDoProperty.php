@@ -8,6 +8,7 @@ use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 
 class ToDoProperty extends AbstractParagraphProperty
 {
@@ -18,6 +19,7 @@ class ToDoProperty extends AbstractParagraphProperty
      * @throws InvalidResourceTypeException
      * @throws InvalidRichTextException
      * @throws UnsupportedRichTextTypeException
+     * @throws UnsupportedUserTypeException
      */
     public static function fromRawData(array $rawData): self
     {

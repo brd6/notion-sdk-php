@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Block;
 
+use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
+use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
+
 use function array_map;
 
 class ColumnBlock extends AbstractBlock
@@ -13,6 +17,11 @@ class ColumnBlock extends AbstractBlock
      */
     protected array $children = [];
 
+    /**
+     * @throws InvalidResourceException
+     * @throws InvalidResourceTypeException
+     * @throws UnsupportedUserTypeException
+     */
     protected function initializeBlockProperty(): void
     {
         $data = (array) $this->getRawData()[$this->getType()];

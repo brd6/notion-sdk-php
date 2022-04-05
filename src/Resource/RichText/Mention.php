@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\RichText;
 
+use Brd6\NotionSdkPhp\Exception\InvalidMentionException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedMentionTypeException;
+
 class Mention extends AbstractRichText
 {
     public const RICH_TEXT_TYPE = 'mention';
@@ -15,6 +18,10 @@ class Mention extends AbstractRichText
         $this->type = self::RICH_TEXT_TYPE;
     }
 
+    /**
+     * @throws InvalidMentionException
+     * @throws UnsupportedMentionTypeException
+     */
     protected function initialize(): void
     {
         $data = (array) $this->getRawData()[$this->getType()];

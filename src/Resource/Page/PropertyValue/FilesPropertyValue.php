@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Page\PropertyValue;
 
+use Brd6\NotionSdkPhp\Exception\InvalidPropertyValueException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyValueException;
+
 use function array_map;
 
 class FilesPropertyValue extends AbstractPropertyValue
@@ -13,6 +16,10 @@ class FilesPropertyValue extends AbstractPropertyValue
      */
     protected array $files = [];
 
+    /**
+     * @throws InvalidPropertyValueException
+     * @throws UnsupportedPropertyValueException
+     */
     protected function initialize(): void
     {
         $data = (array) $this->getRawData()[$this->getType()];

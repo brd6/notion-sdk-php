@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Property;
 
+use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
+
 class BotProperty extends AbstractProperty
 {
     protected ?OwnerProperty $owner = null;
 
+    /**
+     * @throws UnsupportedUserTypeException
+     */
     public static function fromRawData(array $rawData): self
     {
         $property = new self();

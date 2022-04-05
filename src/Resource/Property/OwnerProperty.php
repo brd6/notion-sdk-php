@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Property;
 
+use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
 use Brd6\NotionSdkPhp\Resource\UserInterface;
 
@@ -15,6 +16,13 @@ class OwnerProperty extends AbstractProperty
     protected ?bool $workspace = true;
     protected ?UserInterface $user = null;
 
+    /**
+     * @param array $rawData
+     *
+     * @return static
+     *
+     * @throws UnsupportedUserTypeException
+     */
     public static function fromRawData(array $rawData): self
     {
         $property = new self();
