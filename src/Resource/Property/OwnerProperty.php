@@ -17,10 +17,6 @@ class OwnerProperty extends AbstractProperty
     protected ?UserInterface $user = null;
 
     /**
-     * @param array $rawData
-     *
-     * @return static
-     *
      * @throws UnsupportedUserTypeException
      */
     public static function fromRawData(array $rawData): self
