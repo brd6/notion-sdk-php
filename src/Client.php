@@ -6,6 +6,7 @@ namespace Brd6\NotionSdkPhp;
 
 use Brd6\NotionSdkPhp\Constant\NotionErrorCodeConstant;
 use Brd6\NotionSdkPhp\Endpoint\BlocksEndpoint;
+use Brd6\NotionSdkPhp\Endpoint\DatabasesEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\PagesEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\UsersEndpoint;
 use Brd6\NotionSdkPhp\Exception\ApiResponseException;
@@ -30,6 +31,7 @@ class Client
     private BlocksEndpoint $blocksEndpoint;
     private UsersEndpoint $usersEndpoint;
     private PagesEndpoint $pagesEndpoint;
+    private DatabasesEndpoint $databasesEndpoint;
 
     public function __construct(?ClientOptions $options = null)
     {
@@ -39,6 +41,7 @@ class Client
         $this->blocksEndpoint = new BlocksEndpoint($this);
         $this->usersEndpoint = new UsersEndpoint($this);
         $this->pagesEndpoint = new PagesEndpoint($this);
+        $this->databasesEndpoint = new DatabasesEndpoint($this);
     }
 
     /**
@@ -125,5 +128,10 @@ class Client
     public function pages(): PagesEndpoint
     {
         return $this->pagesEndpoint;
+    }
+
+    public function databases(): DatabasesEndpoint
+    {
+        return $this->databasesEndpoint;
     }
 }
