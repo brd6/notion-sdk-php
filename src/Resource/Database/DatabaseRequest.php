@@ -8,4 +8,5 @@ use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 
 class DatabaseRequest extends PaginationRequest
 {
+    protected array $filter = [];
 }
