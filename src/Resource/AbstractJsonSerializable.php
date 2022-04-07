@@ -45,7 +45,6 @@ abstract class AbstractJsonSerializable implements JsonSerializable
 
     /**
      * @param mixed $value
-     * @param string $key
      */
     private function canBeSerialized($value, string $key): bool
     {
