@@ -10,9 +10,12 @@ use Brd6\NotionSdkPhp\Resource\Property\AbstractProperty;
 use Brd6\NotionSdkPhp\Util\StringHelper;
 
 use function class_exists;
+use function in_array;
 
 abstract class AbstractPropertyObject extends AbstractProperty
 {
+    private const SERIALIZER_KEYS_IGNORED = ['ignoreEmptyValue', 'rawData', 'type', 'id', 'name'];
+
     private array $rawData = [];
     protected string $type = '';
     protected string $id = '';
@@ -111,5 +114,14 @@ abstract class AbstractPropertyObject extends AbstractProperty
         $this->id = $id;
 
         return $this;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    protected function canBeSerialized($value, string $key): bool
+    {
+        return !in_array($key, self::SERIALIZER_KEYS_IGNORED) ||
+            parent::canBeSerialized($value, $key);
     }
 }

@@ -1,0 +1,140 @@
+{
+    "object": "database",
+    "id": "c5a8c1b2-8a71-4e92-a8c9-26d6b00738fe",
+    "cover": null,
+    "icon": null,
+    "created_time": "2022-04-08T13:22:00.000Z",
+    "created_by": {
+        "object": "user",
+        "id": "8dee9e49-7369-4a6d-a11f-7db625b2448c"
+    },
+    "last_edited_by": {
+        "object": "user",
+        "id": "8dee9e49-7369-4a6d-a11f-7db625b2448c"
+    },
+    "last_edited_time": "2022-04-08T13:22:00.000Z",
+    "title": [
+        {
+            "type": "text",
+            "text": {
+                "content": "Grocery List",
+                "link": null
+            },
+            "annotations": {
+                "bold": false,
+                "italic": false,
+                "strikethrough": false,
+                "underline": false,
+                "code": false,
+                "color": "default"
+            },
+            "plain_text": "Grocery List",
+            "href": null
+        }
+    ],
+    "properties": {
+        "photo": {
+            "id": "%3BB%5E%3A",
+            "name": "photo",
+            "type": "files",
+            "files": {}
+        },
+        "store availability": {
+            "id": "B%7BTv",
+            "name": "store availability",
+            "type": "multi_select",
+            "multi_select": {
+                "options": [
+                    {
+                        "id": "199b1436-5b6a-45d3-944c-c1c6ed4f696d",
+                        "name": "Duc Loi Market",
+                        "color": "blue"
+                    },
+                    {
+                        "id": "1c1647d3-4f4b-4a26-9813-1ffab9ffc9f3",
+                        "name": "Rainbow Grocery",
+                        "color": "gray"
+                    },
+                    {
+                        "id": "8b525bb3-f3d9-4d26-9a89-64a5bab54903",
+                        "name": "Nijiya Market",
+                        "color": "purple"
+                    },
+                    {
+                        "id": "740909e7-924c-4055-81de-9bbe1c611ef9",
+                        "name": "Gus's Community Market",
+                        "color": "yellow"
+                    }
+                ]
+            }
+        },
+        "description": {
+            "id": "NUL%7C",
+            "name": "description",
+            "type": "rich_text",
+            "rich_text": {}
+        },
+        "last ordered": {
+            "id": "UA%60%3D",
+            "name": "last ordered",
+            "type": "date",
+            "date": {}
+        },
+        "+1": {
+            "id": "YSLf",
+            "name": "+1",
+            "type": "people",
+            "people": {}
+        },
+        "price": {
+            "id": "Ydb%3A",
+            "name": "price",
+            "type": "number",
+            "number": {
+                "format": "dollar"
+            }
+        },
+        "in stock": {
+            "id": "%5D%3A%5CT",
+            "name": "in stock",
+            "type": "checkbox",
+            "checkbox": {}
+        },
+        "food group": {
+            "id": "qMBb",
+            "name": "food group",
+            "type": "select",
+            "select": {
+                "options": [
+                    {
+                        "id": "5f8f9d2d-a0f8-405e-8057-76b2b004df5e",
+                        "name": "🥦Vegetable",
+                        "color": "green"
+                    },
+                    {
+                        "id": "aa30bca9-fb54-4188-9aee-684e4f9e4e39",
+                        "name": "🍎Fruit",
+                        "color": "red"
+                    },
+                    {
+                        "id": "f64e0d3c-2c37-4f1d-b342-545db6354257",
+                        "name": "💪Protein",
+                        "color": "yellow"
+                    }
+                ]
+            }
+        },
+        "name": {
+            "id": "title",
+            "name": "name",
+            "type": "title",
+            "title": {}
+        }
+    },
+    "parent": {
+        "type": "page_id",
+        "page_id": "4a808e6e-8845-4d49-a447-fb2a4c460f6f"
+    },
+    "url": "https://www.notion.so/c5a8c1b28a714e92a8c926d6b00738fe",
+    "archived": false
+}

@@ -10,6 +10,11 @@ class SelectPropertyObject extends AbstractPropertyObject
 {
     protected ?SelectPropertyConfiguration $select = null;
 
+    public function __construct()
+    {
+        $this->select = new SelectPropertyConfiguration();
+    }
+
     protected function initialize(): void
     {
         $data = (array) $this->getRawData()[$this->getType()];

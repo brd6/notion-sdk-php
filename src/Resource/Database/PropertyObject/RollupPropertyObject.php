@@ -10,6 +10,11 @@ class RollupPropertyObject extends AbstractPropertyObject
 {
     protected ?RollupPropertyConfiguration $rollup = null;
 
+    public function __construct()
+    {
+        $this->rollup = new RollupPropertyConfiguration();
+    }
+
     protected function initialize(): void
     {
         $data = (array) $this->getRawData()[$this->getType()];

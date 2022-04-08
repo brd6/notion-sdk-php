@@ -15,12 +15,14 @@ class Text extends AbstractRichText
     public function __construct()
     {
         $this->type = self::RICH_TEXT_TYPE;
-        $this->annotations = new Annotations();
     }
 
     public static function fromContent(string $content): self
     {
-        return (new self())->setText((new TextProperty())->setContent($content));
+        $text = new self();
+        $text->annotations = new Annotations();
+
+        return $text->setText((new TextProperty())->setContent($content));
     }
 
     protected function initialize(): void

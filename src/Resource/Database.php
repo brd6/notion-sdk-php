@@ -18,6 +18,8 @@ use Brd6\NotionSdkPhp\Resource\RichText\AbstractRichText;
 use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
 use DateTimeImmutable;
 
+use function array_map;
+
 class Database extends AbstractResource
 {
     public const RESOURCE_TYPE = 'database';
@@ -75,6 +77,10 @@ class Database extends AbstractResource
             null;
         $this->parent = AbstractParentProperty::fromRawData((array) $this->getRawData()['parent']);
         $this->url = (string) $this->getRawData()['url'];
+        $this->title = isset($this->getRawData()['title']) ? array_map(
+            fn (array $richTextRawData) => AbstractRichText::fromRawData($richTextRawData),
+            (array) $this->getRawData()['title'],
+        ) : [];
 
         /** @var array<string, array> $properties */
         $properties = (array) $this->getRawData()['properties'];

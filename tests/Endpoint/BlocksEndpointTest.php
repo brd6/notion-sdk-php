@@ -15,7 +15,6 @@ use Brd6\NotionSdkPhp\Resource\Pagination\BlockResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
 use Brd6\NotionSdkPhp\Resource\Property\HeadingProperty;
-use Brd6\NotionSdkPhp\Resource\Property\TextProperty;
 use Brd6\NotionSdkPhp\Resource\RichText\Text;
 use Brd6\NotionSdkPhp\Resource\UserInterface;
 use Brd6\Test\NotionSdkPhp\TestCase;
@@ -289,12 +288,7 @@ class BlocksEndpointTest extends TestCase
 
         $client = new Client($options);
 
-        $richText = new Text();
-
-        $textProperty = new TextProperty();
-        $textProperty->setContent('New title here');
-
-        $richText->setText($textProperty);
+        $richText = Text::fromContent('New title here');
 
         $heading3 = new Heading3Block();
 

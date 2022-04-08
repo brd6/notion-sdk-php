@@ -8,22 +8,27 @@ use Brd6\NotionSdkPhp\Resource\Database\PropertyConfiguration\SelectPropertyConf
 
 class MultiSelectPropertyObject extends AbstractPropertyObject
 {
-    protected ?SelectPropertyConfiguration $select = null;
+    protected ?SelectPropertyConfiguration $multiSelect = null;
+
+    public function __construct()
+    {
+        $this->multiSelect = new SelectPropertyConfiguration();
+    }
 
     protected function initialize(): void
     {
         $data = (array) $this->getRawData()[$this->getType()];
-        $this->select = SelectPropertyConfiguration::fromRawData($data);
+        $this->multiSelect = SelectPropertyConfiguration::fromRawData($data);
     }
 
-    public function getSelect(): ?SelectPropertyConfiguration
+    public function getMultiSelect(): ?SelectPropertyConfiguration
     {
-        return $this->select;
+        return $this->multiSelect;
     }
 
-    public function setSelect(?SelectPropertyConfiguration $select): self
+    public function setMultiSelect(?SelectPropertyConfiguration $multiSelect): self
     {
-        $this->select = $select;
+        $this->multiSelect = $multiSelect;
 
         return $this;
     }

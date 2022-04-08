@@ -46,7 +46,7 @@ abstract class AbstractJsonSerializable implements JsonSerializable
     /**
      * @param mixed $value
      */
-    private function canBeSerialized($value, string $key): bool
+    protected function canBeSerialized($value, string $key): bool
     {
         return !in_array($key, self::EXCLUDED_KEYS) &&
             (!$this->ignoreEmptyValue ||

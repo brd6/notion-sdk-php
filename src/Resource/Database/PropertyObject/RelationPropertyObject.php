@@ -10,6 +10,11 @@ class RelationPropertyObject extends AbstractPropertyObject
 {
     protected ?RelationPropertyConfiguration $relation = null;
 
+    public function __construct()
+    {
+        $this->relation = new RelationPropertyConfiguration();
+    }
+
     protected function initialize(): void
     {
         $data = (array) $this->getRawData()[$this->getType()];
