@@ -15,6 +15,7 @@ use Brd6\NotionSdkPhp\RequestParameters;
 use Brd6\NotionSdkPhp\Resource\Database;
 use Brd6\NotionSdkPhp\Resource\Database\DatabaseRequest;
 use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
+use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 
 class DatabasesEndpoint extends AbstractEndpoint
 {
@@ -25,14 +26,16 @@ class DatabasesEndpoint extends AbstractEndpoint
      * @throws RequestTimeoutException
      * @throws UnsupportedPaginationResponseTypeException
      */
-    public function query(string $databaseId, ?DatabaseRequest $databaseRequest = null): AbstractPaginationResults
-    {
-        $databaseRequest = $databaseRequest ?? new DatabaseRequest();
-
+    public function query(
+        string $databaseId,
+        ?DatabaseRequest $databaseRequest = null,
+        ?PaginationRequest $paginationRequest = null
+    ): AbstractPaginationResults {
         $requestParameters = (new RequestParameters())
             ->setPath("databases/$databaseId/query")
-            ->setQuery($databaseRequest->toArray())
-            ->setMethod('GET');
+            ->setQuery($paginationRequest ? $paginationRequest->toArray() : [])
+            ->setBody($databaseRequest ? $databaseRequest->toArray() : [])
+            ->setMethod('POST');
 
         $rawData = $this->getClient()->request($requestParameters);
 
