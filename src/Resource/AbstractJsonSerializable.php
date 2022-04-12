@@ -19,9 +19,10 @@ use const ARRAY_FILTER_USE_BOTH;
 
 abstract class AbstractJsonSerializable implements JsonSerializable
 {
-    private const EXCLUDED_KEYS = ['ignoreEmptyValue', 'rawData'];
+    private const EXCLUDED_KEYS = ['ignoreEmptyValue', 'rawData', 'onlyKeys'];
 
     private bool $ignoreEmptyValue = true;
+    private array $onlyKeys = [];
 
     public function jsonSerialize(): array
     {
@@ -32,13 +33,16 @@ abstract class AbstractJsonSerializable implements JsonSerializable
         );
     }
 
-    public function toArray(bool $ignoreEmptyValue = true): array
+    public function toArray(bool $ignoreEmptyValue = true, array $onlyKeys = []): array
     {
         $this->ignoreEmptyValue = $ignoreEmptyValue;
+        $this->onlyKeys = $onlyKeys;
 
         /** @var array $data */
         $data = json_decode((string) json_encode($this), true);
         ArrayHelper::transformKeysToSnakeCase($data);
+
+        $this->onlyKeys = [];
 
         return $data;
     }
@@ -48,7 +52,8 @@ abstract class AbstractJsonSerializable implements JsonSerializable
      */
     protected function canBeSerialized($value, string $key): bool
     {
-        return !in_array($key, self::EXCLUDED_KEYS) &&
+        return ((count($this->onlyKeys) === 0 || in_array($key, $this->onlyKeys)) &&
+                !in_array($key, self::EXCLUDED_KEYS)) &&
             (!$this->ignoreEmptyValue ||
             (($value !== null && $value !== '') &&
                 ((!is_array($value)) || count($value) > 0)

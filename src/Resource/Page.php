@@ -20,6 +20,7 @@ use DateTimeImmutable;
 class Page extends AbstractResource
 {
     public const RESOURCE_TYPE = 'page';
+    private const UPDATE_ACCEPTED_KEYS = ['properties', 'archived', 'icon', 'cover'];
 
     protected ?DateTimeImmutable $createdTime = null;
     protected ?UserInterface $createdBy = null;
@@ -42,6 +43,11 @@ class Page extends AbstractResource
         parent::__construct();
 
         $this->object = self::RESOURCE_TYPE;
+    }
+
+    public function toArrayForUpdate(): array
+    {
+        return $this->toArray(true, self::UPDATE_ACCEPTED_KEYS);
     }
 
     /**

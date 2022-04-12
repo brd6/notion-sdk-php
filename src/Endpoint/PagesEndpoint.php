@@ -14,16 +14,11 @@ use Brd6\NotionSdkPhp\RequestParameters;
 use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Page;
 
-use function array_filter;
 use function array_map;
 use function array_merge;
 
-use const ARRAY_FILTER_USE_KEY;
-
 class PagesEndpoint extends AbstractEndpoint
 {
-    private const PAGE_ID_KEY = 'id';
-
     private PagesPropertiesEndpoint $pagesPropertiesEndpoint;
 
     public function __construct(Client $client)
@@ -91,16 +86,10 @@ class PagesEndpoint extends AbstractEndpoint
      */
     public function update(Page $page): Page
     {
-        $data = array_filter(
-            $page->toArray(),
-            fn (string $key) => $key !== self::PAGE_ID_KEY,
-            ARRAY_FILTER_USE_KEY,
-        );
-
         $requestParameters = (new RequestParameters())
             ->setPath("pages/{$page->getId()}")
             ->setMethod('PATCH')
-            ->setBody($data);
+            ->setBody($page->toArrayForUpdate());
 
         $rawData = $this->getClient()->request($requestParameters);
 
