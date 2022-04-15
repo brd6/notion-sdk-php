@@ -13,9 +13,9 @@ class SelectProperty extends AbstractProperty
     public static function fromRawData(array $rawData): self
     {
         $property = new self();
-        $property->id = (string) $rawData['id'];
-        $property->name = (string) $rawData['name'];
-        $property->color = (string) $rawData['color'];
+        $property->id = isset($rawData['id']) ? (string) $rawData['id'] : '';
+        $property->name = isset($rawData['name']) ? (string) $rawData['name'] : '';
+        $property->color = isset($rawData['color']) ? (string) $rawData['color'] : '';
 
         return $property;
     }
