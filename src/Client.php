@@ -8,10 +8,14 @@ use Brd6\NotionSdkPhp\Constant\NotionErrorCodeConstant;
 use Brd6\NotionSdkPhp\Endpoint\BlocksEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\DatabasesEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\PagesEndpoint;
+use Brd6\NotionSdkPhp\Endpoint\SearchEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\UsersEndpoint;
 use Brd6\NotionSdkPhp\Exception\ApiResponseException;
 use Brd6\NotionSdkPhp\Exception\HttpResponseException;
 use Brd6\NotionSdkPhp\Exception\RequestTimeoutException;
+use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
+use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
+use Brd6\NotionSdkPhp\Resource\Search\SearchRequest;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
@@ -32,6 +36,7 @@ class Client
     private UsersEndpoint $usersEndpoint;
     private PagesEndpoint $pagesEndpoint;
     private DatabasesEndpoint $databasesEndpoint;
+    private SearchEndpoint $searchEndpoint;
 
     public function __construct(?ClientOptions $options = null)
     {
@@ -42,6 +47,7 @@ class Client
         $this->usersEndpoint = new UsersEndpoint($this);
         $this->pagesEndpoint = new PagesEndpoint($this);
         $this->databasesEndpoint = new DatabasesEndpoint($this);
+        $this->searchEndpoint = new SearchEndpoint($this);
     }
 
     /**
@@ -133,5 +139,19 @@ class Client
     public function databases(): DatabasesEndpoint
     {
         return $this->databasesEndpoint;
+    }
+
+    /**
+     * @throws ApiResponseException
+     * @throws Exception\InvalidPaginationResponseException
+     * @throws Exception\UnsupportedPaginationResponseTypeException
+     * @throws HttpResponseException
+     * @throws RequestTimeoutException
+     */
+    public function search(
+        ?SearchRequest $searchRequest = null,
+        ?PaginationRequest $paginationRequest = null
+    ): AbstractPaginationResults {
+        return $this->searchEndpoint->search($searchRequest, $paginationRequest);
     }
 }
