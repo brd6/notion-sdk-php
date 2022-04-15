@@ -87,4 +87,25 @@ class DatabasesEndpoint extends AbstractEndpoint
 
         return $databaseUpdated;
     }
+
+    /**
+     * @throws ApiResponseException
+     * @throws HttpResponseException
+     * @throws InvalidResourceException
+     * @throws InvalidResourceTypeException
+     * @throws RequestTimeoutException
+     */
+    public function retrieve(string $databaseId): Database
+    {
+        $requestParameters = (new RequestParameters())
+            ->setPath("databases/$databaseId")
+            ->setMethod('GET');
+
+        $rawData = $this->getClient()->request($requestParameters);
+
+        /** @var Database $database */
+        $database = Database::fromRawData($rawData);
+
+        return $database;
+    }
 }

@@ -253,8 +253,6 @@ class DatabasesEndpointTest extends TestCase
             $this->assertStringContainsString('PATCH', $method);
             $this->assertStringContainsString('databases/c5a8c1b2-8a71-4e92-a8c9-26d6b00738fe', $url);
 
-            $this->assertStringContainsString('databases', $url);
-
             /** @var array $body */
             $body = json_decode($options['body'], true);
 
@@ -304,5 +302,30 @@ class DatabasesEndpointTest extends TestCase
         $databaseUpdated = $client->databases()->update($database);
 
         $this->assertNotEmpty($databaseUpdated->getProperties());
+    }
+
+    public function testRetrieveDatabase(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            $this->assertStringContainsString('GET', $method);
+            $this->assertStringContainsString('databases/a5926cb0-9070-4fea-94f7-494e59a0e75c', $url);
+
+            return new MockResponse(
+                (string) file_get_contents('tests/fixtures/client_databases_retrieve_database_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $database = $client->databases()->retrieve('a5926cb0-9070-4fea-94f7-494e59a0e75c');
+
+        $this->assertNotEmpty($database->getId());
+        $this->assertNotEmpty($database->getProperties());
     }
 }
