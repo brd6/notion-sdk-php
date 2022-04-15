@@ -14,7 +14,7 @@ use function in_array;
 
 abstract class AbstractPropertyObject extends AbstractProperty
 {
-    private const SERIALIZER_KEYS_IGNORED = ['ignoreEmptyValue', 'rawData', 'type', 'id', 'name'];
+    private const SERIALIZER_KEYS_IGNORED = ['ignoreEmptyValue', 'rawData', 'type', 'id', 'name', 'onlyKeys'];
 
     private array $rawData = [];
     protected string $type = '';

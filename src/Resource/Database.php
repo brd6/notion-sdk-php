@@ -23,6 +23,7 @@ use function array_map;
 class Database extends AbstractResource
 {
     public const RESOURCE_TYPE = 'database';
+    private const UPDATE_ACCEPTED_KEYS = ['title', 'properties', 'icon', 'cover'];
 
     protected ?DateTimeImmutable $createdTime = null;
     protected ?UserInterface $createdBy = null;
@@ -51,6 +52,11 @@ class Database extends AbstractResource
         parent::__construct();
 
         $this->object = self::RESOURCE_TYPE;
+    }
+
+    public function toArrayForUpdate(): array
+    {
+        return $this->toArray(true, self::UPDATE_ACCEPTED_KEYS);
     }
 
     /**

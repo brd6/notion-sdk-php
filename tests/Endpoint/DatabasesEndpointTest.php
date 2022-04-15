@@ -20,6 +20,7 @@ use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\PeoplePropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\RichTextPropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\SelectPropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\TitlePropertyObject;
+use Brd6\NotionSdkPhp\Resource\File\Emoji;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\PageIdParent;
 use Brd6\NotionSdkPhp\Resource\Pagination\PageResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
@@ -244,5 +245,64 @@ class DatabasesEndpointTest extends TestCase
         $this->assertNotEmpty($databaseCreated->getProperties());
         $this->assertNotEmpty($databaseCreated->getId());
         $this->assertNotEmpty($databaseCreated->getTitle());
+    }
+
+    public function testUpdateDatabase(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            $this->assertStringContainsString('PATCH', $method);
+            $this->assertStringContainsString('databases/c5a8c1b2-8a71-4e92-a8c9-26d6b00738fe', $url);
+
+            $this->assertStringContainsString('databases', $url);
+
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertArrayHasKey('title', $body);
+            $this->assertArrayHasKey('properties', $body);
+            $this->assertArrayHasKey('in stock', $body['properties']);
+            $this->assertStringContainsString('Yes', $body['properties']['in stock']['select']['options'][0]['name']);
+
+            return new MockResponse(
+                (string) file_get_contents('tests/fixtures/client_databases_update_database_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $database = new Database();
+        $database->setId('c5a8c1b2-8a71-4e92-a8c9-26d6b00738fe');
+        $database->setIcon((new Emoji())->setEmoji('🎉'));
+        $database->setTitle([Text::fromContent('Database new title!')]);
+
+        $inStockSelectProperties = [
+            (new SelectProperty())
+                ->setName('✅ Yes')
+                ->setColor('green'),
+            (new SelectProperty())
+                ->setName('❌ No')
+                ->setColor('red'),
+        ];
+
+        $inStockSelectObject = new SelectPropertyObject();
+        $inStockSelectObject->setSelect(
+            (new SelectPropertyConfiguration())->setOptions($inStockSelectProperties),
+        );
+
+        $databaseProperties = [
+            'Short Description' => new RichTextPropertyObject(),
+            'in stock' => $inStockSelectObject,
+        ];
+        $database->setProperties($databaseProperties);
+
+        $databaseUpdated = $client->databases()->update($database);
+
+        $this->assertNotEmpty($databaseUpdated->getProperties());
     }
 }

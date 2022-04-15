@@ -7,6 +7,7 @@ namespace Brd6\NotionSdkPhp\Util;
 use function ltrim;
 use function preg_replace;
 use function str_replace;
+use function strpos;
 use function strtolower;
 use function ucwords;
 
@@ -19,12 +20,14 @@ class StringHelper
 
     public static function camelCaseToSnakeCase(string $text): string
     {
-        return strtolower(
-            (string) preg_replace(
-                '/([a-z0-9])([A-Z0-9])/',
-                '$1_$2',
-                ltrim($text, '!'),
-            ),
+        $textTransformed = (string) preg_replace(
+            '/([a-z0-9])([A-Z0-9])/',
+            '$1_$2',
+            ltrim($text, '!'),
         );
+
+        return strpos($textTransformed, '_') !== false ?
+            strtolower($textTransformed) :
+            $textTransformed;
     }
 }
