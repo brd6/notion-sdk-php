@@ -79,6 +79,35 @@ array (size=4)
   'type' => string 'user' (length=4)
 ```
 
+Endpoint parameters are grouped into a single object. You don't need to remember which parameters go in the path, query, or body.
+```php
+$databaseRequest = new DatabaseRequest();
+$databaseRequest->setFilter([
+    'property' => 'Landmark',
+    'text' => [
+        'contains' => 'Bridge',
+    ],
+]);
+$myPage = $notion->databases()->query('897e5a76-ae52-4b48-9fdf-e71f5945d1af', $databaseRequest)
+```
+
+### Handling errors
+
+If the API returns an unsuccessful response, an `ApiResponseException` will be thrown.
+
+The error contains properties from the response, and the most helpful is `code`. You can compare `code` to the values in the `NotionErrorCodeConstant` object to avoid misspelling error codes.
+
+### Client options
+
+The `Client` supports the following options on initialization. These options can be set on the `ClientOptions` instance.
+
+| Option       | Default value              | Type                  | Description                                                                                                                                        |
+|--------------|----------------------------|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| `auth`       | `''`                       | `string`              | Bearer token for authentication. If left undefined, the `auth` parameter should be set on each request.                                            |
+| `timeout`    | `60`                       | `number`              | Number of seconds to wait before throw a `RequestTimeoutException`                                                                                 |
+| `baseUrl`    | `"https://api.notion.com"` | `string`              | The root URL for sending API requests. This can be changed to test with a mock server.                                                             |
+| `httpClient` | Default Http Client        | `HttpClientInterface` | The Http Client used to make request on the Notion API. This can be change to customize the base Http Client or replace with a mocked Http Client. |
+
 ## Contributing
 
 Contributions are welcome! To contribute, please familiarize yourself with
