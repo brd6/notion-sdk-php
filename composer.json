@@ -44,7 +44,7 @@
         "psalm/plugin-phpunit": "^0.16.1",
         "ramsey/coding-standard": "^2.0",
         "roave/security-advisories": "dev-latest",
-        "symfony/http-client": "^6.1",
+        "symfony/http-client": "^5.4",
         "vimeo/psalm": "^4.22"
     },
     "suggest": {
