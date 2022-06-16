@@ -16,12 +16,17 @@ use Brd6\NotionSdkPhp\RequestParameters;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\AbstractPropertyValue;
 use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
+use Http\Client\Exception;
 
 class PagesPropertiesEndpoint extends AbstractEndpoint
 {
     public const PROPERTY_ITEM_TYPE = 'property_item';
 
     /**
+     * @param string $pageId
+     * @param string $propertyId
+     * @param PaginationRequest|null $paginationRequest
+     *
      * @return AbstractPropertyValue|AbstractPaginationResults
      *
      * @throws ApiResponseException
@@ -32,6 +37,7 @@ class PagesPropertiesEndpoint extends AbstractEndpoint
      * @throws RequestTimeoutException
      * @throws UnsupportedPaginationResponseTypeException
      * @throws UnsupportedPropertyValueException
+     * @throws Exception
      */
     public function retrieve(
         string $pageId,

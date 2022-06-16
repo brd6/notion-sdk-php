@@ -13,15 +13,20 @@ use Brd6\NotionSdkPhp\RequestParameters;
 use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Brd6\NotionSdkPhp\Resource\Search\SearchRequest;
+use Http\Client\Exception;
 
 class SearchEndpoint extends AbstractEndpoint
 {
     /**
+     * @param SearchRequest|null $searchRequest
+     * @param PaginationRequest|null $paginationRequest
+     *
      * @throws ApiResponseException
      * @throws HttpResponseException
      * @throws InvalidPaginationResponseException
      * @throws RequestTimeoutException
      * @throws UnsupportedPaginationResponseTypeException
+     * @throws Exception
      */
     public function search(
         ?SearchRequest $searchRequest = null,

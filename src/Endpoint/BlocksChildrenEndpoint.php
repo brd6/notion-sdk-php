@@ -13,17 +13,22 @@ use Brd6\NotionSdkPhp\RequestParameters;
 use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
+use Http\Client\Exception;
 
 use function array_map;
 
 class BlocksChildrenEndpoint extends AbstractEndpoint
 {
     /**
+     * @param string $blockId
+     * @param PaginationRequest|null $paginationRequest
+     *
      * @throws ApiResponseException
      * @throws HttpResponseException
      * @throws InvalidPaginationResponseException
      * @throws RequestTimeoutException
      * @throws UnsupportedPaginationResponseTypeException
+     * @throws Exception
      */
     public function list(string $blockId, ?PaginationRequest $paginationRequest = null): AbstractPaginationResults
     {
@@ -40,9 +45,11 @@ class BlocksChildrenEndpoint extends AbstractEndpoint
     }
 
     /**
+     * @param string $blockId
      * @param array|AbstractBlock[] $children
      *
      * @throws ApiResponseException
+     * @throws Exception
      * @throws HttpResponseException
      * @throws InvalidPaginationResponseException
      * @throws RequestTimeoutException

@@ -13,6 +13,7 @@ use Brd6\NotionSdkPhp\Exception\RequestTimeoutException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\RequestParameters;
 use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
+use Http\Client\Exception;
 
 class BlocksEndpoint extends AbstractEndpoint
 {
@@ -26,12 +27,15 @@ class BlocksEndpoint extends AbstractEndpoint
     }
 
     /**
+     * @param string $blockId
+     *
      * @throws ApiResponseException
      * @throws HttpResponseException
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
      * @throws RequestTimeoutException
      * @throws UnsupportedUserTypeException
+     * @throws Exception
      */
     public function retrieve(string $blockId): AbstractBlock
     {
@@ -45,7 +49,10 @@ class BlocksEndpoint extends AbstractEndpoint
     }
 
     /**
+     * @param AbstractBlock $block
+     *
      * @throws ApiResponseException
+     * @throws Exception
      * @throws HttpResponseException
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
@@ -75,7 +82,10 @@ class BlocksEndpoint extends AbstractEndpoint
     }
 
     /**
+     * @param string $blockId
+     *
      * @throws ApiResponseException
+     * @throws Exception
      * @throws HttpResponseException
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException

@@ -14,11 +14,15 @@ use Brd6\NotionSdkPhp\RequestParameters;
 use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
+use Http\Client\Exception;
 
 class UsersEndpoint extends AbstractEndpoint
 {
     /**
+     * @param string $userId
+     *
      * @throws ApiResponseException
+     * @throws Exception
      * @throws HttpResponseException
      * @throws RequestTimeoutException
      * @throws UnsupportedUserTypeException
@@ -35,7 +39,10 @@ class UsersEndpoint extends AbstractEndpoint
     }
 
     /**
+     * @param PaginationRequest|null $paginationRequest
+     *
      * @throws ApiResponseException
+     * @throws Exception
      * @throws HttpResponseException
      * @throws InvalidPaginationResponseException
      * @throws RequestTimeoutException
@@ -60,6 +67,7 @@ class UsersEndpoint extends AbstractEndpoint
      * @throws HttpResponseException
      * @throws RequestTimeoutException
      * @throws UnsupportedUserTypeException
+     * @throws Exception
      */
     public function me(): AbstractUser
     {

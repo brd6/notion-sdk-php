@@ -16,15 +16,21 @@ use Brd6\NotionSdkPhp\Resource\Database;
 use Brd6\NotionSdkPhp\Resource\Database\DatabaseRequest;
 use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
+use Http\Client\Exception;
 
 class DatabasesEndpoint extends AbstractEndpoint
 {
     /**
+     * @param string $databaseId
+     * @param DatabaseRequest|null $databaseRequest
+     * @param PaginationRequest|null $paginationRequest
+     *
      * @throws ApiResponseException
      * @throws HttpResponseException
      * @throws InvalidPaginationResponseException
      * @throws RequestTimeoutException
      * @throws UnsupportedPaginationResponseTypeException
+     * @throws Exception
      */
     public function query(
         string $databaseId,
@@ -43,7 +49,10 @@ class DatabasesEndpoint extends AbstractEndpoint
     }
 
     /**
+     * @param Database $database
+     *
      * @throws ApiResponseException
+     * @throws Exception
      * @throws HttpResponseException
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
@@ -67,7 +76,10 @@ class DatabasesEndpoint extends AbstractEndpoint
     }
 
     /**
+     * @param Database $database
+     *
      * @throws ApiResponseException
+     * @throws Exception
      * @throws HttpResponseException
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
@@ -89,7 +101,10 @@ class DatabasesEndpoint extends AbstractEndpoint
     }
 
     /**
+     * @param string $databaseId
+     *
      * @throws ApiResponseException
+     * @throws Exception
      * @throws HttpResponseException
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException

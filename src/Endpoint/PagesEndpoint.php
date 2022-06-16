@@ -13,6 +13,7 @@ use Brd6\NotionSdkPhp\Exception\RequestTimeoutException;
 use Brd6\NotionSdkPhp\RequestParameters;
 use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Page;
+use Http\Client\Exception;
 
 use function array_map;
 use function array_merge;
@@ -29,11 +30,14 @@ class PagesEndpoint extends AbstractEndpoint
     }
 
     /**
+     * @param string $pageId
+     *
      * @throws ApiResponseException
      * @throws HttpResponseException
-     * @throws RequestTimeoutException
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
+     * @throws RequestTimeoutException
+     * @throws Exception
      */
     public function retrieve(string $pageId): Page
     {
@@ -50,9 +54,11 @@ class PagesEndpoint extends AbstractEndpoint
     }
 
     /**
+     * @param Page $page
      * @param array|AbstractBlock[] $children
      *
      * @throws ApiResponseException
+     * @throws Exception
      * @throws HttpResponseException
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
@@ -78,7 +84,10 @@ class PagesEndpoint extends AbstractEndpoint
     }
 
     /**
+     * @param Page $page
+     *
      * @throws ApiResponseException
+     * @throws Exception
      * @throws HttpResponseException
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
