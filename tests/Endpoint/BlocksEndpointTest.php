@@ -40,7 +40,7 @@ class BlocksEndpointTest extends TestCase
     {
         $httpClient = new MockHttpClient(
             new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -64,7 +64,7 @@ class BlocksEndpointTest extends TestCase
     {
         $httpClient = new MockHttpClient(
             new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_child_page_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_child_page_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -115,7 +115,7 @@ class BlocksEndpointTest extends TestCase
             }
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -153,7 +153,7 @@ class BlocksEndpointTest extends TestCase
             }
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_children_default_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_children_default_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -190,7 +190,7 @@ class BlocksEndpointTest extends TestCase
             }
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_children_page_size_4_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_children_page_size_4_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -225,7 +225,7 @@ class BlocksEndpointTest extends TestCase
             }
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_children_page_size_4_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_children_page_size_4_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -273,7 +273,7 @@ class BlocksEndpointTest extends TestCase
             }
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_children_page_size_4_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_children_page_size_4_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -311,7 +311,7 @@ class BlocksEndpointTest extends TestCase
             $this->assertStringContainsString('blocks/0c940186-ab70-4351-bb34-2d16f0635d49', $url);
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
                 [
                     'http_code' => 200,
                 ],

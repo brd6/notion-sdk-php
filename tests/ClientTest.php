@@ -34,7 +34,7 @@ class ClientTest extends TestCase
             ->setPath('invalid');
 
         $httpClient = new MockHttpClient(new MockResponseFactory(
-            (string) file_get_contents('tests/fixtures/client_request_invalid_url_400.json'),
+            (string) file_get_contents('tests/Fixtures/client_request_invalid_url_400.json'),
             [
                 'http_code' => 400,
             ],
@@ -62,7 +62,7 @@ class ClientTest extends TestCase
 
         $httpClient = new MockHttpClient(
             new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_request_invalid_response_500.json'),
+                (string) file_get_contents('tests/Fixtures/client_request_invalid_response_500.json'),
                 [
                     'http_code' => 500,
                 ],
@@ -91,7 +91,7 @@ class ClientTest extends TestCase
 
         $httpClient = new MockHttpClient(
             new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_request_invalid_response_content.txt'),
+                (string) file_get_contents('tests/Fixtures/client_request_invalid_response_content.txt'),
                 [
                     'http_code' => 200,
                 ],
@@ -112,7 +112,7 @@ class ClientTest extends TestCase
     {
         $httpClient = new MockHttpClient(
             new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_request_invalid_token_api_401.json'),
+                (string) file_get_contents('tests/Fixtures/client_request_invalid_token_api_401.json'),
                 [
                     'http_code' => 401,
                 ],
@@ -140,7 +140,7 @@ class ClientTest extends TestCase
     {
         $httpClient = new MockHttpClient(
             new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_request_missing_version_400.json'),
+                (string) file_get_contents('tests/Fixtures/client_request_missing_version_400.json'),
                 [
                     'http_code' => 400,
                 ],
@@ -168,7 +168,7 @@ class ClientTest extends TestCase
     {
         $httpClient = new MockHttpClient(
             new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_request_retrieve_page_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_request_retrieve_page_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -206,7 +206,7 @@ class ClientTest extends TestCase
     {
         $httpClient = new MockHttpClient(
             new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_request_retrieve_page_404.json'),
+                (string) file_get_contents('tests/Fixtures/client_request_retrieve_page_404.json'),
                 [
                     'http_code' => 404,
                 ],
@@ -234,7 +234,7 @@ class ClientTest extends TestCase
     {
         $httpClient = new MockHttpClient(
             new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -264,7 +264,7 @@ class ClientTest extends TestCase
     {
         $httpClient = new MockHttpClient(
             new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_children_page_size_4_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_children_page_size_4_200.json'),
                 [
                     'http_code' => 200,
                 ],

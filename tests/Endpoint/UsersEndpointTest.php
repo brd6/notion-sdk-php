@@ -32,7 +32,7 @@ class UsersEndpointTest extends TestCase
     {
         $httpClient = new MockHttpClient(
             new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_users_retrieve_user_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_users_retrieve_user_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -64,7 +64,7 @@ class UsersEndpointTest extends TestCase
             }
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_users_retrieve_list_default_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_users_retrieve_list_default_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -97,7 +97,7 @@ class UsersEndpointTest extends TestCase
     {
         $httpClient = new MockHttpClient(
             new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_users_retrieve_bot_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_users_retrieve_bot_200.json'),
                 [
                     'http_code' => 200,
                 ],

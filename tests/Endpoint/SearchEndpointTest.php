@@ -24,7 +24,7 @@ class SearchEndpointTest extends TestCase
             $this->assertStringContainsString('search', $url);
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_search_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_search_200.json'),
                 [
                     'http_code' => 200,
                 ],

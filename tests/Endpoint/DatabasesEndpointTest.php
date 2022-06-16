@@ -52,7 +52,7 @@ class DatabasesEndpointTest extends TestCase
             $this->assertStringContainsString('databases/a5926cb0-9070-4fea-94f7-494e59a0e75c/query', $url);
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_databases_query_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_databases_query_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -88,7 +88,7 @@ class DatabasesEndpointTest extends TestCase
             $this->assertEquals(2, $options['query']['page_size']);
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_databases_query_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_databases_query_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -125,7 +125,7 @@ class DatabasesEndpointTest extends TestCase
             $this->assertEquals('Reading', $body['filter']['select']['equals']);
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_databases_query_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_databases_query_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -168,7 +168,7 @@ class DatabasesEndpointTest extends TestCase
             $this->assertArrayHasKey('title', $body['properties']['name']);
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_databases_create_database_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_databases_create_database_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -262,7 +262,7 @@ class DatabasesEndpointTest extends TestCase
             $this->assertStringContainsString('Yes', $body['properties']['in stock']['select']['options'][0]['name']);
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_databases_update_database_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_databases_update_database_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -311,7 +311,7 @@ class DatabasesEndpointTest extends TestCase
             $this->assertStringContainsString('databases/a5926cb0-9070-4fea-94f7-494e59a0e75c', $url);
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_databases_retrieve_database_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_databases_retrieve_database_200.json'),
                 [
                     'http_code' => 200,
                 ],

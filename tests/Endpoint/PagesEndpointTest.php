@@ -51,7 +51,7 @@ class PagesEndpointTest extends TestCase
     {
         $httpClient = new MockHttpClient(
             new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_pages_retrieve_page_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -74,7 +74,7 @@ class PagesEndpointTest extends TestCase
     {
         $httpClient = new MockHttpClient(
             new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_pages_retrieve_page_properties_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_properties_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -111,7 +111,7 @@ class PagesEndpointTest extends TestCase
             );
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_pages_retrieve_page_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -199,7 +199,7 @@ class PagesEndpointTest extends TestCase
             );
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_pages_retrieve_page_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -239,7 +239,7 @@ class PagesEndpointTest extends TestCase
             $this->assertNotEmpty($options['query']['page_size']);
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/fixtures/client_pages_retrieve_page_property_item_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_property_item_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -281,7 +281,7 @@ class PagesEndpointTest extends TestCase
 
             return new MockResponseFactory(
                 (string) file_get_contents(
-                    'tests/fixtures/client_pages_retrieve_page_property_item_paginated_200.json',
+                    'tests/Fixtures/client_pages_retrieve_page_property_item_paginated_200.json',
                 ),
                 [
                     'http_code' => 200,
