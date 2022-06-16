@@ -12,26 +12,37 @@ use Brd6\NotionSdkPhp\Endpoint\SearchEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\UsersEndpoint;
 use Brd6\NotionSdkPhp\Exception\ApiResponseException;
 use Brd6\NotionSdkPhp\Exception\HttpResponseException;
+use Brd6\NotionSdkPhp\Exception\InvalidPaginationResponseException;
 use Brd6\NotionSdkPhp\Exception\RequestTimeoutException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedPaginationResponseTypeException;
+use Brd6\NotionSdkPhp\HttpClient\HttpClientFactory;
 use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Brd6\NotionSdkPhp\Resource\Search\SearchRequest;
-use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Brd6\NotionSdkPhp\Util\UrlHelper;
+use Http\Client\Common\HttpMethodsClientInterface;
+use Http\Client\Exception;
+use Http\Client\Exception\HttpException;
+use Http\Client\Exception\RequestException;
+use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
 
 use function count;
 use function in_array;
-use function strlen;
+use function json_decode;
+use function json_encode;
+use function json_last_error;
+use function sprintf;
+use function substr;
+
+use const JSON_ERROR_NONE;
 
 class Client
 {
+    private const MIN_STATUS_CODE_FOR_HTTP_EXCEPTION = 300;
+
     private ClientOptions $options;
-    private HttpClientInterface $httpClient;
+    private HttpMethodsClientInterface $httpClient;
     private BlocksEndpoint $blocksEndpoint;
     private UsersEndpoint $usersEndpoint;
     private PagesEndpoint $pagesEndpoint;
@@ -52,73 +63,94 @@ class Client
 
     /**
      * @throws ApiResponseException
-     * @throws RequestTimeoutException
+     * @throws Exception
+     * @throws RuntimeException
      * @throws HttpResponseException
+     * @throws RequestTimeoutException
      */
     public function request(RequestParameters $parameters): array
     {
-        $httpOptions = [];
+        $path = $this->buildRequestPath($parameters);
 
-        if (count($parameters->getQuery()) > 0) {
-            $httpOptions['query'] = $parameters->getQuery();
-        }
-
+        $body = null;
         if (count($parameters->getBody()) > 0) {
-            $httpOptions['json'] = $parameters->getBody();
+            /** @var string $body */
+            $body = json_encode($parameters->getBody());
         }
 
         try {
-            $response = $this->httpClient->request($parameters->getMethod(), $parameters->getPath(), $httpOptions);
-
-            return $response->toArray();
-        } catch (TransportExceptionInterface | DecodingExceptionInterface $e) {
-            throw new RequestTimeoutException();
-        } catch (ClientExceptionInterface | RedirectionExceptionInterface | ServerExceptionInterface $e) {
-            $response = $e->getResponse();
-            $headers = $response->getHeaders(false);
-            $rawData = $response->toArray(false);
-
-            if ($this->isNotionClientError($rawData)) {
-                throw new ApiResponseException($response->getStatusCode(), $headers, $rawData);
+            $response = $this->httpClient->send($parameters->getMethod(), $path, [], $body);
+        } catch (RequestException $e) {
+            if (!($e instanceof HttpException)) {
+                throw new RequestTimeoutException();
             }
 
-            throw new HttpResponseException($response->getStatusCode(), $headers, $rawData);
+            throw $this->createInvalidHttpResponseStatusException($e->getResponse());
         }
+
+        if ($response->getStatusCode() >= self::MIN_STATUS_CODE_FOR_HTTP_EXCEPTION) {
+            throw $this->createInvalidHttpResponseStatusException($response);
+        }
+
+        return $this->transformResponseContentsToArray($response->getBody()->getContents());
+    }
+
+    private function buildRequestPath(RequestParameters $parameters): string
+    {
+        $path = $parameters->getPath();
+
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/' . $path;
+        }
+
+        if (count($parameters->getQuery()) > 0) {
+            $path .= sprintf('?%s', UrlHelper::buildQuery($parameters->getQuery()));
+        }
+
+        return $path;
+    }
+
+    /**
+     * @return ApiResponseException|HttpResponseException
+     */
+    private function createInvalidHttpResponseStatusException(ResponseInterface $response)
+    {
+        $headers = $response->getHeaders();
+        $rawData = $this->transformResponseContentsToArray($response->getBody()->getContents());
+
+        if ($this->isNotionClientError($rawData)) {
+            $exception = new ApiResponseException($response->getStatusCode(), $headers, $rawData);
+        } else {
+            $exception = new HttpResponseException($response->getStatusCode(), $headers, $rawData);
+        }
+
+        return $exception;
+    }
+
+    /**
+     * @throws RuntimeException
+     */
+    private function transformResponseContentsToArray(string $contents): array
+    {
+        /** @var array $rawData */
+        $rawData = json_decode($contents, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new RuntimeException(sprintf('Unable to parse response body into JSON: %s', json_last_error()));
+        }
+
+        return $rawData;
     }
 
     private function initializeHttpClient(): void
     {
-        $httpClient = $this->options->getHttpClient();
-
-        if ($httpClient === null) {
-            $httpClient = HttpClient::create();
-        }
-
-        $this->httpClient = $httpClient->withOptions($this->getDefaultHttpOptions());
+        $this->httpClient = (new HttpClientFactory())->create($this->options);
     }
 
     private function isNotionClientError(array $rawData): bool
     {
         return isset($rawData['code']) &&
             in_array($rawData['code'], NotionErrorCodeConstant::API_ERROR_CODES);
-    }
-
-    private function getDefaultHttpOptions(): array
-    {
-        $httpOptions = [
-            'base_uri' => $this->options->getBaseUrl(),
-            'timeout' => $this->options->getTimeout(),
-            'headers' => [
-                'Notion-Version' => $this->options->getNotionVersion(),
-                'User-Agent' => 'brd6/notion-sdk-php',
-            ],
-        ];
-
-        if (strlen($this->options->getAuth()) > 0) {
-            $httpOptions['auth_bearer'] = $this->options->getAuth();
-        }
-
-        return $httpOptions;
     }
 
     public function blocks(): BlocksEndpoint
@@ -143,8 +175,8 @@ class Client
 
     /**
      * @throws ApiResponseException
-     * @throws Exception\InvalidPaginationResponseException
-     * @throws Exception\UnsupportedPaginationResponseTypeException
+     * @throws InvalidPaginationResponseException
+     * @throws UnsupportedPaginationResponseTypeException
      * @throws HttpResponseException
      * @throws RequestTimeoutException
      */
