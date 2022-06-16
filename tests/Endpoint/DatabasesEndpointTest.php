@@ -26,9 +26,9 @@ use Brd6\NotionSdkPhp\Resource\Pagination\PageResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Brd6\NotionSdkPhp\Resource\Property\SelectProperty;
 use Brd6\NotionSdkPhp\Resource\RichText\Text;
+use Brd6\Test\NotionSdkPhp\Mock\HttpClient\MockHttpClient;
+use Brd6\Test\NotionSdkPhp\Mock\HttpClient\MockResponseFactory;
 use Brd6\Test\NotionSdkPhp\TestCase;
-use Symfony\Component\HttpClient\MockHttpClient;
-use Symfony\Component\HttpClient\Response\MockResponse;
 
 use function count;
 use function file_get_contents;
@@ -51,7 +51,7 @@ class DatabasesEndpointTest extends TestCase
             $this->assertEquals('POST', $method);
             $this->assertStringContainsString('databases/a5926cb0-9070-4fea-94f7-494e59a0e75c/query', $url);
 
-            return new MockResponse(
+            return new MockResponseFactory(
                 (string) file_get_contents('tests/fixtures/client_databases_query_200.json'),
                 [
                     'http_code' => 200,
@@ -87,7 +87,7 @@ class DatabasesEndpointTest extends TestCase
             $this->assertEquals('POST', $method);
             $this->assertEquals(2, $options['query']['page_size']);
 
-            return new MockResponse(
+            return new MockResponseFactory(
                 (string) file_get_contents('tests/fixtures/client_databases_query_200.json'),
                 [
                     'http_code' => 200,
@@ -124,7 +124,7 @@ class DatabasesEndpointTest extends TestCase
             $this->assertArrayHasKey('select', $body['filter']);
             $this->assertEquals('Reading', $body['filter']['select']['equals']);
 
-            return new MockResponse(
+            return new MockResponseFactory(
                 (string) file_get_contents('tests/fixtures/client_databases_query_200.json'),
                 [
                     'http_code' => 200,
@@ -167,7 +167,7 @@ class DatabasesEndpointTest extends TestCase
             $this->assertArrayHasKey('properties', $body);
             $this->assertArrayHasKey('title', $body['properties']['name']);
 
-            return new MockResponse(
+            return new MockResponseFactory(
                 (string) file_get_contents('tests/fixtures/client_databases_create_database_200.json'),
                 [
                     'http_code' => 200,
@@ -261,7 +261,7 @@ class DatabasesEndpointTest extends TestCase
             $this->assertArrayHasKey('in stock', $body['properties']);
             $this->assertStringContainsString('Yes', $body['properties']['in stock']['select']['options'][0]['name']);
 
-            return new MockResponse(
+            return new MockResponseFactory(
                 (string) file_get_contents('tests/fixtures/client_databases_update_database_200.json'),
                 [
                     'http_code' => 200,
@@ -310,7 +310,7 @@ class DatabasesEndpointTest extends TestCase
             $this->assertStringContainsString('GET', $method);
             $this->assertStringContainsString('databases/a5926cb0-9070-4fea-94f7-494e59a0e75c', $url);
 
-            return new MockResponse(
+            return new MockResponseFactory(
                 (string) file_get_contents('tests/fixtures/client_databases_retrieve_database_200.json'),
                 [
                     'http_code' => 200,

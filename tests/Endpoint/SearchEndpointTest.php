@@ -8,9 +8,9 @@ use Brd6\NotionSdkPhp\Client;
 use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Resource\Database;
 use Brd6\NotionSdkPhp\Resource\Pagination\PageOrDatabaseResults;
+use Brd6\Test\NotionSdkPhp\Mock\HttpClient\MockHttpClient;
+use Brd6\Test\NotionSdkPhp\Mock\HttpClient\MockResponseFactory;
 use Brd6\Test\NotionSdkPhp\TestCase;
-use Symfony\Component\HttpClient\MockHttpClient;
-use Symfony\Component\HttpClient\Response\MockResponse;
 
 use function count;
 use function file_get_contents;
@@ -23,7 +23,7 @@ class SearchEndpointTest extends TestCase
             $this->assertEquals('POST', $method);
             $this->assertStringContainsString('search', $url);
 
-            return new MockResponse(
+            return new MockResponseFactory(
                 (string) file_get_contents('tests/fixtures/client_search_200.json'),
                 [
                     'http_code' => 200,
