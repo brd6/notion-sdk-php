@@ -29,9 +29,9 @@ use Brd6\NotionSdkPhp\Resource\Property\ExternalProperty;
 use Brd6\NotionSdkPhp\Resource\Property\HeadingProperty;
 use Brd6\NotionSdkPhp\Resource\Property\ParagraphProperty;
 use Brd6\NotionSdkPhp\Resource\RichText\Text;
+use Brd6\Test\NotionSdkPhp\Mock\HttpClient\MockHttpClient;
+use Brd6\Test\NotionSdkPhp\Mock\HttpClient\MockResponseFactory;
 use Brd6\Test\NotionSdkPhp\TestCase;
-use Symfony\Component\HttpClient\MockHttpClient;
-use Symfony\Component\HttpClient\Response\MockResponse;
 
 use function file_get_contents;
 use function json_decode;
@@ -49,15 +49,14 @@ class PagesEndpointTest extends TestCase
 
     public function testRetrieve(): void
     {
-        $httpClient = new MockHttpClient();
-        $httpClient->setResponseFactory([
-            new MockResponse(
-                (string) file_get_contents('tests/fixtures/client_pages_retrieve_page_200.json'),
+        $httpClient = new MockHttpClient(
+            new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
                 [
                     'http_code' => 200,
                 ],
             ),
-        ]);
+        );
 
         $options = (new ClientOptions())
             ->setAuth('secret_valid-auth')
@@ -73,15 +72,14 @@ class PagesEndpointTest extends TestCase
 
     public function testRetrieveProperties(): void
     {
-        $httpClient = new MockHttpClient();
-        $httpClient->setResponseFactory([
-            new MockResponse(
-                (string) file_get_contents('tests/fixtures/client_pages_retrieve_page_properties_200.json'),
+        $httpClient = new MockHttpClient(
+            new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_properties_200.json'),
                 [
                     'http_code' => 200,
                 ],
             ),
-        ]);
+        );
 
         $options = (new ClientOptions())
             ->setAuth('secret_valid-auth')
@@ -112,8 +110,8 @@ class PagesEndpointTest extends TestCase
                 $body['properties']['title']['title'][0]['text']['content'],
             );
 
-            return new MockResponse(
-                (string) file_get_contents('tests/fixtures/client_pages_retrieve_page_200.json'),
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -200,8 +198,8 @@ class PagesEndpointTest extends TestCase
                 $body['properties']['title']['title'][0]['text']['content'],
             );
 
-            return new MockResponse(
-                (string) file_get_contents('tests/fixtures/client_pages_retrieve_page_200.json'),
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -240,8 +238,8 @@ class PagesEndpointTest extends TestCase
             $this->assertArrayHasKey('page_size', $options['query']);
             $this->assertNotEmpty($options['query']['page_size']);
 
-            return new MockResponse(
-                (string) file_get_contents('tests/fixtures/client_pages_retrieve_page_property_item_200.json'),
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_property_item_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -281,9 +279,9 @@ class PagesEndpointTest extends TestCase
             $this->assertArrayHasKey('page_size', $options['query']);
             $this->assertNotEmpty($options['query']['page_size']);
 
-            return new MockResponse(
+            return new MockResponseFactory(
                 (string) file_get_contents(
-                    'tests/fixtures/client_pages_retrieve_page_property_item_paginated_200.json',
+                    'tests/Fixtures/client_pages_retrieve_page_property_item_paginated_200.json',
                 ),
                 [
                     'http_code' => 200,

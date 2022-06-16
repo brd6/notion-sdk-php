@@ -10,9 +10,9 @@ use Brd6\NotionSdkPhp\Endpoint\UsersEndpoint;
 use Brd6\NotionSdkPhp\Resource\Pagination\UserResults;
 use Brd6\NotionSdkPhp\Resource\User\BotUser;
 use Brd6\NotionSdkPhp\Resource\User\PersonUser;
+use Brd6\Test\NotionSdkPhp\Mock\HttpClient\MockHttpClient;
+use Brd6\Test\NotionSdkPhp\Mock\HttpClient\MockResponseFactory;
 use Brd6\Test\NotionSdkPhp\TestCase;
-use Symfony\Component\HttpClient\MockHttpClient;
-use Symfony\Component\HttpClient\Response\MockResponse;
 
 use function count;
 use function file_get_contents;
@@ -30,15 +30,14 @@ class UsersEndpointTest extends TestCase
 
     public function testRetrieve(): void
     {
-        $httpClient = new MockHttpClient();
-        $httpClient->setResponseFactory([
-            new MockResponse(
-                (string) file_get_contents('tests/fixtures/client_users_retrieve_user_200.json'),
+        $httpClient = new MockHttpClient(
+            new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_users_retrieve_user_200.json'),
                 [
                     'http_code' => 200,
                 ],
             ),
-        ]);
+        );
 
         $options = (new ClientOptions())
             ->setAuth('secret_valid-auth')
@@ -64,8 +63,8 @@ class UsersEndpointTest extends TestCase
                 $this->assertNotEmpty($options['query']['page_size']);
             }
 
-            return new MockResponse(
-                (string) file_get_contents('tests/fixtures/client_users_retrieve_list_default_200.json'),
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_users_retrieve_list_default_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -96,15 +95,14 @@ class UsersEndpointTest extends TestCase
 
     public function testRetrieveBotUser(): void
     {
-        $httpClient = new MockHttpClient();
-        $httpClient->setResponseFactory([
-            new MockResponse(
-                (string) file_get_contents('tests/fixtures/client_users_retrieve_bot_200.json'),
+        $httpClient = new MockHttpClient(
+            new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_users_retrieve_bot_200.json'),
                 [
                     'http_code' => 200,
                 ],
             ),
-        ]);
+        );
 
         $options = (new ClientOptions())
             ->setAuth('secret_valid-auth')

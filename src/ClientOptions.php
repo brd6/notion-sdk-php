@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp;
 
-use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Psr\Http\Client\ClientInterface as HttpClientInterface;
+
+use function strlen;
 
 class ClientOptions
 {
@@ -28,6 +30,11 @@ class ClientOptions
         $this->auth = $auth;
 
         return $this;
+    }
+
+    public function hasAuth(): bool
+    {
+        return strlen($this->auth) > 0;
     }
 
     public function getBaseUrl(): string

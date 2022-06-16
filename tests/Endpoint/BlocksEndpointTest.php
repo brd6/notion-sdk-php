@@ -17,9 +17,9 @@ use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
 use Brd6\NotionSdkPhp\Resource\Property\HeadingProperty;
 use Brd6\NotionSdkPhp\Resource\RichText\Text;
 use Brd6\NotionSdkPhp\Resource\UserInterface;
+use Brd6\Test\NotionSdkPhp\Mock\HttpClient\MockHttpClient;
+use Brd6\Test\NotionSdkPhp\Mock\HttpClient\MockResponseFactory;
 use Brd6\Test\NotionSdkPhp\TestCase;
-use Symfony\Component\HttpClient\MockHttpClient;
-use Symfony\Component\HttpClient\Response\MockResponse;
 
 use function count;
 use function file_get_contents;
@@ -38,15 +38,14 @@ class BlocksEndpointTest extends TestCase
 
     public function testRetrieve(): void
     {
-        $httpClient = new MockHttpClient();
-        $httpClient->setResponseFactory([
-            new MockResponse(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_200.json'),
+        $httpClient = new MockHttpClient(
+            new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
                 [
                     'http_code' => 200,
                 ],
             ),
-        ]);
+        );
 
         $options = (new ClientOptions())
             ->setAuth('secret_valid-auth')
@@ -63,15 +62,14 @@ class BlocksEndpointTest extends TestCase
 
     public function testRetrieveChildPage(): void
     {
-        $httpClient = new MockHttpClient();
-        $httpClient->setResponseFactory([
-            new MockResponse(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_child_page_200.json'),
+        $httpClient = new MockHttpClient(
+            new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_child_page_200.json'),
                 [
                     'http_code' => 200,
                 ],
             ),
-        ]);
+        );
 
         $options = (new ClientOptions())
             ->setAuth('secret_valid-auth')
@@ -100,7 +98,7 @@ class BlocksEndpointTest extends TestCase
 
     public function testUpdateBlock(): void
     {
-        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
             if ($method === 'PATCH') {
                 $this->assertStringContainsString('blocks/0c940186-ab70-4351-bb34-2d16f0635d49', $url);
 
@@ -116,8 +114,8 @@ class BlocksEndpointTest extends TestCase
                 );
             }
 
-            return new MockResponse(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_200.json'),
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -154,8 +152,8 @@ class BlocksEndpointTest extends TestCase
                 $this->assertNotEmpty($options['query']['page_size']);
             }
 
-            return new MockResponse(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_children_default_200.json'),
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_children_default_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -191,8 +189,8 @@ class BlocksEndpointTest extends TestCase
                 $this->assertEquals(4, $options['query']['page_size']);
             }
 
-            return new MockResponse(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_children_page_size_4_200.json'),
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_children_page_size_4_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -226,8 +224,8 @@ class BlocksEndpointTest extends TestCase
                 $this->assertEquals('052e99f4-5a5e-4b2c-acd5-8ad240aeb719', $options['query']['start_cursor']);
             }
 
-            return new MockResponse(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_children_page_size_4_200.json'),
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_children_page_size_4_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -274,8 +272,8 @@ class BlocksEndpointTest extends TestCase
                 );
             }
 
-            return new MockResponse(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_children_page_size_4_200.json'),
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_children_page_size_4_200.json'),
                 [
                     'http_code' => 200,
                 ],
@@ -312,8 +310,8 @@ class BlocksEndpointTest extends TestCase
             $this->assertStringContainsString('DELETE', $method);
             $this->assertStringContainsString('blocks/0c940186-ab70-4351-bb34-2d16f0635d49', $url);
 
-            return new MockResponse(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_200.json'),
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
                 [
                     'http_code' => 200,
                 ],

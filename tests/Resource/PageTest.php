@@ -28,7 +28,7 @@ class PageTest extends TestCase
         /** @var Page $page */
         $page = Page::fromRawData(
             (array) json_decode(
-                (string) file_get_contents('tests/fixtures/client_pages_retrieve_page_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
                 true,
             ),
         );
@@ -42,7 +42,7 @@ class PageTest extends TestCase
         /** @var Page $page */
         $page = Page::fromRawData(
             (array) json_decode(
-                (string) file_get_contents('tests/fixtures/client_request_retrieve_page_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_request_retrieve_page_200.json'),
                 true,
             ),
         );
@@ -74,7 +74,7 @@ class PageTest extends TestCase
         /** @var Page $page */
         $page = Page::fromRawData(
             (array) json_decode(
-                (string) file_get_contents('tests/fixtures/client_pages_retrieve_page_properties_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_properties_200.json'),
                 true,
             ),
         );

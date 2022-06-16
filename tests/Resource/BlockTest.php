@@ -49,7 +49,7 @@ class BlockTest extends TestCase
     {
         $block = AbstractBlock::fromRawData(
             (array) json_decode(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_child_page_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_child_page_200.json'),
                 true,
             ),
         );
@@ -62,7 +62,7 @@ class BlockTest extends TestCase
     {
         $block = AbstractBlock::fromRawData(
             (array) json_decode(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_child_page_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_child_page_200.json'),
                 true,
             ),
         );
@@ -78,7 +78,7 @@ class BlockTest extends TestCase
     {
         $block = AbstractBlock::fromRawData(
             (array) json_decode(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
                 true,
             ),
         );
@@ -109,7 +109,7 @@ class BlockTest extends TestCase
         ];
 
         foreach ($headings as $heading) {
-            $rawContent = (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_heading1_200.json');
+            $rawContent = (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_heading1_200.json');
 
             $rawContent = str_replace('heading_1', $heading, $rawContent);
 
@@ -143,7 +143,7 @@ class BlockTest extends TestCase
     {
         $block = AbstractBlock::fromRawData(
             (array) json_decode(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_callout_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_callout_200.json'),
                 true,
             ),
         );
@@ -177,7 +177,7 @@ class BlockTest extends TestCase
     {
         $block = AbstractBlock::fromRawData(
             (array) json_decode(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_paragraph_mention_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_paragraph_mention_200.json'),
                 true,
             ),
         );
@@ -203,7 +203,7 @@ class BlockTest extends TestCase
     {
         $block = AbstractBlock::fromRawData(
             (array) json_decode(
-                (string) file_get_contents('tests/fixtures/client_blocks_retrieve_block_paragraph_equation_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_paragraph_equation_200.json'),
                 true,
             ),
         );

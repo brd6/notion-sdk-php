@@ -28,7 +28,7 @@ class DatabaseTest extends TestCase
         /** @var Database $database */
         $database = Database::fromRawData(
             (array) json_decode(
-                (string) file_get_contents('tests/fixtures/client_databases_retrieve_database_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_databases_retrieve_database_200.json'),
                 true,
             ),
         );
@@ -60,7 +60,7 @@ class DatabaseTest extends TestCase
         /** @var Database $database */
         $database = Database::fromRawData(
             (array) json_decode(
-                (string) file_get_contents('tests/fixtures/client_databases_retrieve_database_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_databases_retrieve_database_200.json'),
                 true,
             ),
         );
