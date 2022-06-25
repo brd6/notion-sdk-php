@@ -85,7 +85,11 @@ class DatabasesEndpointTest extends TestCase
     {
         $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
             $this->assertEquals('POST', $method);
-            $this->assertEquals(2, $options['query']['page_size']);
+
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertEquals(2, $body['page_size']);
 
             return new MockResponseFactory(
                 (string) file_get_contents('tests/Fixtures/client_databases_query_200.json'),

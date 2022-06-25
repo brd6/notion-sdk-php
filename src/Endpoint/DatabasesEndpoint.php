@@ -18,6 +18,8 @@ use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Http\Client\Exception;
 
+use function array_merge;
+
 class DatabasesEndpoint extends AbstractEndpoint
 {
     /**
@@ -37,10 +39,14 @@ class DatabasesEndpoint extends AbstractEndpoint
         ?DatabaseRequest $databaseRequest = null,
         ?PaginationRequest $paginationRequest = null
     ): AbstractPaginationResults {
+        $body = array_merge(
+            $paginationRequest ? $paginationRequest->toArray() : [],
+            $databaseRequest ? $databaseRequest->toArray() : [],
+        );
+
         $requestParameters = (new RequestParameters())
             ->setPath("databases/$databaseId/query")
-            ->setQuery($paginationRequest ? $paginationRequest->toArray() : [])
-            ->setBody($databaseRequest ? $databaseRequest->toArray() : [])
+            ->setBody($body)
             ->setMethod('POST');
 
         $rawData = $this->getClient()->request($requestParameters);
