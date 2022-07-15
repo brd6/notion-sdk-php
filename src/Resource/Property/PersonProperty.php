@@ -12,7 +12,7 @@ class PersonProperty extends AbstractProperty
     {
         $property = new self();
 
-        $property->email = (string) $rawData['email'];
+        $property->email = isset($rawData['email']) ? (string) $rawData['email'] : '';
 
         return $property;
     }
