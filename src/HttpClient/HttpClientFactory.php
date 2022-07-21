@@ -49,6 +49,7 @@ class HttpClientFactory implements HttpClientFactoryInterface
 
         $headers = [
             'Notion-Version' => $options->getNotionVersion(),
+            'Content-Type' => 'application/json',
             'User-Agent' => 'brd6/notion-sdk-php (https://github.com/brd6/notion-sdk-php)',
         ];
 
