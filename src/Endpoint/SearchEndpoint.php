@@ -15,6 +15,8 @@ use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Brd6\NotionSdkPhp\Resource\Search\SearchRequest;
 use Http\Client\Exception;
 
+use function array_merge;
+
 class SearchEndpoint extends AbstractEndpoint
 {
     /**
@@ -32,10 +34,14 @@ class SearchEndpoint extends AbstractEndpoint
         ?SearchRequest $searchRequest = null,
         ?PaginationRequest $paginationRequest = null
     ): AbstractPaginationResults {
+        $body = array_merge(
+            $searchRequest ? $searchRequest->toArray() : [],
+            $paginationRequest ? $paginationRequest->toArray() : [],
+        );
+
         $requestParameters = (new RequestParameters())
             ->setPath('search')
-            ->setQuery($paginationRequest ? $paginationRequest->toArray() : [])
-            ->setBody($searchRequest ? $searchRequest->toArray() : [])
+            ->setBody($body)
             ->setMethod('POST');
 
         $rawData = $this->getClient()->request($requestParameters);

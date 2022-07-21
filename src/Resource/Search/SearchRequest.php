@@ -9,7 +9,7 @@ use Brd6\NotionSdkPhp\Resource\AbstractJsonSerializable;
 class SearchRequest extends AbstractJsonSerializable
 {
     protected array $filter = [];
-    protected array $sorts = [];
+    protected array $sort = [];
     protected ?string $query = null;
 
     public function getFilter(): array
@@ -24,14 +24,14 @@ class SearchRequest extends AbstractJsonSerializable
         return $this;
     }
 
-    public function getSorts(): array
+    public function getSort(): array
     {
-        return $this->sorts;
+        return $this->sort;
     }
 
-    public function setSorts(array $sorts): self
+    public function setSort(array $sort): self
     {
-        $this->sorts = $sorts;
+        $this->sort = $sort;
 
         return $this;
     }
