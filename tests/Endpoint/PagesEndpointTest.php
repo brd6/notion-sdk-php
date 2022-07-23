@@ -14,12 +14,14 @@ use Brd6\NotionSdkPhp\Resource\Block\ImageBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
 use Brd6\NotionSdkPhp\Resource\File\Emoji;
 use Brd6\NotionSdkPhp\Resource\File\External;
+use Brd6\NotionSdkPhp\Resource\File\File;
 use Brd6\NotionSdkPhp\Resource\Page;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\PageIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyItem\AbstractPropertyItem;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyItem\TitlePropertyItem;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\AbstractPropertyValue;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\DatePropertyValue;
+use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\FilesPropertyValue;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\TitlePropertyValue;
 use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PropertyItemResults;
@@ -33,6 +35,7 @@ use Brd6\Test\NotionSdkPhp\Mock\HttpClient\MockHttpClient;
 use Brd6\Test\NotionSdkPhp\Mock\HttpClient\MockResponseFactory;
 use Brd6\Test\NotionSdkPhp\TestCase;
 
+use function count;
 use function file_get_contents;
 use function json_decode;
 
@@ -68,6 +71,32 @@ class PagesEndpointTest extends TestCase
 
         $this->assertEquals('page', $page::getResourceType());
         $this->assertNotEmpty($page->getId());
+    }
+
+    public function testRetrieveIcon(): void
+    {
+        $httpClient = new MockHttpClient(
+            new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_icon_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            ),
+        );
+
+        $options = (new ClientOptions())
+            ->setAuth('secret_valid-auth')
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $page = $client->pages()->retrieve('b12b6a5c-0ce5-4131-8d37-134a93a3e870');
+
+        $pageIcon = $page->getIcon();
+
+        $this->assertNotEmpty($pageIcon);
+        $this->assertInstanceOf(File::class, $pageIcon);
+        $this->assertNotEmpty($pageIcon->getFile()->getUrl());
     }
 
     public function testRetrieveProperties(): void
@@ -315,5 +344,46 @@ class PagesEndpointTest extends TestCase
         $this->assertNotNull($textProperty);
 
         $this->assertEquals('Test', $textProperty->getContent());
+    }
+
+    public function testRetrieveFilesProperty(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            $this->assertStringContainsString('GET', $method);
+            $this->assertStringContainsString(
+                'pages/17325df0-7327-4d38-a612-a08ffea61303/properties/%3BEVu',
+                $url,
+            );
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_property_files_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        /** @var FilesPropertyValue $propertyItem */
+        $propertyItem = $client->pages()
+            ->properties()
+            ->retrieve('17325df0-7327-4d38-a612-a08ffea61303', '%3BEVu');
+
+        $this->assertInstanceOf(FilesPropertyValue::class, $propertyItem);
+        $this->assertEquals('property_item', $propertyItem->getObject());
+        $this->assertEquals('files', $propertyItem->getType());
+        $this->assertNotEmpty($propertyItem->getId());
+
+        $files = $propertyItem->getFiles();
+        $this->assertGreaterThan(0, count($files));
+
+        $file = $files[0];
+        $this->assertInstanceOf(File::class, $file);
+
+        $this->assertNotEmpty($file->getFile()->getUrl());
     }
 }

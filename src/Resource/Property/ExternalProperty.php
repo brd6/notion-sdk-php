@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Property;
 
-use DateTimeImmutable;
-
 class ExternalProperty extends AbstractProperty
 {
     protected string $url = '';
-    protected ?DateTimeImmutable $expiryTime = null;
 
     public static function fromRawData(array $rawData): self
     {

@@ -4,34 +4,35 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Page\PropertyValue;
 
-use Brd6\NotionSdkPhp\Exception\InvalidPropertyValueException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyValueException;
+use Brd6\NotionSdkPhp\Exception\InvalidFileException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
+use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
 
 use function array_map;
 
 class FilesPropertyValue extends AbstractPropertyValue
 {
     /**
-     * @var array|AbstractFilePropertyValue[]
+     * @var array|AbstractFile[]
      */
     protected array $files = [];
 
     /**
-     * @throws InvalidPropertyValueException
-     * @throws UnsupportedPropertyValueException
+     * @throws InvalidFileException
+     * @throws UnsupportedFileTypeException
      */
     protected function initialize(): void
     {
         $data = (array) $this->getRawData()[$this->getType()];
 
         $this->files = array_map(
-            fn (array $filesRawData) => AbstractFilePropertyValue::fromRawData($filesRawData),
+            fn (array $filesRawData) => AbstractFile::fromRawData($filesRawData),
             $data,
         );
     }
 
     /**
-     * @return array|AbstractFilePropertyValue[]
+     * @return array|AbstractFile[]
      */
     public function getFiles(): array
     {
@@ -39,7 +40,7 @@ class FilesPropertyValue extends AbstractPropertyValue
     }
 
     /**
-     * @param array|AbstractFilePropertyValue[] $files
+     * @param array|AbstractFile[] $files
      */
     public function setFiles(array $files): self
     {
