@@ -1,0 +1,15 @@
+{
+    "object": "property_item",
+    "type": "files",
+    "id": "%3BEVu",
+    "files": [
+        {
+            "name": "test.png",
+            "type": "file",
+            "file": {
+                "url": "https://s3.us-west-2.amazonaws.com/secure.notion-static.com/de74d9fa-014c-4c9c-aa5b-2509bfc4fd33/test.svg",
+                "expiry_time": "2022-07-23T09:43:54.566Z"
+            }
+        }
+    ]
+}
