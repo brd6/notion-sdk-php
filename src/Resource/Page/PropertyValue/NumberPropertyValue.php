@@ -10,7 +10,7 @@ class NumberPropertyValue extends AbstractPropertyValue
 
     protected function initialize(): void
     {
-        $data = (array) $this->getRawData()[$this->getType()];
+        $data = $this->getRawData();
         $this->number = isset($data['number']) ? (int) $data['number'] : null;
     }
 
