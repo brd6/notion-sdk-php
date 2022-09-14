@@ -1,0 +1,27 @@
+{
+    "object": "block",
+    "id": "7981660e-11d1-4474-9caf-dee04eca2d79",
+    "parent": {
+        "type": "page_id",
+        "page_id": "cd098b58-01eb-4f21-b0cf-ce48a49eb47b"
+    },
+    "created_time": "2022-09-14T17:18:00.000Z",
+    "last_edited_time": "2022-09-14T17:18:00.000Z",
+    "created_by": {
+        "object": "user",
+        "id": "7f03dda0-a132-49d7-b8b2-29c9ed1b1f0e"
+    },
+    "last_edited_by": {
+        "object": "user",
+        "id": "7f03dda0-a132-49d7-b8b2-29c9ed1b1f0e"
+    },
+    "has_children": false,
+    "archived": false,
+    "type": "synced_block",
+    "synced_block": {
+        "synced_from": {
+            "type": "block_id",
+            "block_id": "154ee1b6-887d-4408-b198-e88337a9aefe"
+        }
+    }
+}
