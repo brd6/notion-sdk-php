@@ -9,12 +9,14 @@ use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Block\CalloutBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ChildPageBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
+use Brd6\NotionSdkPhp\Resource\Block\SyncedBlockBlock;
 use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
 use Brd6\NotionSdkPhp\Resource\File\Emoji;
 use Brd6\NotionSdkPhp\Resource\Property\CalloutProperty;
 use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
 use Brd6\NotionSdkPhp\Resource\Property\HeadingProperty;
 use Brd6\NotionSdkPhp\Resource\Property\ParagraphProperty;
+use Brd6\NotionSdkPhp\Resource\Property\SyncedBlockProperty;
 use Brd6\NotionSdkPhp\Resource\RichText\Equation;
 use Brd6\NotionSdkPhp\Resource\RichText\Mention;
 use Brd6\NotionSdkPhp\Resource\RichText\MentionInterface;
@@ -221,5 +223,23 @@ class BlockTest extends TestCase
 
         $this->assertNotNull($richText->getEquation());
         $this->assertNotEmpty($richText->getEquation()->getExpression());
+    }
+
+    public function testSyncedBlock(): void
+    {
+        $block = AbstractBlock::fromRawData(
+            (array) json_decode(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_synced_block_200.json'),
+                true,
+            ),
+        );
+
+        $this->assertInstanceOf(SyncedBlockBlock::class, $block);
+        $this->assertNotNull($block->getSyncedBlock());
+        $this->assertInstanceOf(SyncedBlockProperty::class, $block->getSyncedBlock());
+        $this->assertEquals(
+            '154ee1b6-887d-4408-b198-e88337a9aefe',
+            $block->getSyncedBlock()->getSyncedFrom()->getBlockId(),
+        );
     }
 }

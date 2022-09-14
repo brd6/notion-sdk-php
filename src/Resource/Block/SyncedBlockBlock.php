@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Block;
 
-use Brd6\NotionSdkPhp\Resource\Property\LinkToPageProperty;
+use Brd6\NotionSdkPhp\Resource\Property\SyncedBlockProperty;
 
 class SyncedBlockBlock extends AbstractBlock
 {
-    protected ?LinkToPageProperty $linkToPage = null;
+    protected ?SyncedBlockProperty $syncedBlock = null;
 
     protected function initializeBlockProperty(): void
     {
         $data = (array) $this->getRawData()[$this->getType()];
 
-        $this->linkToPage = LinkToPageProperty::fromRawData($data);
+        $this->syncedBlock = SyncedBlockProperty::fromRawData($data);
     }
 
-    public function getLinkToPage(): ?LinkToPageProperty
+    public function getSyncedBlock(): ?SyncedBlockProperty
     {
-        return $this->linkToPage;
+        return $this->syncedBlock;
     }
 
-    public function setLinkToPage(?LinkToPageProperty $linkToPage): self
+    public function setSyncedBlock(?SyncedBlockProperty $syncedBlock): self
     {
-        $this->linkToPage = $linkToPage;
+        $this->syncedBlock = $syncedBlock;
 
         return $this;
     }
