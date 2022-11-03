@@ -17,12 +17,12 @@ class DateProperty extends AbstractProperty
         $property = new self();
 
         $property->start = isset($rawData['start']) ?
-            new DateTimeImmutable((string) $rawData['start']) :
+            new DateTimeImmutable((string)$rawData['start']) :
             null;
         $property->end = isset($rawData['end']) ?
-            new DateTimeImmutable((string) $rawData['end']) :
+            new DateTimeImmutable((string)$rawData['end']) :
             null;
-        $property->timeZone = isset($rawData['time_zone']) ? (string) $rawData['time_zone'] : null;
+        $property->timeZone = isset($rawData['time_zone']) ? (string)$rawData['time_zone'] : null;
 
         return $property;
     }
@@ -61,5 +61,18 @@ class DateProperty extends AbstractProperty
         $this->timeZone = $timeZone;
 
         return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        $r = array();
+
+        if (!empty($this->getEnd())) {
+            $r['end'] = $this->end->format(DateTimeImmutable::ISO8601);
+        }
+        if (!empty($this->getStart())) {
+            $r['start'] = $this->start->format(DateTimeImmutable::ISO8601);
+        }
+        return $r;
     }
 }

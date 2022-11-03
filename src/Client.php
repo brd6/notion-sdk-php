@@ -181,9 +181,10 @@ class Client
      * @throws RequestTimeoutException
      */
     public function search(
-        ?SearchRequest $searchRequest = null,
+        ?SearchRequest     $searchRequest = null,
         ?PaginationRequest $paginationRequest = null
-    ): AbstractPaginationResults {
+    ): AbstractPaginationResults
+    {
         return $this->searchEndpoint->search($searchRequest, $paginationRequest);
     }
 }

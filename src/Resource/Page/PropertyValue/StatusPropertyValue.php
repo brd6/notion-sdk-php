@@ -29,7 +29,7 @@ class StatusPropertyValue extends AbstractPropertyValue
     /**
      * @param StatusProperty $status
      */
-    public function setStatus(array $status): self
+    public function setStatus(StatusProperty $status): self
     {
         $this->status = $status;
 
