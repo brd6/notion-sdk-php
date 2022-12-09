@@ -4,34 +4,82 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Property;
 
-use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
-use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
-use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
+use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
+use Brd6\NotionSdkPhp\Resource\RichText\AbstractRichText;
 
-use function array_map;
+use function count;
 
 class TableRowProperty extends AbstractProperty
 {
     /**
-     * @var array|AbstractBlock[]
+     * @var AbstractRichText[]
      */
     protected array $cells = [];
 
     /**
-     * @throws InvalidResourceException
-     * @throws InvalidResourceTypeException
-     * @throws UnsupportedUserTypeException
+     * @param array $rawData
+     *
+     * @return TableRowProperty
+     *
+     * @throws InvalidRichTextException
+     * @throws UnsupportedRichTextTypeException
      */
     public static function fromRawData(array $rawData): self
     {
         $property = new self();
 
-        $property->cells = isset($rawData['cells']) ? array_map(
-            fn (array $childRawData) => AbstractBlock::fromRawData($childRawData),
-            (array) $rawData['cells'],
-        ) : [];
+        if (isset($rawData['cells'])) {
+            /** @var array $cells */
+            $cells = $rawData['cells'];
+            $property->cells = self::createCellsFromRawData($cells);
+        }
 
         return $property;
+    }
+
+    /**
+     * @param array $cellsRawData
+     *
+     * @return AbstractRichText[]
+     *
+     * @throws InvalidRichTextException
+     * @throws UnsupportedRichTextTypeException
+     */
+    private static function createCellsFromRawData(array $cellsRawData): array
+    {
+        $cells = [];
+
+        /** @var array $cellData */
+        foreach ($cellsRawData as $cellData) {
+            if (count($cellData) === 0) {
+                continue;
+            }
+
+            /** @var array $rawData */
+            $rawData = $cellData[0];
+
+            $cells[] = AbstractRichText::fromRawData($rawData);
+        }
+
+        return $cells;
+    }
+
+    /**
+     * @return AbstractRichText[]
+     */
+    public function getCells(): array
+    {
+        return $this->cells;
+    }
+
+    /**
+     * @param AbstractRichText[] $cells
+     */
+    public function setCells(array $cells): self
+    {
+        $this->cells = $cells;
+
+        return $this;
     }
 }

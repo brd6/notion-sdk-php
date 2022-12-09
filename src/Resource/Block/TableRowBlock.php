@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Block;
 
-use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
-use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
+use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
 use Brd6\NotionSdkPhp\Resource\Property\TableRowProperty;
 
 class TableRowBlock extends AbstractBlock
@@ -14,9 +13,8 @@ class TableRowBlock extends AbstractBlock
     protected ?TableRowProperty $tableRow = null;
 
     /**
-     * @throws InvalidResourceException
-     * @throws InvalidResourceTypeException
-     * @throws UnsupportedUserTypeException
+     * @throws InvalidRichTextException
+     * @throws UnsupportedRichTextTypeException
      */
     protected function initializeBlockProperty(): void
     {
