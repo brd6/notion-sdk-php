@@ -11,6 +11,7 @@ use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ChildPageBlock;
 use Brd6\NotionSdkPhp\Resource\Block\Heading3Block;
 use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
+use Brd6\NotionSdkPhp\Resource\Block\TableRowBlock;
 use Brd6\NotionSdkPhp\Resource\Pagination\BlockResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
@@ -327,5 +328,45 @@ class BlocksEndpointTest extends TestCase
         $block = $client->blocks()->delete('0c940186-ab70-4351-bb34-2d16f0635d49');
         $this->assertNotNull($block);
         $this->assertInstanceOf(AbstractBlock::class, $block);
+    }
+
+    public function testRetrieveTableRowList(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            if ($method === 'GET') {
+                $this->assertStringContainsString('blocks/64fecca8-8945-4d58-9a38-d9738e6b5a4e/children', $url);
+            }
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_table_row_list_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        /** @var BlockResults $paginationResponse */
+        $paginationResponse = $client->blocks()->children()->list('64fecca8-8945-4d58-9a38-d9738e6b5a4e');
+
+        $this->assertEquals('list', $paginationResponse->getObject());
+        $this->assertGreaterThan(0, count($paginationResponse->getResults()));
+
+        /** @var TableRowBlock $resultBlock */
+        $resultBlock = $paginationResponse->getResults()[0];
+
+        $this->assertEquals('table_row', $resultBlock->getType());
+        $this->assertGreaterThan(0, count($resultBlock->getTableRow()->getCells()));
+
+        /** @var Text $text */
+        $text = $resultBlock->getTableRow()->getCells()[0];
+
+        $this->assertInstanceOf(Text::class, $text);
+
+        $this->assertEquals('Header 1', $text->getText()->getContent());
     }
 }
