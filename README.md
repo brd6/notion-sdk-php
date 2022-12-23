@@ -9,7 +9,7 @@
     <a href="https://packagist.org/packages/brd6/notion-sdk-php"><img src="https://img.shields.io/packagist/v/brd6/notion-sdk-php.svg?style=flat-square&label=release" alt="Download Package"></a>
     <a href="https://php.net"><img src="https://img.shields.io/packagist/php-v/brd6/notion-sdk-php.svg?style=flat-square&colorB=%238892BF" alt="PHP Programming Language"></a>
     <a href="https://github.com/brd6/notion-sdk-php/blob/main/LICENSE"><img src="https://img.shields.io/packagist/l/brd6/notion-sdk-php.svg?style=flat-square&colorB=darkcyan" alt="Read License"></a>
-    <a href="https://github.com/brd6/notion-sdk-php/actions/workflows/continuous-integration.yml"><img src="https://img.shields.io/github/workflow/status/brd6/notion-sdk-php/build/main?style=flat-square&logo=github" alt="Build Status"></a>
+    <a href="https://github.com/brd6/notion-sdk-php/actions/workflows/continuous-integration.yml"><img src="https://img.shields.io/github/actions/workflow/status/brd6/notion-sdk-php/.github/workflows/continuous-integration.yml?branch=main&style=flat-square&logo=github" alt="Build Status"></a>
 </p>
 
 PHP version of the official [NOTION API](https://developers.notion.com). It works the same way as the reference [JavaScript SDK](https://github.com/makenotion/notion-sdk-js) 🎉
