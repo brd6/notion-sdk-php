@@ -45,7 +45,7 @@
         "ramsey/coding-standard": "^2.0",
         "roave/security-advisories": "dev-latest",
         "symfony/http-client": "^5.4",
-        "vimeo/psalm": "^4.22"
+        "vimeo/psalm": "^5.6"
     },
     "suggest": {
         "nyholm/psr7": "PSR-7 message implementation",
