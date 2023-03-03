@@ -11,7 +11,7 @@ use function array_filter;
 use function count;
 use function get_object_vars;
 use function in_array;
-use function is_array;
+use function is_countable;
 use function json_decode;
 use function json_encode;
 
@@ -52,11 +52,44 @@ abstract class AbstractJsonSerializable implements JsonSerializable
      */
     protected function canBeSerialized($value, string $key): bool
     {
-        return ((count($this->onlyKeys) === 0 || in_array($key, $this->onlyKeys)) &&
-                !in_array($key, self::EXCLUDED_KEYS)) &&
-            (!$this->ignoreEmptyValue ||
-            (($value !== null && $value !== '') &&
-                ((!is_array($value)) || count($value) > 0)
-            ));
+        if ($this->shouldIgnoreKey($key)) {
+            return false;
+        }
+
+        if ($this->shouldOnlySerializeKey($key)) {
+            return true;
+        }
+
+        return $this->shouldSerializeValue($value);
+    }
+
+    private function shouldIgnoreKey(string $key): bool
+    {
+        return in_array($key, self::EXCLUDED_KEYS);
+    }
+
+    private function shouldOnlySerializeKey(string $key): bool
+    {
+        return in_array($key, $this->onlyKeys);
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function shouldSerializeValue($value): bool
+    {
+        if (!$this->ignoreEmptyValue) {
+            return true;
+        }
+
+        if ($value === null) {
+            return false;
+        }
+
+        if (is_countable($value)) {
+            return count($value) > 0;
+        }
+
+        return true;
     }
 }
