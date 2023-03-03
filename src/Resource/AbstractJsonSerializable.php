@@ -20,6 +20,7 @@ use const ARRAY_FILTER_USE_BOTH;
 abstract class AbstractJsonSerializable implements JsonSerializable
 {
     private const EXCLUDED_KEYS = ['ignoreEmptyValue', 'rawData', 'onlyKeys'];
+    private const ALLOWED_EMPTY_VALUE_KEYS = ['content'];
 
     private bool $ignoreEmptyValue = true;
     private array $onlyKeys = [];
@@ -60,7 +61,7 @@ abstract class AbstractJsonSerializable implements JsonSerializable
             return true;
         }
 
-        return $this->shouldSerializeValue($value);
+        return $this->shouldSerializeValue($key, $value);
     }
 
     private function shouldIgnoreKey(string $key): bool
@@ -76,13 +77,13 @@ abstract class AbstractJsonSerializable implements JsonSerializable
     /**
      * @param mixed $value
      */
-    private function shouldSerializeValue($value): bool
+    private function shouldSerializeValue(string $key, $value): bool
     {
-        if (!$this->ignoreEmptyValue) {
+        if (!$this->ignoreEmptyValue || in_array($key, self::ALLOWED_EMPTY_VALUE_KEYS)) {
             return true;
         }
 
-        if ($value === null) {
+        if ($value === null || $value === '') {
             return false;
         }
 
