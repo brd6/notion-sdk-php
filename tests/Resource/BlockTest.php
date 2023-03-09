@@ -242,4 +242,35 @@ class BlockTest extends TestCase
             $block->getSyncedBlock()->getSyncedFrom()->getBlockId(),
         );
     }
+
+    public function testFromRawDataWithEmptyContentInRichText(): void
+    {
+        /** @var ParagraphBlock $block */
+        $block = AbstractBlock::fromRawData(
+            (array) json_decode(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_empty_text_content_200.json'),
+                true,
+            ),
+        );
+
+        /** @var Text $richText */
+        $richText = $block->getParagraph()->getRichText()[0];
+
+        $this->assertEquals('', $richText->getText()->getContent());
+        $this->assertEquals('', $richText->getPlainText());
+    }
+
+    public function testCreateEmptyContentInRichText(): void
+    {
+        $richText = Text::fromContent('');
+
+        $this->assertEquals('', $richText->getText()->getContent());
+        $this->assertEquals('', $richText->getPlainText());
+
+        $richTextData = $richText->toArray();
+
+        $this->assertArrayHasKey('text', $richTextData);
+        $this->assertArrayHasKey('content', $richTextData['text']);
+        $this->assertEquals('', $richTextData['text']['content']);
+    }
 }
