@@ -69,7 +69,8 @@
             "phpstan/extension-installer": true,
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "ergebnis/composer-normalize": true,
-            "captainhook/plugin-composer": true
+            "captainhook/plugin-composer": true,
+            "php-http/discovery": true
         },
         "sort-packages": true
     },
