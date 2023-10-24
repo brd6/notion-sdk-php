@@ -42,7 +42,7 @@ class PagesPropertiesEndpoint extends AbstractEndpoint
     public function retrieve(
         string $pageId,
         string $propertyId,
-        ?PaginationRequest $paginationRequest = null
+        ?PaginationRequest $paginationRequest = null,
     ) {
         $paginationRequest = $paginationRequest ?? new PaginationRequest();
 

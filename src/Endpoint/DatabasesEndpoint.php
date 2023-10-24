@@ -37,7 +37,7 @@ class DatabasesEndpoint extends AbstractEndpoint
     public function query(
         string $databaseId,
         ?DatabaseRequest $databaseRequest = null,
-        ?PaginationRequest $paginationRequest = null
+        ?PaginationRequest $paginationRequest = null,
     ): AbstractPaginationResults {
         $body = array_merge(
             $paginationRequest ? $paginationRequest->toArray() : [],

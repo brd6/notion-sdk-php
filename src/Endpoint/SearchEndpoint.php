@@ -32,7 +32,7 @@ class SearchEndpoint extends AbstractEndpoint
      */
     public function search(
         ?SearchRequest $searchRequest = null,
-        ?PaginationRequest $paginationRequest = null
+        ?PaginationRequest $paginationRequest = null,
     ): AbstractPaginationResults {
         $body = array_merge(
             $searchRequest ? $searchRequest->toArray() : [],
