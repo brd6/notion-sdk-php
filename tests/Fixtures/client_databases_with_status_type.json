@@ -1,0 +1,203 @@
+{
+    "object": "database",
+    "id": "809cfb0f-5aaa-466b-8b61-c8d1dfc692c3",
+    "cover": null,
+    "icon": {
+        "type": "file",
+        "file": {
+            "url": "https://example.com/book.svg",
+            "expiry_time": "2023-10-24T17:48:33.263Z"
+        }
+    },
+    "created_time": "2023-07-06T16:08:00.000Z",
+    "created_by": {
+        "object": "user",
+        "id": "cb1d709f-9ef1-468c-ba06-d04a378f5263"
+    },
+    "last_edited_by": {
+        "object": "user",
+        "id": "dbe3d3ab-ea82-4df3-b1de-7aded7eb9366"
+    },
+    "last_edited_time": "2023-10-24T08:47:00.000Z",
+    "title": [
+        {
+            "type": "text",
+            "text": {
+                "content": "Articles",
+                "link": null
+            },
+            "annotations": {
+                "bold": false,
+                "italic": false,
+                "strikethrough": false,
+                "underline": false,
+                "code": false,
+                "color": "default"
+            },
+            "plain_text": "Articles",
+            "href": null
+        }
+    ],
+    "description": [
+        {
+            "type": "text",
+            "text": {
+                "content": "This is where you can write all your articles.",
+                "link": null
+            },
+            "annotations": {
+                "bold": false,
+                "italic": false,
+                "strikethrough": false,
+                "underline": false,
+                "code": false,
+                "color": "default"
+            },
+            "plain_text": "This is where you can write all your articles.",
+            "href": null
+        }
+    ],
+    "is_inline": false,
+    "properties": {
+        "Collections": {
+            "id": "ItvU",
+            "name": "Collections",
+            "type": "relation",
+            "relation": {
+                "database_id": "4de72405-9fa1-41cd-87eb-305e41542743",
+                "synced_property_name": "Articles",
+                "synced_property_id": "B^:h"
+            }
+        },
+        "Status": {
+            "id": "M%5C%3EJ",
+            "name": "Status",
+            "type": "select",
+            "select": {
+                "options": [
+                    {
+                        "id": "nx>;",
+                        "name": "Draft",
+                        "color": "default"
+                    },
+                    {
+                        "id": "E<Af",
+                        "name": "Published",
+                        "color": "green"
+                    }
+                ]
+            }
+        },
+        "Publish date": {
+            "id": "%5BIAg",
+            "name": "Publish date",
+            "type": "date",
+            "date": {}
+        },
+        "Visible to": {
+            "id": "%60nUX",
+            "name": "Visible to",
+            "type": "multi_select",
+            "multi_select": {
+                "options": [
+                    {
+                        "id": "cebdb9c4-bf59-4dfa-8436-959ad5f421b2",
+                        "name": "Everyone",
+                        "color": "purple"
+                    }
+                ]
+            }
+        },
+        "Last Edited": {
+            "id": "dQVT",
+            "name": "Last Edited",
+            "type": "last_edited_time",
+            "last_edited_time": {}
+        },
+        "Status 1": {
+            "id": "hVs%5D",
+            "name": "Status 1",
+            "type": "status",
+            "status": {
+                "options": [
+                    {
+                        "id": "23703962-a6f5-4271-af33-c6dad75d7292",
+                        "name": "To be checked",
+                        "color": "orange"
+                    },
+                    {
+                        "id": "68b31548-2d12-469a-b637-72462fa02d31",
+                        "name": "Ready to go (GT)",
+                        "color": "pink"
+                    },
+                    {
+                        "id": "7889cb41-30a9-4871-941b-583c9a455f99",
+                        "name": "Completed",
+                        "color": "green"
+                    }
+                ],
+                "groups": [
+                    {
+                        "id": "b96d55f4-59c2-4421-b566-1c56d5d2eb3f",
+                        "name": "To-do",
+                        "color": "gray",
+                        "option_ids": [
+                            "23703962-a6f5-4271-af33-c6dad75d7292"
+                        ]
+                    },
+                    {
+                        "id": "bf1771d7-6aaf-4de5-9404-799ad5e80a86",
+                        "name": "In progress",
+                        "color": "blue",
+                        "option_ids": [
+                            "68b31548-2d12-469a-b637-72462fa02d31"
+                        ]
+                    },
+                    {
+                        "id": "33f04f70-9913-4855-bc5b-dfc3b40a746a",
+                        "name": "Complete",
+                        "color": "green",
+                        "option_ids": [
+                            "7889cb41-30a9-4871-941b-583c9a455f99"
+                        ]
+                    }
+                ]
+            }
+        },
+        "Author": {
+            "id": "jXwT",
+            "name": "Author",
+            "type": "people",
+            "people": {}
+        },
+        "Description": {
+            "id": "x%3Cn%3D",
+            "name": "Description",
+            "type": "rich_text",
+            "rich_text": {}
+        },
+        "Position": {
+            "id": "%7BnB%3B",
+            "name": "Position",
+            "type": "number",
+            "number": {
+                "format": "number"
+            }
+        },
+        "Title": {
+            "id": "title",
+            "name": "Title",
+            "type": "title",
+            "title": {}
+        }
+    },
+    "parent": {
+        "type": "page_id",
+        "page_id": "0e0f95ed-a3f7-458f-a1c8-8097175548df"
+    },
+    "url": "https://www.notion.so/809cfb0f5aaa466a8b61c8d1dfc692c2",
+    "public_url": null,
+    "archived": false,
+    "developer_survey": "https://notionup.typeform.com/to/bllBsoI4?utm_source=postman",
+    "request_id": "26fa3bb8-0397-4acb-8f11-9e798f1b0825"
+}

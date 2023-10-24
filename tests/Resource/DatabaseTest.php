@@ -10,6 +10,8 @@ use Brd6\NotionSdkPhp\Resource\File\Emoji;
 use Brd6\NotionSdkPhp\Resource\File\External;
 use PHPUnit\Framework\TestCase;
 
+use function array_filter;
+use function array_values;
 use function count;
 use function file_get_contents;
 use function json_decode;
@@ -73,5 +75,30 @@ class DatabaseTest extends TestCase
             $this->assertNotEmpty($property->getType());
             $this->assertNotEmpty($property->toArray());
         }
+    }
+
+    public function testDatabaseWithStatusProperties(): void
+    {
+        /** @var Database $database */
+        $database = Database::fromRawData(
+            (array) json_decode(
+                (string) file_get_contents('tests/Fixtures/client_databases_with_status_type.json'),
+                true,
+            ),
+        );
+
+        $properties = $database->getProperties();
+
+        $statuesProperties = array_filter(
+            $properties,
+            static fn ($property) => $property->getType() === 'status',
+        );
+
+        $this->assertGreaterThan(0, count($statuesProperties));
+
+        $firstStatus = array_values($statuesProperties)[0];
+
+        $this->assertInstanceOf(Database\PropertyObject\StatusPropertyObject::class, $firstStatus);
+        $this->assertGreaterThan(0, count($firstStatus->getStatus()->getOptions()));
     }
 }
