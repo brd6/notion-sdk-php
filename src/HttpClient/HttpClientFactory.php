@@ -36,7 +36,7 @@ class HttpClientFactory implements HttpClientFactoryInterface
     public function __construct(
         ?RequestFactoryInterface $requestFactory = null,
         ?UriFactoryInterface $uriFactory = null,
-        ?StreamFactoryInterface $streamFactory = null,
+        ?StreamFactoryInterface $streamFactory = null
     ) {
         $this->requestFactory = $requestFactory ?: Psr17FactoryDiscovery::findRequestFactory();
         $this->uriFactory = $uriFactory ?: Psr17FactoryDiscovery::findUriFactory();

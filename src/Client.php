@@ -182,7 +182,7 @@ class Client
      */
     public function search(
         ?SearchRequest $searchRequest = null,
-        ?PaginationRequest $paginationRequest = null,
+        ?PaginationRequest $paginationRequest = null
     ): AbstractPaginationResults {
         return $this->searchEndpoint->search($searchRequest, $paginationRequest);
     }
