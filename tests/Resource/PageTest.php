@@ -8,6 +8,7 @@ use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Resource\File\Emoji;
 use Brd6\NotionSdkPhp\Resource\File\External;
 use Brd6\NotionSdkPhp\Resource\Page;
+use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\NumberPropertyValue;
 use PHPUnit\Framework\TestCase;
 
 use function count;
@@ -87,5 +88,29 @@ class PageTest extends TestCase
             $this->assertNotEmpty($property->getType());
             $this->assertNotEmpty($property->toArray());
         }
+    }
+
+    public function testNumberProperty(): void
+    {
+        /** @var Page $page */
+        $page = Page::fromRawData(
+            (array) json_decode(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_properties_200.json'),
+                true,
+            ),
+        );
+
+        $properties = $page->getProperties();
+
+        /** @var NumberPropertyValue $myNumber */
+        $myNumber = $properties['My number'];
+
+        $this->assertInstanceOf(NumberPropertyValue::class, $myNumber);
+        $this->assertEquals(42, $myNumber->getNumber());
+
+        $myNumberFloat = $properties['My number float'];
+
+        $this->assertInstanceOf(NumberPropertyValue::class, $myNumberFloat);
+        $this->assertEquals(42.42, $myNumberFloat->getNumber());
     }
 }

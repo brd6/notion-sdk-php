@@ -6,20 +6,20 @@ namespace Brd6\NotionSdkPhp\Resource\Page\PropertyValue;
 
 class NumberPropertyValue extends AbstractPropertyValue
 {
-    protected ?int $number = null;
+    protected ?float $number = null;
 
     protected function initialize(): void
     {
         $data = $this->getRawData();
-        $this->number = isset($data['number']) ? (int) $data['number'] : null;
+        $this->number = isset($data['number']) ? (float) $data['number'] : null;
     }
 
-    public function getNumber(): ?int
+    public function getNumber(): ?float
     {
         return $this->number;
     }
 
-    public function setNumber(int $number): self
+    public function setNumber(float $number): self
     {
         $this->number = $number;
 
