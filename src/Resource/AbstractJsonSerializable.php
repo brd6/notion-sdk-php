@@ -25,6 +25,9 @@ abstract class AbstractJsonSerializable implements JsonSerializable
     private bool $ignoreEmptyValue = true;
     private array $onlyKeys = [];
 
+    /**
+     * @psalm-suppress MixedArgumentTypeCoercion
+     */
     public function jsonSerialize(): array
     {
         return array_filter(

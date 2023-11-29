@@ -52,6 +52,11 @@
             "type": "number",
             "number": 42
         },
+        "My number float": {
+            "id": "%40aiB",
+            "type": "number",
+            "number": 42.42
+        },
         "formula2": {
             "id": "H%3BxC",
             "type": "formula",
