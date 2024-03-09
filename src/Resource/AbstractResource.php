@@ -46,9 +46,6 @@ abstract class AbstractResource extends AbstractJsonSerializable implements Reso
 
     abstract public static function getResourceType(): string;
 
-    /**
-     * @return array
-     */
     public function getRawData(): array
     {
         return $this->rawData;

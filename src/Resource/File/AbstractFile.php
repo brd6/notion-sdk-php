@@ -7,14 +7,21 @@ namespace Brd6\NotionSdkPhp\Resource\File;
 use Brd6\NotionSdkPhp\Exception\InvalidFileException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
 use Brd6\NotionSdkPhp\Resource\AbstractJsonSerializable;
+use Brd6\NotionSdkPhp\Resource\RichText\AbstractRichText;
 use Brd6\NotionSdkPhp\Util\StringHelper;
 
+use function array_map;
 use function class_exists;
 
 abstract class AbstractFile extends AbstractJsonSerializable
 {
     private array $rawData = [];
     protected string $type = '';
+
+    /**
+     * @var array|AbstractRichText[]
+     */
+    protected array $caption = [];
 
     public function __construct()
     {
@@ -48,6 +55,10 @@ abstract class AbstractFile extends AbstractJsonSerializable
         $this->rawData = $rawData;
 
         $this->type = (string) ($this->rawData['type'] ?? '');
+        $this->caption = isset($this->rawData['caption']) ? array_map(
+            fn (array $richTextRawData) => AbstractRichText::fromRawData($richTextRawData),
+            (array) $this->rawData['caption'],
+        ) : [];
 
         return $this;
     }
@@ -87,6 +98,24 @@ abstract class AbstractFile extends AbstractJsonSerializable
     public function setType(string $type): self
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * @return array|AbstractRichText[]
+     */
+    public function getCaption(): array
+    {
+        return $this->caption;
+    }
+
+    /**
+     * @param array|AbstractRichText[] $caption
+     */
+    public function setCaption(array $caption): self
+    {
+        $this->caption = $caption;
 
         return $this;
     }

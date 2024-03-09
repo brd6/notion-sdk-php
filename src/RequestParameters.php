@@ -35,9 +35,6 @@ class RequestParameters
         return $this;
     }
 
-    /**
-     * @return array
-     */
     public function getQuery(): array
     {
         return $this->query;
@@ -55,9 +52,6 @@ class RequestParameters
         return $this;
     }
 
-    /**
-     * @return array
-     */
     public function getBody(): array
     {
         return $this->body;
