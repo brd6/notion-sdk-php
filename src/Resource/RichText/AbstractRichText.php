@@ -71,9 +71,6 @@ abstract class AbstractRichText extends AbstractJsonSerializable
 
     abstract protected function initialize(): void;
 
-    /**
-     * @return array
-     */
     public function getRawData(): array
     {
         return $this->rawData;

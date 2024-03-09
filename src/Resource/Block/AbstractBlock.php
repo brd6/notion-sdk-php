@@ -206,8 +206,6 @@ abstract class AbstractBlock extends AbstractResource
     }
 
     /**
-     * @return array
-     *
      * @psalm-suppress PossiblyNullReference
      */
     public function propertyToArray(): array
