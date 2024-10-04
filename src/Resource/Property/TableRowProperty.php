@@ -13,7 +13,7 @@ use function count;
 class TableRowProperty extends AbstractProperty
 {
     /**
-     * @var AbstractRichText[]
+     * @var array<AbstractRichText|null>
      */
     protected array $cells = [];
 
@@ -41,7 +41,7 @@ class TableRowProperty extends AbstractProperty
     /**
      * @param array $cellsRawData
      *
-     * @return AbstractRichText[]
+     * @return array<AbstractRichText|null>
      *
      * @throws InvalidRichTextException
      * @throws UnsupportedRichTextTypeException
@@ -52,21 +52,21 @@ class TableRowProperty extends AbstractProperty
 
         /** @var array $cellData */
         foreach ($cellsRawData as $cellData) {
-            if (count($cellData) === 0) {
-                continue;
+            $rawData = [];
+
+            if (count($cellData) > 0) {
+                /** @var array $rawData */
+                $rawData = $cellData[0];
             }
 
-            /** @var array $rawData */
-            $rawData = $cellData[0];
-
-            $cells[] = AbstractRichText::fromRawData($rawData);
+            $cells[] = count($rawData) > 0 ? AbstractRichText::fromRawData($rawData) : null;
         }
 
         return $cells;
     }
 
     /**
-     * @return AbstractRichText[]
+     * @return array<AbstractRichText|null>
      */
     public function getCells(): array
     {
@@ -74,7 +74,7 @@ class TableRowProperty extends AbstractProperty
     }
 
     /**
-     * @param AbstractRichText[] $cells
+     * @param array<AbstractRichText|null> $cells
      */
     public function setCells(array $cells): self
     {

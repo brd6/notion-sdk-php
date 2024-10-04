@@ -369,4 +369,43 @@ class BlocksEndpointTest extends TestCase
 
         $this->assertEquals('Header 1', $text->getText()->getContent());
     }
+
+    public function testRetrieveTableRowListWithEmptyCells(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            if ($method === 'GET') {
+                $this->assertStringContainsString('blocks/64fecca8-8945-4d58-9a38-d9738e6b5a4e/children', $url);
+            }
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_table_row_list_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        /** @var BlockResults $paginationResponse */
+        $paginationResponse = $client->blocks()->children()->list('64fecca8-8945-4d58-9a38-d9738e6b5a4e');
+
+        $this->assertEquals('list', $paginationResponse->getObject());
+
+        /** @var TableRowBlock $resultBlock */
+        $resultBlock = $paginationResponse->getResults()[0];
+        $this->assertEquals('table_row', $resultBlock->getType());
+
+        $cells = $resultBlock->getTableRow()->getCells();
+
+        $this->assertInstanceOf(Text::class, $cells[0]);
+        $this->assertEquals('Header 1', $cells[0]->getText()->getContent());
+        $this->assertInstanceOf(Text::class, $cells[1]);
+        $this->assertEquals('Header 2', $cells[1]->getText()->getContent());
+        $this->assertNull($cells[2]);
+
+        $resultBlock2 = $paginationResponse->getResults()[1];
+        $cells2 = $resultBlock2->getTableRow()->getCells();
+        $this->assertInstanceOf(Text::class, $cells2[0]);
+        $this->assertEquals('Content', $cells2[0]->getText()->getContent());
+        $this->assertNull($cells2[2]);
+    }
 }
