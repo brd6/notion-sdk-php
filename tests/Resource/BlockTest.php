@@ -6,6 +6,7 @@ namespace Brd6\Test\NotionSdkPhp\Resource;
 
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
+use Brd6\NotionSdkPhp\Resource\Block\AudioBlock;
 use Brd6\NotionSdkPhp\Resource\Block\CalloutBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ChildPageBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
@@ -14,6 +15,7 @@ use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
 use Brd6\NotionSdkPhp\Resource\File\Emoji;
 use Brd6\NotionSdkPhp\Resource\Property\CalloutProperty;
 use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
+use Brd6\NotionSdkPhp\Resource\Property\FileProperty;
 use Brd6\NotionSdkPhp\Resource\Property\HeadingProperty;
 use Brd6\NotionSdkPhp\Resource\Property\ParagraphProperty;
 use Brd6\NotionSdkPhp\Resource\Property\SyncedBlockProperty;
@@ -272,5 +274,27 @@ class BlockTest extends TestCase
         $this->assertArrayHasKey('text', $richTextData);
         $this->assertArrayHasKey('content', $richTextData['text']);
         $this->assertEquals('', $richTextData['text']['content']);
+    }
+
+    public function testAudioBlock(): void
+    {
+        $block = AbstractBlock::fromRawData(
+            (array) json_decode(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_audio_200.json'),
+                true,
+            ),
+        );
+
+        $this->assertInstanceOf(AudioBlock::class, $block);
+        $this->assertEquals('audio', $block->getType());
+        $this->assertNotNull($block->getAudio());
+        $this->assertInstanceOf(AbstractFile::class, $block->getAudio());
+
+        $audioFile = $block->getAudio()->getFile();
+
+        $this->assertNotNull($audioFile);
+        $this->assertInstanceOf(FileProperty::class, $audioFile);
+        $this->assertNotEmpty($audioFile->getUrl());
+        $this->assertNotEmpty($audioFile->getExpiryTime());
     }
 }
