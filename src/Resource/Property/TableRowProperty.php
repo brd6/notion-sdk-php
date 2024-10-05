@@ -8,12 +8,13 @@ use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
 use Brd6\NotionSdkPhp\Resource\RichText\AbstractRichText;
 
+use function array_map;
 use function count;
 
 class TableRowProperty extends AbstractProperty
 {
     /**
-     * @var array<AbstractRichText|null>
+     * @var array<array<AbstractRichText>>
      */
     protected array $cells = [];
 
@@ -41,7 +42,7 @@ class TableRowProperty extends AbstractProperty
     /**
      * @param array $cellsRawData
      *
-     * @return array<AbstractRichText|null>
+     * @return array<array<AbstractRichText>>
      *
      * @throws InvalidRichTextException
      * @throws UnsupportedRichTextTypeException
@@ -55,18 +56,18 @@ class TableRowProperty extends AbstractProperty
             $rawData = [];
 
             if (count($cellData) > 0) {
-                /** @var array $rawData */
-                $rawData = $cellData[0];
+                /** @var array<AbstractRichText> $rawData */
+                $rawData = array_map(static fn (array $data) => AbstractRichText::fromRawData($data), $cellData);
             }
 
-            $cells[] = count($rawData) > 0 ? AbstractRichText::fromRawData($rawData) : null;
+            $cells[] = $rawData;
         }
 
         return $cells;
     }
 
     /**
-     * @return array<AbstractRichText|null>
+     * @return array<array<AbstractRichText>>
      */
     public function getCells(): array
     {
@@ -74,7 +75,7 @@ class TableRowProperty extends AbstractProperty
     }
 
     /**
-     * @param array<AbstractRichText|null> $cells
+     * @param array<array<AbstractRichText>> $cells
      */
     public function setCells(array $cells): self
     {
