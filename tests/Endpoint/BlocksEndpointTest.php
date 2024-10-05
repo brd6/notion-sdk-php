@@ -363,7 +363,7 @@ class BlocksEndpointTest extends TestCase
         $this->assertGreaterThan(0, count($resultBlock->getTableRow()->getCells()));
 
         /** @var Text $text */
-        $text = $resultBlock->getTableRow()->getCells()[0];
+        $text = $resultBlock->getTableRow()->getCells()[0][0];
 
         $this->assertInstanceOf(Text::class, $text);
 
@@ -396,16 +396,16 @@ class BlocksEndpointTest extends TestCase
 
         $cells = $resultBlock->getTableRow()->getCells();
 
-        $this->assertInstanceOf(Text::class, $cells[0]);
-        $this->assertEquals('Header 1', $cells[0]->getText()->getContent());
-        $this->assertInstanceOf(Text::class, $cells[1]);
-        $this->assertEquals('Header 2', $cells[1]->getText()->getContent());
-        $this->assertNull($cells[2]);
+        $this->assertInstanceOf(Text::class, $cells[0][0]);
+        $this->assertEquals('Header 1', $cells[0][0]->getText()->getContent());
+        $this->assertInstanceOf(Text::class, $cells[1][0]);
+        $this->assertEquals('Header 2', $cells[1][0]->getText()->getContent());
+        $this->assertEmpty($cells[2]);
 
         $resultBlock2 = $paginationResponse->getResults()[1];
         $cells2 = $resultBlock2->getTableRow()->getCells();
-        $this->assertInstanceOf(Text::class, $cells2[0]);
-        $this->assertEquals('Content', $cells2[0]->getText()->getContent());
-        $this->assertNull($cells2[2]);
+        $this->assertInstanceOf(Text::class, $cells2[0][0]);
+        $this->assertEquals('Content', $cells2[0][0]->getText()->getContent());
+        $this->assertEmpty($cells2[2]);
     }
 }
