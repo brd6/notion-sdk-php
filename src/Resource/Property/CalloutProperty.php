@@ -35,7 +35,9 @@ class CalloutProperty extends AbstractParagraphProperty
         /** @var self $property */
         $property = parent::fromRawData($rawData);
 
-        $property->icon = AbstractFile::fromRawData((array) $rawData['icon']);
+        $property->icon = isset($rawData['icon']) ?
+            AbstractFile::fromRawData((array) $rawData['icon']) :
+            null;
 
         return $property;
     }
