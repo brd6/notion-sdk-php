@@ -321,7 +321,8 @@ class BlockTest extends TestCase
         $this->assertEquals('45ce454c-d427-4f53-9489-e5d0f3d1db6b', $customEmoji->getId());
         $this->assertEquals('bufo', $customEmoji->getName());
         $this->assertEquals(
-            'https://s3-us-west-2.amazonaws.com/public.notion-static.com/865e85fc-7442-44d3-b323-9b03a2111720/3c6796979c50f4aa.png',
+            'https://s3-us-west-2.amazonaws.com/public.notion-static.com/'
+            . '865e85fc-7442-44d3-b323-9b03a2111720/3c6796979c50f4aa.png',
             $customEmoji->getUrl(),
         );
     }
