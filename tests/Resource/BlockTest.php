@@ -297,4 +297,32 @@ class BlockTest extends TestCase
         $this->assertNotEmpty($audioFile->getUrl());
         $this->assertNotEmpty($audioFile->getExpiryTime());
     }
+
+    public function testCustomEmojiBlock(): void
+    {
+        $block = AbstractBlock::fromRawData(
+            (array) json_decode(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_custom_emoji_200.json'),
+                true,
+            ),
+        );
+
+        $this->assertInstanceOf(CalloutBlock::class, $block);
+        $this->assertEquals('callout', $block->getType());
+        $this->assertNotNull($block->getCallout());
+        $this->assertInstanceOf(CalloutProperty::class, $block->getCallout());
+
+        $icon = $block->getCallout()->getIcon();
+        $this->assertNotNull($icon);
+        $this->assertEquals('custom_emoji', $icon->getType());
+
+        $customEmoji = $icon->getCustomEmoji();
+        $this->assertNotNull($customEmoji);
+        $this->assertEquals('45ce454c-d427-4f53-9489-e5d0f3d1db6b', $customEmoji->getId());
+        $this->assertEquals('bufo', $customEmoji->getName());
+        $this->assertEquals(
+            'https://s3-us-west-2.amazonaws.com/public.notion-static.com/865e85fc-7442-44d3-b323-9b03a2111720/3c6796979c50f4aa.png',
+            $customEmoji->getUrl(),
+        );
+    }
 }
