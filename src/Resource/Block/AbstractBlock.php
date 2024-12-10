@@ -89,7 +89,7 @@ abstract class AbstractBlock extends AbstractResource
     protected static function getMapClassFromType(string $type): string
     {
         $typeFormatted = StringHelper::snakeCaseToCamelCase($type);
-        $class = "Brd6\\NotionSdkPhp\\Resource\Block\\${typeFormatted}Block";
+        $class = "Brd6\\NotionSdkPhp\\Resource\\Block\\{$typeFormatted}Block";
 
         return class_exists($class) ? $class : UnsupportedBlock::class;
     }
