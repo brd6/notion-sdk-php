@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\RichText\Mention;
 
-use Brd6\NotionSdkPhp\Resource\RichText\AbstractMention;
 use Brd6\NotionSdkPhp\Resource\Property\CustomEmojiProperty;
+use Brd6\NotionSdkPhp\Resource\RichText\AbstractMention;
 
 class CustomEmojiMention extends AbstractMention
 {
@@ -28,4 +28,4 @@ class CustomEmojiMention extends AbstractMention
 
         return $this;
     }
-} 
+}
