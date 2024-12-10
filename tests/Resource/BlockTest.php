@@ -21,6 +21,7 @@ use Brd6\NotionSdkPhp\Resource\Property\ParagraphProperty;
 use Brd6\NotionSdkPhp\Resource\Property\SyncedBlockProperty;
 use Brd6\NotionSdkPhp\Resource\RichText\Equation;
 use Brd6\NotionSdkPhp\Resource\RichText\Mention;
+use Brd6\NotionSdkPhp\Resource\RichText\Mention\CustomEmojiMention;
 use Brd6\NotionSdkPhp\Resource\RichText\MentionInterface;
 use Brd6\NotionSdkPhp\Resource\RichText\Text;
 use Brd6\NotionSdkPhp\Util\StringHelper;
@@ -324,6 +325,38 @@ class BlockTest extends TestCase
             'https://s3-us-west-2.amazonaws.com/public.notion-static.com/'
             . '865e85fc-7442-44d3-b323-9b03a2111720/3c6796979c50f4aa.png',
             $customEmoji->getUrl(),
+        );
+    }
+
+    public function testCustomEmojiMentionBlock(): void
+    {
+        $block = AbstractBlock::fromRawData(
+            (array) json_decode(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_paragraph_custom_emoji_mention_200.json'),
+                true,
+            ),
+        );
+
+        $this->assertInstanceOf(ParagraphBlock::class, $block);
+        $this->assertNotNull($block->getParagraph());
+        $this->assertInstanceOf(ParagraphProperty::class, $block->getParagraph());
+        $this->assertCount(1, $block->getParagraph()->getRichText());
+
+        $richText = $block->getParagraph()->getRichText()[0];
+        $this->assertInstanceOf(Mention::class, $richText);
+        $this->assertEquals('mention', $richText->getType());
+
+        $mention = $richText->getMention();
+        $this->assertInstanceOf(CustomEmojiMention::class, $mention);
+        $this->assertEquals('custom_emoji', $mention->getType());
+
+        $customEmoji = $mention->getCustomEmoji();
+        $this->assertNotNull($customEmoji);
+        $this->assertEquals('45ce454c-d427-4f53-9489-e5d0f3d1db6b', $customEmoji->getId());
+        $this->assertEquals('bufo', $customEmoji->getName());
+        $this->assertEquals(
+            'https://s3-us-west-2.amazonaws.com/public.notion-static.com/865e85fc-7442-44d3-b323-9b03a2111720/3c6796979c50f4aa.png',
+            $customEmoji->getUrl()
         );
     }
 }
