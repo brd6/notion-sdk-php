@@ -9,6 +9,8 @@ use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Block\AudioBlock;
 use Brd6\NotionSdkPhp\Resource\Block\CalloutBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ChildPageBlock;
+use Brd6\NotionSdkPhp\Resource\Block\ColumnBlock;
+use Brd6\NotionSdkPhp\Resource\Block\ColumnListBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
 use Brd6\NotionSdkPhp\Resource\Block\SyncedBlockBlock;
 use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
@@ -359,5 +361,66 @@ class BlockTest extends TestCase
             . '865e85fc-7442-44d3-b323-9b03a2111720/3c6796979c50f4aa.png',
             $customEmoji->getUrl(),
         );
+    }
+
+    public function testColumnListBlockWithChildren(): void
+    {
+        $fixture = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_column_list_200.json'),
+            true,
+        );
+
+        /** @var ColumnListBlock $block */
+        $block = AbstractBlock::fromRawData($fixture);
+
+        $this->assertInstanceOf(ColumnListBlock::class, $block);
+        $this->assertEquals('column_list', $block->getType());
+        $this->assertTrue($block->isHasChildren());
+        $this->assertNotEmpty($block->getChildren());
+        $this->assertCount(1, $block->getChildren());
+
+        /** @var ColumnBlock $columnBlock */
+        $columnBlock = $block->getChildren()[0];
+        $this->assertInstanceOf(ColumnBlock::class, $columnBlock);
+        $this->assertTrue($columnBlock->isHasChildren());
+        $this->assertNotEmpty($columnBlock->getChildren());
+        $this->assertCount(1, $columnBlock->getChildren());
+
+        /** @var ParagraphBlock $paragraphBlock */
+        $paragraphBlock = $columnBlock->getChildren()[0];
+        $this->assertInstanceOf(ParagraphBlock::class, $paragraphBlock);
+        $this->assertFalse($paragraphBlock->isHasChildren());
+        $this->assertEmpty($paragraphBlock->getChildren());
+    }
+
+    public function testBlockWithHasChildrenButNoChildrenInPayload(): void
+    {
+        $fixture = [
+            'object' => 'block',
+            'id' => 'a1b2c3d4-e5f6-a1b2-c3d4-e5f6a1b2c3d4',
+            'has_children' => true,
+            'type' => 'paragraph',
+            'paragraph' => [
+                'rich_text' => [],
+            ],
+            'created_time' => '2022-03-22T13:42:00.000Z',
+            'last_edited_time' => '2022-03-22T14:02:00.000Z',
+            'created_by' => [
+                'object' => 'user',
+                'id' => '7f03dda0-a132-49d7-b8b2-29c9ed1b1f0e',
+            ],
+            'last_edited_by' => [
+                'object' => 'user',
+                'id' => '7f03dda0-a132-49d7-b8b2-29c9ed1b1f0e',
+            ],
+            'archived' => false,
+        ];
+
+        /** @var AbstractBlock $block */
+        $block = AbstractBlock::fromRawData($fixture);
+
+        $this->assertInstanceOf(ParagraphBlock::class, $block);
+        $this->assertTrue($block->isHasChildren());
+        $this->assertEmpty($block->getChildren());
     }
 }
