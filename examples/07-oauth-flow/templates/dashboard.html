@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Notion OAuth Example</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .workspace-info h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+        }
+        
+        .workspace-info .subtitle {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .logout-form {
+            margin: 0;
+        }
+        
+        .logout-button {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .logout-button:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+        
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .info-card h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .info-card .value {
+            color: #666;
+            font-family: 'Monaco', 'Consolas', monospace;
+            background: #f8fafc;
+            padding: 0.5rem;
+            border-radius: 6px;
+            word-break: break-all;
+            font-size: 0.9rem;
+        }
+        
+        .pages-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        .pages-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f8fafc;
+        }
+        
+        .pages-header h3 {
+            color: #333;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .pages-list {
+            padding: 0;
+        }
+        
+        .pages-list ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .pages-list li {
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .pages-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .pages-list a {
+            display: block;
+            padding: 1rem 1.5rem;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .pages-list a:hover {
+            background: #f8fafc;
+            color: #3b82f6;
+        }
+        
+        .pages-list a::before {
+            content: "📄";
+            margin-right: 0.75rem;
+        }
+        
+        .empty-state {
+            padding: 3rem 1.5rem;
+            text-align: center;
+            color: #666;
+        }
+        
+        .empty-state .emoji {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .success-message {
+            background: #10b981;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .info-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-message">
+            🎉 Successfully connected to Notion! Your OAuth integration is working.
+        </div>
+        
+        <div class="header">
+            <div class="workspace-info">
+                <h1>{{workspace_name}}</h1>
+                <p class="subtitle">Connected workspace dashboard</p>
+            </div>
+            <form method="POST" action="/logout" class="logout-form">
+                <button type="submit" class="logout-button">Logout</button>
+            </form>
+        </div>
+        
+        <div class="info-cards">
+            <div class="info-card">
+                <h3>🏢 Workspace ID</h3>
+                <div class="value">{{workspace_id}}</div>
+            </div>
+            
+            <div class="info-card">
+                <h3>🤖 Bot ID</h3>
+                <div class="value">{{bot_id}}</div>
+            </div>
+        </div>
+        
+        <div class="pages-section">
+            <div class="pages-header">
+                <h3>📄 Accessible Pages</h3>
+            </div>
+            <div class="pages-list">
+                <ul>
+                    {{pages_list}}
+                </ul>
+            </div>
+            <div class="empty-state" style="display: none;">
+                <div class="emoji">📭</div>
+                <p>No pages found or accessible with current permissions.</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Show empty state if no pages
+        const pagesList = document.querySelector('.pages-list ul');
+        const emptyState = document.querySelector('.empty-state');
+        
+        if (pagesList.children.length === 0 || pagesList.textContent.trim().includes('No pages found')) {
+            document.querySelector('.pages-list').style.display = 'none';
+            emptyState.style.display = 'block';
+        }
+    </script>
+</body>
+</html> 

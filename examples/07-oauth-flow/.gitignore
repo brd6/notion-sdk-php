@@ -1,0 +1,17 @@
+# Environment configuration
+.env
+
+# Dependencies
+/vendor/
+
+# Logs
+*.log
+
+# Session files
+sessions/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo

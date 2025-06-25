@@ -1,0 +1,35 @@
+{
+    "name": "brd6/notion-sdk-php-example-github-pr-sync",
+    "description": "A script to update Notion tasks based on the status of linked GitHub PRs.",
+    "license": "MIT",
+    "type": "project",
+    "keywords": [
+        "notion",
+        "notion-sdk",
+        "github",
+        "automation",
+        "sync",
+        "php",
+        "example"
+    ],
+    "require": {
+        "php": "^7.4 || ^8",
+        "brd6/notion-sdk-php": "@dev",
+        "knplabs/github-api": "^3.11",
+        "nyholm/psr7": "^1.5",
+        "symfony/http-client": "^5.4",
+        "vlucas/phpdotenv": "^5.4"
+    },
+    "config": {
+        "sort-packages": true,
+        "preferred-install": {
+            "brd6/notion-sdk-php": "source"
+        },
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    },
+    "scripts": {
+        "sync": "php index.php"
+    }
+} 

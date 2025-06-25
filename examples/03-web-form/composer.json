@@ -1,0 +1,35 @@
+{
+    "name": "brd6/notion-sdk-php-example-web-form",
+    "description": "A web form example that submits data to a Notion database using the PHP SDK.",
+    "license": "MIT",
+    "type": "project",
+    "keywords": [
+        "notion",
+        "notion-sdk",
+        "notion-api",
+        "php",
+        "example",
+        "web-form",
+        "slim-framework"
+    ],
+    "require": {
+        "php": "^7.4 || ^8",
+        "brd6/notion-sdk-php": "dev-main",
+        "nyholm/psr7": "^1.5",
+        "slim/psr7": "^1.6",
+        "slim/slim": "^4.12",
+        "slim/twig-view": "^3.3",
+        "symfony/http-client": "^5.4",
+        "twig/twig": "^3.5",
+        "vlucas/phpdotenv": "^5.4"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    },
+    "scripts": {
+        "serve": "php -S localhost:8000 -t ."
+    }
+}
