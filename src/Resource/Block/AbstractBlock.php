@@ -15,6 +15,7 @@ use Brd6\NotionSdkPhp\Util\StringHelper;
 use DateTimeImmutable;
 use ReflectionClass;
 
+use function array_map;
 use function class_exists;
 use function preg_replace;
 
@@ -29,6 +30,11 @@ abstract class AbstractBlock extends AbstractResource
     protected ?UserInterface $lastEditedBy = null;
     protected bool $archived = false;
     protected bool $hasChildren = false;
+
+    /**
+     * @var array|AbstractBlock[]
+     */
+    protected array $children = [];
 
     public function __construct()
     {
@@ -81,7 +87,31 @@ abstract class AbstractBlock extends AbstractResource
         $this->archived = (bool) $this->getRawData()['archived'];
         $this->hasChildren = (bool) $this->getRawData()['has_children'];
 
+        $this->initializeChildren();
         $this->initializeBlockProperty();
+    }
+
+    /**
+     * @throws InvalidResourceException
+     * @throws InvalidResourceTypeException
+     * @throws UnsupportedUserTypeException
+     */
+    protected function initializeChildren(): void
+    {
+        if (!$this->hasChildren) {
+            return;
+        }
+
+        $blockData = $this->getRawData()[$this->getType()] ?? [];
+
+        if (!isset($blockData['children'])) {
+            return;
+        }
+
+        $this->children = array_map(
+            fn (array $childRawData) => self::fromRawData($childRawData),
+            (array) $blockData['children'],
+        );
     }
 
     abstract protected function initializeBlockProperty(): void;
@@ -211,5 +241,23 @@ abstract class AbstractBlock extends AbstractResource
     public function propertyToArray(): array
     {
         return $this->getProperty() !== null ? $this->getProperty()->toArray() : [];
+    }
+
+    /**
+     * @return array|AbstractBlock[]
+     */
+    public function getChildren(): array
+    {
+        return $this->children;
+    }
+
+    /**
+     * @param array|AbstractBlock[] $children
+     */
+    public function setChildren(array $children): self
+    {
+        $this->children = $children;
+
+        return $this;
     }
 }

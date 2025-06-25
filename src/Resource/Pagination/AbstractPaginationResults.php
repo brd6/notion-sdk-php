@@ -51,7 +51,7 @@ abstract class AbstractPaginationResults extends AbstractJsonSerializable
     protected static function getMapClassFromType(string $type): string
     {
         $typeFormatted = StringHelper::snakeCaseToCamelCase($type);
-        $class = "Brd6\\NotionSdkPhp\\Resource\Pagination\\${typeFormatted}Results";
+        $class = "Brd6\\NotionSdkPhp\\Resource\\Pagination\\{$typeFormatted}Results";
 
         if (!class_exists($class)) {
             throw new UnsupportedPaginationResponseTypeException($type);
