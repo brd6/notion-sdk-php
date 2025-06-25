@@ -1,0 +1,27 @@
+{
+    "name": "notion-sdk-php/oauth-flow-example",
+    "description": "Simple OAuth 2.0 flow implementation for Notion API using league/oauth2-client",
+    "type": "project",
+    "require": {
+        "php": "^8.1",
+        "brd6/notion-sdk-php": "^1.0",
+        "league/oauth2-client": "^2.7",
+        "slim/slim": "^4.12",
+        "slim/psr7": "^1.6",
+        "nyholm/psr7": "^1.8",
+        "vlucas/phpdotenv": "^5.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "NotionOAuth\\": "src/"
+        }
+    },
+    "scripts": {
+        "start": "php -S localhost:8000 -t . index.php"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    }
+}

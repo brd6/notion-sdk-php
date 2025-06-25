@@ -113,6 +113,20 @@ The `Client` supports the following options on initialization. These options can
 | `baseUrl`    | `"https://api.notion.com"` | `string`                          | The root URL for sending API requests. This can be changed to test with a mock server.                                                             |
 | `httpClient` | Default Http Client        | `Psr\Http\Client\ClientInterface` | The Http Client used to make request on the Notion API. This can be change to customize the base Http Client or replace with a mocked Http Client. |
 
+## Examples
+
+The `examples/` directory contains a comprehensive set of usage examples that demonstrate how to use the SDK for various tasks, from basic API calls to complex integrations:
+
+- **[01-intro-to-notion-api](examples/01-intro-to-notion-api/)** - Basic database queries and page creation
+- **[02-parse-text-from-any-block](examples/02-parse-text-from-any-block/)** - Extract text content from all block types
+- **[03-web-form](examples/03-web-form/)** - Web form to Notion page integration
+- **[04-generate-random-data](examples/04-generate-random-data/)** - Populate databases with sample data
+- **[05-notify-on-update](examples/05-notify-on-update/)** - Email notifications for database changes
+- **[06-notion-github-sync](examples/06-notion-github-sync/)** - GitHub issues synchronization
+- **[07-oauth-flow](examples/07-oauth-flow/)** - Complete OAuth 2.0 implementation
+
+Each example is self-contained with its own dependencies, documentation, and setup instructions.
+
 ## Contributing
 
 Contributions are welcome! To contribute, please familiarize yourself with

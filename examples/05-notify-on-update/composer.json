@@ -1,0 +1,34 @@
+{
+    "name": "brd6/notion-sdk-php-example-notify-updates",
+    "description": "A monitoring script that sends email notifications when Notion database items are updated.",
+    "license": "MIT",
+    "type": "project",
+    "keywords": [
+        "notion",
+        "notion-sdk",
+        "notion-api",
+        "php",
+        "example",
+        "notifications",
+        "monitoring",
+        "email"
+    ],
+    "require": {
+        "php": "^7.4 || ^8",
+        "brd6/notion-sdk-php": "dev-main",
+        "nyholm/psr7": "^1.5",
+        "symfony/http-client": "^5.4",
+        "symfony/mailer": "^5.4",
+        "vlucas/phpdotenv": "^5.4"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    },
+    "scripts": {
+        "monitor": "php index.php",
+        "test-email": "php index.php test"
+    }
+} 

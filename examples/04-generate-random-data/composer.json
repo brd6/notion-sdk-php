@@ -1,0 +1,32 @@
+{
+    "name": "brd6/notion-sdk-php-example-generate-data",
+    "description": "A command-line script that populates a Notion database with randomly generated sample data.",
+    "license": "MIT",
+    "type": "project",
+    "keywords": [
+        "notion",
+        "notion-sdk",
+        "notion-api",
+        "php",
+        "example",
+        "data-generation",
+        "faker"
+    ],
+    "require": {
+        "php": "^7.4 || ^8",
+        "brd6/notion-sdk-php": "dev-main",
+        "fakerphp/faker": "^1.21",
+        "nyholm/psr7": "^1.5",
+        "symfony/http-client": "^5.4",
+        "vlucas/phpdotenv": "^5.4"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    },
+    "scripts": {
+        "generate": "php index.php"
+    }
+} 

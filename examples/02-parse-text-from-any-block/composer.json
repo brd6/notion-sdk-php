@@ -1,0 +1,27 @@
+{
+    "name": "brd6/notion-sdk-php-example-parse-text",
+    "description": "An example script that recursively fetches all blocks on a page and extracts the text content.",
+    "license": "MIT",
+    "type": "project",
+    "keywords": [
+        "notion",
+        "notion-sdk",
+        "notion-api",
+        "php",
+        "example",
+        "text-extraction"
+    ],
+    "require": {
+        "php": "^7.4 || ^8",
+        "brd6/notion-sdk-php": "dev-main",
+        "nyholm/psr7": "^1.5",
+        "symfony/http-client": "^5.4",
+        "vlucas/phpdotenv": "^5.4"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "start": "php index.php"
+    }
+} 
