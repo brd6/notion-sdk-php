@@ -8,6 +8,11 @@ class PageIdParent extends AbstractParentProperty
 {
     protected string $pageId = '';
 
+    public function __construct()
+    {
+        $this->type = 'page_id';
+    }
+
     protected function initialize(): void
     {
         $this->pageId = (string) $this->getRawData()['page_id'];

@@ -6,6 +6,7 @@ namespace Brd6\NotionSdkPhp;
 
 use Brd6\NotionSdkPhp\Constant\NotionErrorCodeConstant;
 use Brd6\NotionSdkPhp\Endpoint\BlocksEndpoint;
+use Brd6\NotionSdkPhp\Endpoint\CommentsEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\DatabasesEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\PagesEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\SearchEndpoint;
@@ -44,6 +45,7 @@ class Client
     private ClientOptions $options;
     private HttpMethodsClientInterface $httpClient;
     private BlocksEndpoint $blocksEndpoint;
+    private CommentsEndpoint $commentsEndpoint;
     private UsersEndpoint $usersEndpoint;
     private PagesEndpoint $pagesEndpoint;
     private DatabasesEndpoint $databasesEndpoint;
@@ -55,6 +57,7 @@ class Client
         $this->initializeHttpClient();
 
         $this->blocksEndpoint = new BlocksEndpoint($this);
+        $this->commentsEndpoint = new CommentsEndpoint($this);
         $this->usersEndpoint = new UsersEndpoint($this);
         $this->pagesEndpoint = new PagesEndpoint($this);
         $this->databasesEndpoint = new DatabasesEndpoint($this);
@@ -156,6 +159,11 @@ class Client
     public function blocks(): BlocksEndpoint
     {
         return $this->blocksEndpoint;
+    }
+
+    public function comments(): CommentsEndpoint
+    {
+        return $this->commentsEndpoint;
     }
 
     public function users(): UsersEndpoint
