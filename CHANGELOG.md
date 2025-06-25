@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 1.7.0 - 2025-06-25
+
+### Added
+
+- Add support for `select` and `multi_select` values in rollup properties (fixes #41).
+
+### Changed
+
+- Blocks with children are now handled by the `AbstractBlock` class instead of specific block classes.
+
+### Fixed
+
+- Fixed a deprecation warning in the test suite.
+- Fixed database queries failing when rollup fields contain select or multi-select values.
+
 ## 1.6.0 - 2025-04-14
 
 ### Added
