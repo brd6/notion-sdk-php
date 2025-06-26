@@ -19,7 +19,7 @@ class HttpResponseException extends AbstractNotionException
     {
         $message = strlen($message) > 0 ? $message : sprintf(self::MESSAGE, $statusCode);
 
-        parent::__construct($message);
+        parent::__construct($message, $statusCode);
 
         $this->rawData = $rawData;
         $this->headers = $headers;
