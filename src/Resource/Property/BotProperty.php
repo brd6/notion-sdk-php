@@ -17,7 +17,9 @@ class BotProperty extends AbstractProperty
     {
         $property = new self();
 
-        $property->owner = OwnerProperty::fromRawData((array) $rawData['owner']);
+        $property->owner = isset($rawData['owner'])
+            ? OwnerProperty::fromRawData((array) $rawData['owner'])
+            : null;
 
         return $property;
     }

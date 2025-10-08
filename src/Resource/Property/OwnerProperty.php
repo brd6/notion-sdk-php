@@ -23,7 +23,7 @@ class OwnerProperty extends AbstractProperty
     {
         $property = new self();
 
-        $property->type = (string) $rawData['type'];
+        $property->type = isset($rawData['type']) ? (string) $rawData['type'] : '';
         $property->workspace = array_key_exists('workspace', $rawData) ?
             (bool) $rawData['workspace'] :
             null;
