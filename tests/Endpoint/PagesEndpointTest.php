@@ -386,4 +386,38 @@ class PagesEndpointTest extends TestCase
 
         $this->assertNotEmpty($file->getFile()->getUrl());
     }
+
+    public function testCreatePageWithEmptyBotObject(): void
+    {
+        $httpClient = new MockHttpClient(
+            new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_create_page_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            ),
+        );
+
+        $options = (new ClientOptions())
+            ->setAuth('secret_valid-auth')
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $page = new Page();
+        $parent = new PageIdParent();
+        $parent->setPageId('4a808e6e-8845-4d49-a447-fb2a4c460f6f');
+        $page->setParent($parent);
+
+        $titleProperty = new TitlePropertyValue();
+        $titleProperty->setTitle([Text::fromContent('Test Page')]);
+        $page->setProperties(['title' => $titleProperty]);
+
+        $createdPage = $client->pages()->create($page);
+
+        $this->assertInstanceOf(Page::class, $createdPage);
+        $this->assertSame('28689ea8-2c3c-81da-9bbc-fdfd8cfbddfb', $createdPage->getId());
+        $this->assertNotNull($createdPage->getCreatedBy());
+        $this->assertNotNull($createdPage->getLastEditedBy());
+    }
 }

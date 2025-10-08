@@ -1,0 +1,58 @@
+{
+    "object": "page",
+    "id": "28689ea8-2c3c-81da-9bbc-fdfd8cfbddfb",
+    "created_time": "2025-10-08T09:56:00.000Z",
+    "last_edited_time": "2025-10-08T09:56:00.000Z",
+    "created_by": {
+        "object": "user",
+        "id": "d0063369-46a4-4756-8798-0d36d53c9b20",
+        "name": "sdk-php-test",
+        "avatar_url": null,
+        "type": "bot",
+        "bot": {}
+    },
+    "last_edited_by": {
+        "object": "user",
+        "id": "d0063369-46a4-4756-8798-0d36d53c9b20",
+        "name": "sdk-php-test",
+        "avatar_url": null,
+        "type": "bot",
+        "bot": {}
+    },
+    "cover": null,
+    "icon": null,
+    "parent": {
+        "type": "database_id",
+        "database_id": "21d89ea8-2c3c-8062-a6a2-f83f68500122"
+    },
+    "archived": false,
+    "in_trash": false,
+    "properties": {
+        "Title": {
+            "id": "title",
+            "type": "title",
+            "title": [
+                {
+                    "type": "text",
+                    "text": {
+                        "content": "Test Page",
+                        "link": null
+                    },
+                    "annotations": {
+                        "bold": false,
+                        "italic": false,
+                        "strikethrough": false,
+                        "underline": false,
+                        "code": false,
+                        "color": "default"
+                    },
+                    "plain_text": "Test Page",
+                    "href": null
+                }
+            ]
+        }
+    },
+    "url": "https://www.notion.so/Test-Page-28689ea82c3c81da9bbcfdfd8cfbddfb",
+    "public_url": null
+}
+
