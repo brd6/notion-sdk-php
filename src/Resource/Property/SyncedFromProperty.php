@@ -7,14 +7,14 @@ namespace Brd6\NotionSdkPhp\Resource\Property;
 class SyncedFromProperty extends AbstractProperty
 {
     protected string $type = '';
-    protected string $blockId = '';
+    protected ?string $blockId = null;
 
     public static function fromRawData(array $rawData): self
     {
         $property = new self();
 
         $property->type = (string) $rawData['type'];
-        $property->blockId = (string) $rawData['block_id'];
+        $property->blockId = isset($rawData['block_id']) ? (string) $rawData['block_id'] : null;
 
         return $property;
     }
@@ -31,12 +31,12 @@ class SyncedFromProperty extends AbstractProperty
         return $this;
     }
 
-    public function getBlockId(): string
+    public function getBlockId(): ?string
     {
         return $this->blockId;
     }
 
-    public function setBlockId(string $blockId): self
+    public function setBlockId(?string $blockId): self
     {
         $this->blockId = $blockId;
 

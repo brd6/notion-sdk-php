@@ -248,6 +248,23 @@ class BlockTest extends TestCase
         );
     }
 
+    public function testSyncedBlockWithoutBlockId(): void
+    {
+        $block = AbstractBlock::fromRawData(
+            (array) json_decode(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_synced_block_no_block_id_200.json'),
+                true,
+            ),
+        );
+
+        $this->assertInstanceOf(SyncedBlockBlock::class, $block);
+        $this->assertNotNull($block->getSyncedBlock());
+        $this->assertInstanceOf(SyncedBlockProperty::class, $block->getSyncedBlock());
+        $this->assertNotNull($block->getSyncedBlock()->getSyncedFrom());
+        $this->assertEquals('block_id', $block->getSyncedBlock()->getSyncedFrom()->getType());
+        $this->assertNull($block->getSyncedBlock()->getSyncedFrom()->getBlockId());
+    }
+
     public function testFromRawDataWithEmptyContentInRichText(): void
     {
         /** @var ParagraphBlock $block */
