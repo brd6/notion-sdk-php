@@ -262,7 +262,7 @@ class BlockTest extends TestCase
         $this->assertInstanceOf(SyncedBlockProperty::class, $block->getSyncedBlock());
         $this->assertNotNull($block->getSyncedBlock()->getSyncedFrom());
         $this->assertEquals('block_id', $block->getSyncedBlock()->getSyncedFrom()->getType());
-        $this->assertNull($block->getSyncedBlock()->getSyncedFrom()->getBlockId());
+        $this->assertSame('', $block->getSyncedBlock()->getSyncedFrom()->getBlockId());
     }
 
     public function testFromRawDataWithEmptyContentInRichText(): void

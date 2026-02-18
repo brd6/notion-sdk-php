@@ -13,8 +13,8 @@ class SyncedFromProperty extends AbstractProperty
     {
         $property = new self();
 
-        $property->type = (string) $rawData['type'];
-        $property->blockId = isset($rawData['block_id']) ? (string) $rawData['block_id'] : null;
+        $property->type = (string) ($rawData['type'] ?? '');
+        $property->blockId = (string) ($rawData['block_id'] ?? '');
 
         return $property;
     }
