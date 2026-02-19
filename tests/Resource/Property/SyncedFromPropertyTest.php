@@ -36,4 +36,3 @@ class SyncedFromPropertyTest extends TestCase
         $this->assertSame('', $property->getBlockId());
     }
 }
-
