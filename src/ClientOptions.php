@@ -11,7 +11,7 @@ use function strlen;
 class ClientOptions
 {
     public const DEFAULT_BASE_URL = 'https://api.notion.com/v1/';
-    public const DEFAULT_NOTION_VERSION = '2022-02-22';
+    public const DEFAULT_NOTION_VERSION = '2022-06-28';
     public const DEFAULT_TIMEOUT = 60; // in seconds
 
     private string $auth = '';

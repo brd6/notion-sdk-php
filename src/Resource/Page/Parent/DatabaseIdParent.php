@@ -8,6 +8,11 @@ class DatabaseIdParent extends AbstractParentProperty
 {
     protected string $databaseId = '';
 
+    public function __construct()
+    {
+        $this->type = 'database_id';
+    }
+
     protected function initialize(): void
     {
         $this->databaseId = (string) $this->getRawData()['database_id'];
