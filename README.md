@@ -96,6 +96,10 @@ $databaseRequest->setFilter([
 $myPage = $notion->databases()->query('897e5a76-ae52-4b48-9fdf-e71f5945d1af', $databaseRequest)
 ```
 
+### Data sources (Notion API 2025-09-03)
+
+If you use Notion API version `2025-09-03` or newer, the SDK supports data source endpoints via `$notion->dataSources()`, and page creation with `data_source_id` parents. When creating a database with this API version, `databases()->create()` automatically maps `properties` to the required `initial_data_source` payload.
+
 ### Handling errors
 
 If the API returns an unsuccessful response, an `ApiResponseException` will be thrown.
@@ -124,6 +128,7 @@ The `examples/` directory contains a comprehensive set of usage examples that de
 - **[05-notify-on-update](examples/05-notify-on-update/)** - Email notifications for database changes
 - **[06-notion-github-sync](examples/06-notion-github-sync/)** - GitHub issues synchronization
 - **[07-oauth-flow](examples/07-oauth-flow/)** - Complete OAuth 2.0 implementation
+- **[08-data-sources-api-smoke](examples/08-data-sources-api-smoke/)** - Data source integration checks for retrieve/query/search/create/update
 
 Each example is self-contained with its own dependencies, documentation, and setup instructions.
 
