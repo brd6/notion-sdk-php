@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 1.8.0 - 2026-02-23
+
+### Added
+
+- Add support for data sources (Notion API 2025-09-03), including data source endpoints and `data_source_id` support.
+
+### Changed
+
+- Default Notion API version is now `2022-06-28`.
+- Creating databases on Notion API 2025-09-03+ now uses `initial_data_source` for properties.
+
+### Fixed
+
+- Normalize empty database property configurations so empty objects serialize as `{}` where required by the API.
+
 ## 1.7.3 - 2026-02-19
 
 ### Fixed
