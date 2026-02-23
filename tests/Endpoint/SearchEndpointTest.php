@@ -6,6 +6,7 @@ namespace Brd6\Test\NotionSdkPhp\Endpoint;
 
 use Brd6\NotionSdkPhp\Client;
 use Brd6\NotionSdkPhp\ClientOptions;
+use Brd6\NotionSdkPhp\Resource\DataSource;
 use Brd6\NotionSdkPhp\Resource\Database;
 use Brd6\NotionSdkPhp\Resource\Pagination\PageOrDatabaseResults;
 use Brd6\NotionSdkPhp\Resource\Search\SearchRequest;
@@ -98,5 +99,38 @@ class SearchEndpointTest extends TestCase
         $this->assertEquals('list', $results->getObject());
         $this->assertGreaterThan(0, count($results->getResults()));
         $this->assertLessThanOrEqual(16, count($results->getResults()));
+    }
+
+    public function testSearchWithDataSourceResponse(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            $this->assertEquals('POST', $method);
+            $this->assertStringContainsString('search', $url);
+
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertEquals('data_source', $body['filter']['value']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_search_data_source_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+        $searchRequest = (new SearchRequest())->setFilter([
+            'property' => 'object',
+            'value' => 'data_source',
+        ]);
+
+        /** @var PageOrDatabaseResults $results */
+        $results = $client->search($searchRequest);
+
+        $this->assertInstanceOf(PageOrDatabaseResults::class, $results);
+        $this->assertGreaterThan(0, count($results->getResults()));
+        $this->assertInstanceOf(DataSource::class, $results->getResults()[0]);
     }
 }

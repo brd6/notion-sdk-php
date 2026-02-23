@@ -23,6 +23,14 @@ class ClientTest extends TestCase
         $this->assertInstanceOf(Client::class, new Client());
     }
 
+    public function testGetOptions(): void
+    {
+        $options = new ClientOptions();
+        $client = new Client($options);
+
+        $this->assertSame($options, $client->getOptions());
+    }
+
     public function testRequestInvalidUrl(): void
     {
         $options = (new ClientOptions())
