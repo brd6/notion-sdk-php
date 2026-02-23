@@ -7,12 +7,11 @@ namespace Brd6\NotionSdkPhp\Resource\Pagination;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Resource\DataSource;
-use Brd6\NotionSdkPhp\Resource\Database;
 use Brd6\NotionSdkPhp\Resource\Page;
 
 use function array_map;
 
-class PageOrDatabaseResults extends AbstractPaginationResults
+class PageOrDataSourceResults extends AbstractPaginationResults
 {
     /**
      * @throws InvalidResourceException
@@ -22,11 +21,7 @@ class PageOrDatabaseResults extends AbstractPaginationResults
     {
         $this->results = isset($this->getRawData()['results']) ? array_map(
             function (array $resultRawData) {
-                $object = (string) ($resultRawData['object'] ?? '');
-                if ($object === Database::RESOURCE_TYPE) {
-                    return Database::fromRawData($resultRawData);
-                }
-                if ($object === DataSource::RESOURCE_TYPE) {
+                if ((string) ($resultRawData['object'] ?? '') === DataSource::RESOURCE_TYPE) {
                     return DataSource::fromRawData($resultRawData);
                 }
 
@@ -37,7 +32,7 @@ class PageOrDatabaseResults extends AbstractPaginationResults
     }
 
     /**
-     * @return Page[]|Database[]|DataSource[]|array
+     * @return Page[]|DataSource[]|array
      */
     public function getResults(): array
     {

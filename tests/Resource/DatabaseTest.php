@@ -6,6 +6,7 @@ namespace Brd6\Test\NotionSdkPhp\Resource;
 
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Resource\Database;
+use Brd6\NotionSdkPhp\Resource\Database\PartialDataSource;
 use Brd6\NotionSdkPhp\Resource\File\Emoji;
 use Brd6\NotionSdkPhp\Resource\File\External;
 use PHPUnit\Framework\TestCase;
@@ -100,5 +101,22 @@ class DatabaseTest extends TestCase
 
         $this->assertInstanceOf(Database\PropertyObject\StatusPropertyObject::class, $firstStatus);
         $this->assertGreaterThan(0, count($firstStatus->getStatus()->getOptions()));
+    }
+
+    public function testDatabaseWithDataSources(): void
+    {
+        /** @var Database $database */
+        $database = Database::fromRawData(
+            (array) json_decode(
+                (string) file_get_contents('tests/Fixtures/client_databases_retrieve_with_data_sources_200.json'),
+                true,
+            ),
+        );
+
+        $this->assertGreaterThan(0, count($database->getDataSources()));
+        $this->assertCount(0, $database->getProperties());
+        $this->assertInstanceOf(PartialDataSource::class, $database->getDataSources()[0]);
+        $this->assertNotEmpty($database->getDataSources()[0]->getId());
+        $this->assertNotEmpty($database->getDataSources()[0]->getName());
     }
 }

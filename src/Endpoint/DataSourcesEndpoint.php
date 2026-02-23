@@ -12,31 +12,48 @@ use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\RequestTimeoutException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedPaginationResponseTypeException;
 use Brd6\NotionSdkPhp\RequestParameters;
-use Brd6\NotionSdkPhp\Resource\Database;
+use Brd6\NotionSdkPhp\Resource\DataSource;
 use Brd6\NotionSdkPhp\Resource\Database\DatabaseRequest;
 use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Http\Client\Exception;
 
 use function array_merge;
-use function version_compare;
 
-class DatabasesEndpoint extends AbstractEndpoint
+class DataSourcesEndpoint extends AbstractEndpoint
 {
     /**
-     * @param string $databaseId
-     * @param DatabaseRequest|null $databaseRequest
-     * @param PaginationRequest|null $paginationRequest
-     *
      * @throws ApiResponseException
+     * @throws Exception
+     * @throws HttpResponseException
+     * @throws InvalidResourceException
+     * @throws InvalidResourceTypeException
+     * @throws RequestTimeoutException
+     */
+    public function retrieve(string $dataSourceId): DataSource
+    {
+        $requestParameters = (new RequestParameters())
+            ->setPath("data_sources/$dataSourceId")
+            ->setMethod('GET');
+
+        $rawData = $this->getClient()->request($requestParameters);
+
+        /** @var DataSource $dataSource */
+        $dataSource = DataSource::fromRawData($rawData);
+
+        return $dataSource;
+    }
+
+    /**
+     * @throws ApiResponseException
+     * @throws Exception
      * @throws HttpResponseException
      * @throws InvalidPaginationResponseException
      * @throws RequestTimeoutException
      * @throws UnsupportedPaginationResponseTypeException
-     * @throws Exception
      */
     public function query(
-        string $databaseId,
+        string $dataSourceId,
         ?DatabaseRequest $databaseRequest = null,
         ?PaginationRequest $paginationRequest = null
     ): AbstractPaginationResults {
@@ -46,7 +63,7 @@ class DatabasesEndpoint extends AbstractEndpoint
         );
 
         $requestParameters = (new RequestParameters())
-            ->setPath("databases/$databaseId/query")
+            ->setPath("data_sources/$dataSourceId/query")
             ->setBody($body)
             ->setMethod('POST');
 
@@ -56,8 +73,6 @@ class DatabasesEndpoint extends AbstractEndpoint
     }
 
     /**
-     * @param Database $database
-     *
      * @throws ApiResponseException
      * @throws Exception
      * @throws HttpResponseException
@@ -65,77 +80,45 @@ class DatabasesEndpoint extends AbstractEndpoint
      * @throws InvalidResourceTypeException
      * @throws RequestTimeoutException
      */
-    public function create(Database $database): Database
+    public function update(DataSource $dataSource): DataSource
     {
-        $data = $database->toArray();
-
-        if (version_compare($this->getClient()->getOptions()->getNotionVersion(), '2025-09-03', '>=')) {
-            $data['initial_data_source'] = [
-                'properties' => (array) ($data['properties'] ?? []),
-            ];
-            $data['initial_data_source'] = self::normalizeEmptyPropertyConfigurations($data['initial_data_source']);
-            unset($data['properties']);
-        }
+        $data = self::normalizeEmptyPropertyConfigurations($dataSource->toArrayForUpdate());
 
         $requestParameters = (new RequestParameters())
-            ->setPath('databases')
+            ->setPath("data_sources/{$dataSource->getId()}")
+            ->setMethod('PATCH')
+            ->setBody($data);
+
+        $rawData = $this->getClient()->request($requestParameters);
+
+        /** @var DataSource $dataSourceUpdated */
+        $dataSourceUpdated = DataSource::fromRawData($rawData);
+
+        return $dataSourceUpdated;
+    }
+
+    /**
+     * @throws ApiResponseException
+     * @throws Exception
+     * @throws HttpResponseException
+     * @throws InvalidResourceException
+     * @throws InvalidResourceTypeException
+     * @throws RequestTimeoutException
+     */
+    public function create(DataSource $dataSource): DataSource
+    {
+        $data = self::normalizeEmptyPropertyConfigurations($dataSource->toArray());
+
+        $requestParameters = (new RequestParameters())
+            ->setPath('data_sources')
             ->setMethod('POST')
             ->setBody($data);
 
         $rawData = $this->getClient()->request($requestParameters);
 
-        /** @var Database $databaseCreated */
-        $databaseCreated = Database::fromRawData($rawData);
+        /** @var DataSource $dataSourceCreated */
+        $dataSourceCreated = DataSource::fromRawData($rawData);
 
-        return $databaseCreated;
-    }
-
-    /**
-     * @param Database $database
-     *
-     * @throws ApiResponseException
-     * @throws Exception
-     * @throws HttpResponseException
-     * @throws InvalidResourceException
-     * @throws InvalidResourceTypeException
-     * @throws RequestTimeoutException
-     */
-    public function update(Database $database): Database
-    {
-        $requestParameters = (new RequestParameters())
-            ->setPath("databases/{$database->getId()}")
-            ->setMethod('PATCH')
-            ->setBody($database->toArrayForUpdate());
-
-        $rawData = $this->getClient()->request($requestParameters);
-
-        /** @var Database $databaseUpdated */
-        $databaseUpdated = Database::fromRawData($rawData);
-
-        return $databaseUpdated;
-    }
-
-    /**
-     * @param string $databaseId
-     *
-     * @throws ApiResponseException
-     * @throws Exception
-     * @throws HttpResponseException
-     * @throws InvalidResourceException
-     * @throws InvalidResourceTypeException
-     * @throws RequestTimeoutException
-     */
-    public function retrieve(string $databaseId): Database
-    {
-        $requestParameters = (new RequestParameters())
-            ->setPath("databases/$databaseId")
-            ->setMethod('GET');
-
-        $rawData = $this->getClient()->request($requestParameters);
-
-        /** @var Database $database */
-        $database = Database::fromRawData($rawData);
-
-        return $database;
+        return $dataSourceCreated;
     }
 }

@@ -1,0 +1,29 @@
+{
+    "name": "brd6/notion-sdk-php-example-data-sources-smoke",
+    "description": "Notion API integration checks for 2025-09-03 data source endpoints.",
+    "license": "MIT",
+    "type": "project",
+    "keywords": [
+        "notion",
+        "notion-sdk",
+        "notion-api",
+        "php",
+        "example"
+    ],
+    "require": {
+        "php": "^7.4 || ^8",
+        "brd6/notion-sdk-php": "dev-main",
+        "nyholm/psr7": "^1.5",
+        "symfony/http-client": "^5.4",
+        "vlucas/phpdotenv": "^5.4"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    },
+    "scripts": {
+        "start": "php index.php"
+    }
+}

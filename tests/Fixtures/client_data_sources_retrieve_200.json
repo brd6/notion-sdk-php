@@ -1,0 +1,66 @@
+{
+    "object": "data_source",
+    "id": "164b19c5-58e5-4a47-a3a9-c905d9519c65",
+    "created_time": "2025-08-07T10:11:07.504-07:00",
+    "last_edited_time": "2025-08-10T15:53:11.386-07:00",
+    "created_by": {
+        "object": "user",
+        "id": "c2f20311-9e54-4d11-8c79-7398424ae41e"
+    },
+    "last_edited_by": {
+        "object": "user",
+        "id": "9188c6a5-7381-452f-b3dc-d4865aa89bdf"
+    },
+    "title": [
+        {
+            "type": "text",
+            "text": {
+                "content": "My Task Tracker",
+                "link": null
+            },
+            "annotations": {
+                "bold": false,
+                "italic": false,
+                "strikethrough": false,
+                "underline": false,
+                "code": false,
+                "color": "default"
+            },
+            "plain_text": "My Task Tracker",
+            "href": null
+        }
+    ],
+    "description": [],
+    "icon": null,
+    "archived": false,
+    "in_trash": false,
+    "parent": {
+        "type": "database_id",
+        "database_id": "248104cd-477e-80fd-b757-e945d38000bd"
+    },
+    "database_parent": {
+        "type": "page_id",
+        "page_id": "255104cd-477e-808c-b279-d39ab803a7d2"
+    },
+    "properties": {
+        "Name": {
+            "id": "title",
+            "name": "Name",
+            "type": "title",
+            "title": {}
+        },
+        "Projects": {
+            "id": "~pex",
+            "name": "Projects",
+            "type": "relation",
+            "relation": {
+                "database_id": "6c4240a9-a3ce-413e-9fd0-8a51a4d0a49b",
+                "data_source_id": "a42a62ed-9b51-4b98-9dea-ea6d091bc508",
+                "dual_property": {
+                    "synced_property_name": "Tasks",
+                    "synced_property_id": "JU]K"
+                }
+            }
+        }
+    }
+}

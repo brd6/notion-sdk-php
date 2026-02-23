@@ -251,6 +251,48 @@ class DatabasesEndpointTest extends TestCase
         $this->assertNotEmpty($databaseCreated->getTitle());
     }
 
+    public function testCreateDatabaseWith2025VersionWrapsInitialDataSource(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            $this->assertStringContainsString('POST', $method);
+            $this->assertStringContainsString('databases', $url);
+
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertArrayHasKey('initial_data_source', $body);
+            $this->assertArrayHasKey('properties', $body['initial_data_source']);
+            $this->assertArrayNotHasKey('properties', $body);
+            $this->assertStringContainsString('"title":{}', (string) $options['body']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_databases_create_database_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setNotionVersion('2025-09-03')
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $database = new Database();
+        $database->setParent((new PageIdParent())->setPageId('4a808e6e88454d49a447fb2a4c460f6f'));
+        $database->setTitle([
+            Text::fromContent('Grocery List'),
+        ]);
+        $database->setProperties([
+            'name' => new TitlePropertyObject(),
+        ]);
+
+        $databaseCreated = $client->databases()->create($database);
+
+        $this->assertNotEmpty($databaseCreated->getId());
+    }
+
     public function testUpdateDatabase(): void
     {
         $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {

@@ -16,6 +16,7 @@ use Brd6\NotionSdkPhp\Resource\File\Emoji;
 use Brd6\NotionSdkPhp\Resource\File\External;
 use Brd6\NotionSdkPhp\Resource\File\File;
 use Brd6\NotionSdkPhp\Resource\Page;
+use Brd6\NotionSdkPhp\Resource\Page\Parent\DataSourceIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\PageIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyItem\AbstractPropertyItem;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyItem\TitlePropertyItem;
@@ -253,6 +254,36 @@ class PagesEndpointTest extends TestCase
         $pageUpdated = $client->pages()->update($page);
 
         $this->assertNotEmpty($pageUpdated->getProperties());
+    }
+
+    public function testCreatePageWithDataSourceParent(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            $this->assertStringContainsString('POST', $method);
+            $this->assertStringContainsString('pages', $url);
+
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+            $this->assertSame('data_source_id', $body['parent']['type']);
+            $this->assertSame('164b19c5-58e5-4a47-a3a9-c905d9519c65', $body['parent']['data_source_id']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+        $page = new Page();
+        $page->setParent((new DataSourceIdParent())->setDataSourceId('164b19c5-58e5-4a47-a3a9-c905d9519c65'));
+        $page->setProperties([
+            'title' => (new TitlePropertyValue())->setTitle([Text::fromContent("It's works!")]),
+        ]);
+
+        $pageCreated = $client->pages()->create($page);
+        $this->assertNotEmpty($pageCreated->getId());
     }
 
     public function testRetrieveProperty(): void

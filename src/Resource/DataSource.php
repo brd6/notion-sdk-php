@@ -11,7 +11,6 @@ use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedParentTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyObjectException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
-use Brd6\NotionSdkPhp\Resource\Database\PartialDataSource;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\AbstractPropertyObject;
 use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\AbstractParentProperty;
@@ -21,10 +20,10 @@ use DateTimeImmutable;
 
 use function array_map;
 
-class Database extends AbstractResource
+class DataSource extends AbstractResource
 {
-    public const RESOURCE_TYPE = 'database';
-    private const UPDATE_ACCEPTED_KEYS = ['title', 'properties', 'icon', 'cover'];
+    public const RESOURCE_TYPE = 'data_source';
+    private const UPDATE_ACCEPTED_KEYS = ['title', 'properties', 'in_trash'];
 
     protected ?DateTimeImmutable $createdTime = null;
     protected ?UserInterface $createdBy = null;
@@ -36,22 +35,22 @@ class Database extends AbstractResource
      */
     protected array $title = [];
 
+    /**
+     * @var array|AbstractRichText[]
+     */
+    protected array $description = [];
+
     protected ?AbstractFile $icon = null;
-    protected ?AbstractFile $cover = null;
 
     /**
      * @var array<string, AbstractPropertyObject>
      */
     protected array $properties = [];
 
-    /**
-     * @var PartialDataSource[]
-     */
-    protected array $dataSources = [];
-
     protected ?AbstractParentProperty $parent = null;
-    protected string $url = '';
+    protected ?AbstractParentProperty $databaseParent = null;
     protected bool $archived = false;
+    protected bool $inTrash = false;
 
     public function __construct()
     {
@@ -71,8 +70,8 @@ class Database extends AbstractResource
      * @throws InvalidPropertyObjectException
      * @throws UnsupportedFileTypeException
      * @throws UnsupportedParentTypeException
-     * @throws UnsupportedUserTypeException
      * @throws UnsupportedPropertyObjectException
+     * @throws UnsupportedUserTypeException
      */
     protected function initialize(): void
     {
@@ -85,21 +84,23 @@ class Database extends AbstractResource
             null;
         $this->lastEditedBy = AbstractUser::fromRawData((array) ($this->getRawData()['last_edited_by'] ?? []));
         $this->archived = (bool) ($this->getRawData()['archived'] ?? false);
+        $this->inTrash = (bool) ($this->getRawData()['in_trash'] ?? false);
         $this->icon = isset($this->getRawData()['icon']) ?
             AbstractFile::fromRawData((array) $this->getRawData()['icon']) :
             null;
-        $this->cover = isset($this->getRawData()['cover']) ?
-            AbstractFile::fromRawData((array) $this->getRawData()['cover']) :
+        $this->parent = isset($this->getRawData()['parent']) ?
+            AbstractParentProperty::fromRawData((array) $this->getRawData()['parent']) :
             null;
-        $this->parent = AbstractParentProperty::fromRawData((array) $this->getRawData()['parent']);
-        $this->url = (string) $this->getRawData()['url'];
+        $this->databaseParent = isset($this->getRawData()['database_parent']) ?
+            AbstractParentProperty::fromRawData((array) $this->getRawData()['database_parent']) :
+            null;
         $this->title = isset($this->getRawData()['title']) ? array_map(
             fn (array $richTextRawData) => AbstractRichText::fromRawData($richTextRawData),
             (array) $this->getRawData()['title'],
         ) : [];
-        $this->dataSources = isset($this->getRawData()['data_sources']) ? array_map(
-            fn (array $item) => PartialDataSource::fromRawData($item),
-            (array) $this->getRawData()['data_sources'],
+        $this->description = isset($this->getRawData()['description']) ? array_map(
+            fn (array $richTextRawData) => AbstractRichText::fromRawData($richTextRawData),
+            (array) $this->getRawData()['description'],
         ) : [];
 
         /** @var array<string, array> $properties */
@@ -107,6 +108,11 @@ class Database extends AbstractResource
         foreach ($properties as $key => $property) {
             $this->properties[$key] = AbstractPropertyObject::fromRawData($property);
         }
+    }
+
+    public static function getResourceType(): string
+    {
+        return self::RESOURCE_TYPE;
     }
 
     public function getCreatedTime(): ?DateTimeImmutable
@@ -157,21 +163,28 @@ class Database extends AbstractResource
         return $this;
     }
 
-    public function isArchived(): bool
+    public function getTitle(): array
     {
-        return $this->archived;
+        return $this->title;
     }
 
-    public function setArchived(bool $archived): self
+    public function setTitle(array $title): self
     {
-        $this->archived = $archived;
+        $this->title = $title;
 
         return $this;
     }
 
-    public static function getResourceType(): string
+    public function getDescription(): array
     {
-        return self::RESOURCE_TYPE;
+        return $this->description;
+    }
+
+    public function setDescription(array $description): self
+    {
+        $this->description = $description;
+
+        return $this;
     }
 
     public function getIcon(): ?AbstractFile
@@ -182,18 +195,6 @@ class Database extends AbstractResource
     public function setIcon(?AbstractFile $icon): self
     {
         $this->icon = $icon;
-
-        return $this;
-    }
-
-    public function getCover(): ?AbstractFile
-    {
-        return $this->cover;
-    }
-
-    public function setCover(?AbstractFile $cover): self
-    {
-        $this->cover = $cover;
 
         return $this;
     }
@@ -216,24 +217,6 @@ class Database extends AbstractResource
         return $this;
     }
 
-    /**
-     * @return PartialDataSource[]
-     */
-    public function getDataSources(): array
-    {
-        return $this->dataSources;
-    }
-
-    /**
-     * @param PartialDataSource[] $dataSources
-     */
-    public function setDataSources(array $dataSources): self
-    {
-        $this->dataSources = $dataSources;
-
-        return $this;
-    }
-
     public function getParent(): ?AbstractParentProperty
     {
         return $this->parent;
@@ -246,32 +229,38 @@ class Database extends AbstractResource
         return $this;
     }
 
-    public function getUrl(): string
+    public function getDatabaseParent(): ?AbstractParentProperty
     {
-        return $this->url;
+        return $this->databaseParent;
     }
 
-    public function setUrl(string $url): self
+    public function setDatabaseParent(?AbstractParentProperty $databaseParent): self
     {
-        $this->url = $url;
+        $this->databaseParent = $databaseParent;
 
         return $this;
     }
 
-    /**
-     * @return array|AbstractRichText[]
-     */
-    public function getTitle(): array
+    public function isArchived(): bool
     {
-        return $this->title;
+        return $this->archived;
     }
 
-    /**
-     * @param array|AbstractRichText[] $title
-     */
-    public function setTitle(array $title): self
+    public function setArchived(bool $archived): self
     {
-        $this->title = $title;
+        $this->archived = $archived;
+
+        return $this;
+    }
+
+    public function isInTrash(): bool
+    {
+        return $this->inTrash;
+    }
+
+    public function setInTrash(bool $inTrash): self
+    {
+        $this->inTrash = $inTrash;
 
         return $this;
     }
