@@ -108,9 +108,9 @@ jobs:
           - "8.0"
           - "8.1"
         operating-system:
-          - "macos-latest"
-          - "ubuntu-latest"
-          - "windows-latest"
+          - "macos-13"
+          - "ubuntu-22.04"
+          - "windows-2022"
         dependencies:
           - "lowest"
           - "highest"
@@ -136,7 +136,6 @@ jobs:
         uses: "ramsey/composer-install@v3"
         with:
           dependency-versions: "${{ matrix.dependencies }}"
-          composer-options: "${{ matrix.composer-options }}"
 
       - name: "Run unit tests (PHPUnit)"
         shell: "bash"
