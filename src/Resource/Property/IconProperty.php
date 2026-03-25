@@ -53,9 +53,7 @@ class IconProperty extends AbstractProperty
             return '';
         }
 
-        if ($mode !== 'dark') {
-            $mode = 'light';
-        }
+        $mode = $mode === 'dark' ? 'dark' : 'light';
 
         return self::NOTION_ICONS_BASE_URL
             . '/'

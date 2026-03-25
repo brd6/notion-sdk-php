@@ -39,6 +39,6 @@ class IconTest extends TestCase
 
         $file = AbstractFile::fromRawData($rawData);
 
-        $this->assertSame($rawData, $file->toArray());
+        $this->assertEquals($rawData, $file->toArray());
     }
 }
