@@ -1,0 +1,38 @@
+{
+    "object": "list",
+    "results": [
+        {
+            "object": "page",
+            "id": "21d89ea8-2c3c-8024-850c-e90d903807c3",
+            "created_time": "2025-06-25T09:45:00.000Z",
+            "last_edited_time": "2025-06-25T09:45:00.000Z",
+            "created_by": {
+                "object": "user",
+                "id": "7f03dda0-a132-49d7-b8b2-29c9ed1b1f0e"
+            },
+            "last_edited_by": {
+                "object": "user",
+                "id": "7f03dda0-a132-49d7-b8b2-29c9ed1b1f0e"
+            },
+            "cover": null,
+            "icon": {
+                "type": "icon",
+                "icon": {
+                    "name": "book",
+                    "color": "gray"
+                }
+            },
+            "parent": {
+                "type": "database_id",
+                "database_id": "21d89ea8-2c3c-8062-a6a2-f83f68500122"
+            },
+            "archived": false,
+            "properties": {},
+            "url": "https://www.notion.so/Overcoming-Work-Obstacles-21d89ea82c3c8024850ce90d903807c3"
+        }
+    ],
+    "next_cursor": null,
+    "has_more": false,
+    "type": "page_or_database",
+    "page_or_database": {}
+}

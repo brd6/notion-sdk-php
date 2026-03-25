@@ -9,6 +9,7 @@ use Brd6\NotionSdkPhp\Resource\Database;
 use Brd6\NotionSdkPhp\Resource\Database\PartialDataSource;
 use Brd6\NotionSdkPhp\Resource\File\Emoji;
 use Brd6\NotionSdkPhp\Resource\File\External;
+use Brd6\NotionSdkPhp\Resource\File\Icon;
 use PHPUnit\Framework\TestCase;
 
 use function array_filter;
@@ -118,5 +119,33 @@ class DatabaseTest extends TestCase
         $this->assertInstanceOf(PartialDataSource::class, $database->getDataSources()[0]);
         $this->assertNotEmpty($database->getDataSources()[0]->getId());
         $this->assertNotEmpty($database->getDataSources()[0]->getName());
+    }
+
+    public function testDatabaseWithIconObject(): void
+    {
+        /** @var array $rawData */
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_databases_retrieve_database_200.json'),
+            true,
+        );
+
+        $rawData['icon'] = [
+            'type' => 'icon',
+            'icon' => [
+                'name' => 'book',
+                'color' => 'gray',
+            ],
+        ];
+
+        /** @var Database $database */
+        $database = Database::fromRawData($rawData);
+
+        $icon = $database->getIcon();
+        $this->assertNotNull($icon);
+        $this->assertInstanceOf(Icon::class, $icon);
+        $this->assertSame('icon', $icon->getType());
+        $this->assertNotNull($icon->getIcon());
+        $this->assertSame('book', $icon->getIcon()->getName());
+        $this->assertSame('gray', $icon->getIcon()->getColor());
     }
 }

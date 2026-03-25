@@ -21,7 +21,10 @@ use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\RichTextPropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\SelectPropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\TitlePropertyObject;
 use Brd6\NotionSdkPhp\Resource\File\Emoji;
+use Brd6\NotionSdkPhp\Resource\File\Icon;
+use Brd6\NotionSdkPhp\Resource\Page;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\PageIdParent;
+use Brd6\NotionSdkPhp\Resource\Pagination\PageOrDatabaseResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PageResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Brd6\NotionSdkPhp\Resource\Property\SelectProperty;
@@ -79,6 +82,45 @@ class DatabasesEndpointTest extends TestCase
 
         $this->assertEquals('page', $resultPage->getObject());
         $this->assertNotEmpty($resultPage->getId());
+    }
+
+    public function testQueryDatabaseWithIconObject(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            $this->assertEquals('POST', $method);
+            $this->assertStringContainsString('databases/21d89ea8-2c3c-8062-a6a2-f83f68500122/query', $url);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_databases_query_page_with_icon_object_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setAuth('secret_valid-auth')
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        /** @var PageOrDatabaseResults $paginationResponse */
+        $paginationResponse = $client->databases()->query('21d89ea8-2c3c-8062-a6a2-f83f68500122');
+
+        $this->assertNotNull($paginationResponse);
+        $this->assertInstanceOf(PageOrDatabaseResults::class, $paginationResponse);
+        $this->assertGreaterThan(0, count($paginationResponse->getResults()));
+
+        /** @var Page $resultPage */
+        $resultPage = $paginationResponse->getResults()[0];
+        $icon = $resultPage->getIcon();
+
+        $this->assertNotNull($icon);
+        $this->assertInstanceOf(Icon::class, $icon);
+        $this->assertSame('icon', $icon->getType());
+        $this->assertNotNull($icon->getIcon());
+        $this->assertSame('book', $icon->getIcon()->getName());
+        $this->assertSame('gray', $icon->getIcon()->getColor());
     }
 
     public function testQueryDatabaseWithPagination(): void

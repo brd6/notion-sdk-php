@@ -7,6 +7,7 @@ namespace Brd6\Test\NotionSdkPhp\Resource;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Resource\File\Emoji;
 use Brd6\NotionSdkPhp\Resource\File\External;
+use Brd6\NotionSdkPhp\Resource\File\Icon;
 use Brd6\NotionSdkPhp\Resource\Page;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\NumberPropertyValue;
 use PHPUnit\Framework\TestCase;
@@ -68,6 +69,34 @@ class PageTest extends TestCase
 
         $this->assertNotNull($external);
         $this->assertNotEmpty($external->getUrl());
+    }
+
+    public function testPageWithIconObject(): void
+    {
+        /** @var array $rawData */
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_request_retrieve_page_200.json'),
+            true,
+        );
+
+        $rawData['icon'] = [
+            'type' => 'icon',
+            'icon' => [
+                'name' => 'book',
+                'color' => 'gray',
+            ],
+        ];
+
+        /** @var Page $page */
+        $page = Page::fromRawData($rawData);
+
+        $icon = $page->getIcon();
+        $this->assertNotNull($icon);
+        $this->assertInstanceOf(Icon::class, $icon);
+        $this->assertSame('icon', $icon->getType());
+        $this->assertNotNull($icon->getIcon());
+        $this->assertSame('book', $icon->getIcon()->getName());
+        $this->assertSame('gray', $icon->getIcon()->getColor());
     }
 
     public function testPageProperties(): void
