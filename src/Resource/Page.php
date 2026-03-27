@@ -20,6 +20,7 @@ use DateTimeImmutable;
 class Page extends AbstractResource
 {
     public const RESOURCE_TYPE = 'page';
+    private const CREATE_ACCEPTED_KEYS = ['object', 'properties', 'parent', 'icon', 'cover'];
     private const UPDATE_ACCEPTED_KEYS = ['properties', 'archived', 'icon', 'cover'];
 
     protected ?DateTimeImmutable $createdTime = null;
@@ -45,6 +46,16 @@ class Page extends AbstractResource
         $this->object = self::RESOURCE_TYPE;
     }
 
+    public function toArrayForCreate(): array
+    {
+        $data = $this->toArrayStrict(self::CREATE_ACCEPTED_KEYS);
+        if ($this->archived) {
+            $data['archived'] = true;
+        }
+
+        return $data;
+    }
+
     public function toArrayForUpdate(): array
     {
         return $this->toArray(true, self::UPDATE_ACCEPTED_KEYS);
@@ -65,7 +76,7 @@ class Page extends AbstractResource
         $this->createdTime = new DateTimeImmutable((string) $this->getRawData()['created_time']);
         $this->lastEditedTime = new DateTimeImmutable((string) $this->getRawData()['last_edited_time']);
         $this->lastEditedBy = AbstractUser::fromRawData((array) $this->getRawData()['last_edited_by']);
-        $this->archived = (bool) $this->getRawData()['archived'];
+        $this->archived = (bool) ($this->getRawData()['archived'] ?? false);
         $this->icon = isset($this->getRawData()['icon']) ?
             AbstractFile::fromRawData((array) $this->getRawData()['icon']) :
             null;

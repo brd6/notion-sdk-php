@@ -9,7 +9,10 @@ use Brd6\NotionSdkPhp\Resource\File\Emoji;
 use Brd6\NotionSdkPhp\Resource\File\External;
 use Brd6\NotionSdkPhp\Resource\File\Icon;
 use Brd6\NotionSdkPhp\Resource\Page;
+use Brd6\NotionSdkPhp\Resource\Page\Parent\DatabaseIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\NumberPropertyValue;
+use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\TitlePropertyValue;
+use Brd6\NotionSdkPhp\Resource\RichText\Text;
 use PHPUnit\Framework\TestCase;
 
 use function count;
@@ -97,6 +100,51 @@ class PageTest extends TestCase
         $this->assertNotNull($icon->getIcon());
         $this->assertSame('book', $icon->getIcon()->getName());
         $this->assertSame('gray', $icon->getIcon()->getColor());
+    }
+
+    public function testPageIsArchivedReturnsFalseWhenUnset(): void
+    {
+        $page = new Page();
+
+        $this->assertFalse($page->isArchived());
+    }
+
+    public function testPageToArrayForCreateDoesNotIncludeArchivedWhenUnset(): void
+    {
+        $page = (new Page())
+            ->setParent((new DatabaseIdParent())->setDatabaseId('248104cd-477e-80fd-b757-e945d38000bd'))
+            ->setProperties([
+                'title' => (new TitlePropertyValue())->setTitle([Text::fromContent('Test')]),
+            ]);
+
+        $data = $page->toArrayForCreate();
+        $this->assertArrayNotHasKey('archived', $data);
+    }
+
+    public function testPageToArrayForCreateIncludesArchivedWhenExplicitlySet(): void
+    {
+        $page = (new Page())
+            ->setParent((new DatabaseIdParent())->setDatabaseId('248104cd-477e-80fd-b757-e945d38000bd'))
+            ->setProperties([
+                'title' => (new TitlePropertyValue())->setTitle([Text::fromContent('Test')]),
+            ])
+            ->setArchived(true);
+
+        $data = $page->toArrayForCreate();
+        $this->assertArrayHasKey('archived', $data);
+        $this->assertTrue($data['archived']);
+    }
+
+    public function testPageToArrayForUpdateIncludesArchivedFalseWhenUnset(): void
+    {
+        $page = (new Page())
+            ->setProperties([
+                'title' => (new TitlePropertyValue())->setTitle([Text::fromContent('Test')]),
+            ]);
+
+        $data = $page->toArrayForUpdate();
+        $this->assertArrayHasKey('archived', $data);
+        $this->assertFalse($data['archived']);
     }
 
     public function testPageProperties(): void

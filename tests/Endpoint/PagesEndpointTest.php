@@ -36,9 +36,11 @@ use Brd6\Test\NotionSdkPhp\Mock\HttpClient\MockHttpClient;
 use Brd6\Test\NotionSdkPhp\Mock\HttpClient\MockResponseFactory;
 use Brd6\Test\NotionSdkPhp\TestCase;
 
+use function array_keys;
 use function count;
 use function file_get_contents;
 use function json_decode;
+use function sort;
 
 class PagesEndpointTest extends TestCase
 {
@@ -253,6 +255,202 @@ class PagesEndpointTest extends TestCase
 
         $pageUpdated = $client->pages()->update($page);
 
+        $this->assertNotEmpty($pageUpdated->getProperties());
+    }
+
+    public function testUpdatePageFromRetrievedInstancePreservesExistingUpdatePayloadShape(): void
+    {
+        $requestCount = 0;
+
+        $httpClient = new MockHttpClient(function ($method, $url, $options) use (&$requestCount) {
+            $requestCount++;
+
+            if ($requestCount === 1) {
+                $this->assertSame('GET', $method);
+                $this->assertStringContainsString('pages/4a808e6e-8845-4d49-a447-fb2a4c460f6f', $url);
+
+                return new MockResponseFactory(
+                    (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+                    [
+                        'http_code' => 200,
+                    ],
+                );
+            }
+
+            if ($requestCount === 2) {
+                $this->assertSame('PATCH', $method);
+                $this->assertStringContainsString('pages/4a808e6e-8845-4d49-a447-fb2a4c460f6f', $url);
+
+                /** @var array $body */
+                $body = json_decode($options['body'], true);
+
+                $expectedKeys = [
+                    'object',
+                    'id',
+                    'created_time',
+                    'created_by',
+                    'last_edited_time',
+                    'last_edited_by',
+                    'archived',
+                    'icon',
+                    'cover',
+                    'properties',
+                    'parent',
+                    'url',
+                ];
+
+                $actualKeys = array_keys($body);
+                sort($expectedKeys);
+                sort($actualKeys);
+                $this->assertSame($expectedKeys, $actualKeys);
+                $this->assertFalse($body['archived']);
+                $this->assertStringContainsString(
+                    'Updated from retrieved instance',
+                    $body['properties']['title']['title'][0]['text']['content'],
+                );
+
+                return new MockResponseFactory(
+                    (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+                    [
+                        'http_code' => 200,
+                    ],
+                );
+            }
+
+            $this->fail("Unexpected request count: {$requestCount}");
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $page = $client->pages()->retrieve('4a808e6e-8845-4d49-a447-fb2a4c460f6f');
+        $page->setProperties([
+            'title' => (new TitlePropertyValue())->setTitle([Text::fromContent('Updated from retrieved instance')]),
+        ]);
+
+        $pageUpdated = $client->pages()->update($page);
+
+        $this->assertSame(2, $requestCount);
+        $this->assertNotEmpty($pageUpdated->getId());
+    }
+
+    public function testCreatePageDoesNotSendArchivedWhenUnset(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            $this->assertStringContainsString('POST', $method);
+            $this->assertStringContainsString('pages', $url);
+
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+            $this->assertArrayNotHasKey('archived', $body);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_create_page_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+        $page = new Page();
+        $page->setParent((new PageIdParent())->setPageId('4a808e6e88454d49a447fb2a4c460f6f'));
+        $page->setProperties([
+            'title' => (new TitlePropertyValue())->setTitle([Text::fromContent("It's works!")]),
+        ]);
+
+        $pageCreated = $client->pages()->create($page);
+        $this->assertNotEmpty($pageCreated->getId());
+    }
+
+    public function testCreatePageSendsArchivedWhenExplicitlySet(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            $this->assertStringContainsString('POST', $method);
+            $this->assertStringContainsString('pages', $url);
+
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+            $this->assertArrayHasKey('archived', $body);
+            $this->assertTrue($body['archived']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_create_page_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+        $page = new Page();
+        $page->setParent((new PageIdParent())->setPageId('4a808e6e88454d49a447fb2a4c460f6f'));
+        $page->setProperties([
+            'title' => (new TitlePropertyValue())->setTitle([Text::fromContent("It's works!")]),
+        ]);
+        $page->setArchived(true);
+
+        $pageCreated = $client->pages()->create($page);
+        $this->assertNotEmpty($pageCreated->getId());
+    }
+
+    public function testUpdatePageSendsArchivedFalseWhenUnset(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            $this->assertStringContainsString('PATCH', $method);
+            $this->assertStringContainsString('pages/1e7e638f78864ec591ea54ec7016e146', $url);
+
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+            $this->assertArrayHasKey('archived', $body);
+            $this->assertFalse($body['archived']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+        $page = new Page();
+        $page->setId('1e7e638f78864ec591ea54ec7016e146');
+        $page->setProperties([
+            'title' => (new TitlePropertyValue())->setTitle([Text::fromContent('New title!')]),
+        ]);
+
+        $pageUpdated = $client->pages()->update($page);
+        $this->assertNotEmpty($pageUpdated->getProperties());
+    }
+
+    public function testUpdatePageSendsArchivedWhenExplicitlySetTrue(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            $this->assertStringContainsString('PATCH', $method);
+            $this->assertStringContainsString('pages/1e7e638f78864ec591ea54ec7016e146', $url);
+
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+            $this->assertArrayHasKey('archived', $body);
+            $this->assertTrue($body['archived']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+        $page = new Page();
+        $page->setId('1e7e638f78864ec591ea54ec7016e146');
+        $page->setProperties([
+            'title' => (new TitlePropertyValue())->setTitle([Text::fromContent('New title!')]),
+        ]);
+        $page->setArchived(true);
+
+        $pageUpdated = $client->pages()->update($page);
         $this->assertNotEmpty($pageUpdated->getProperties());
     }
 

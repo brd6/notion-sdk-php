@@ -68,7 +68,7 @@ class PagesEndpoint extends AbstractEndpoint
     {
         $childrenData = array_map(fn (AbstractBlock $block) => $block->toArray(), $children);
 
-        $data = array_merge($page->toArray(), ['children' => $childrenData]);
+        $data = array_merge($page->toArrayForCreate(), ['children' => $childrenData]);
 
         $requestParameters = (new RequestParameters())
             ->setPath('pages')
