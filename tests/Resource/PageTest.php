@@ -9,7 +9,10 @@ use Brd6\NotionSdkPhp\Resource\File\Emoji;
 use Brd6\NotionSdkPhp\Resource\File\External;
 use Brd6\NotionSdkPhp\Resource\File\Icon;
 use Brd6\NotionSdkPhp\Resource\Page;
+use Brd6\NotionSdkPhp\Resource\Page\Parent\DatabaseIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\NumberPropertyValue;
+use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\TitlePropertyValue;
+use Brd6\NotionSdkPhp\Resource\RichText\Text;
 use PHPUnit\Framework\TestCase;
 
 use function count;
@@ -99,6 +102,55 @@ class PageTest extends TestCase
         $this->assertSame('gray', $icon->getIcon()->getColor());
     }
 
+    public function testPageIsArchivedReturnsFalseWhenUnset(): void
+    {
+        $page = new Page();
+
+        $this->assertFalse($page->isArchived());
+    }
+
+    public function testPageToArrayForCreateDoesNotIncludeArchivedWhenUnset(): void
+    {
+        $page = $this->createPageForCreateSerialization();
+
+        $data = $page->toArrayForCreate();
+        $this->assertArrayNotHasKey('archived', $data);
+    }
+
+    /**
+     * @dataProvider archivedValuesProvider
+     */
+    public function testPageToArrayForCreateIncludesArchivedWhenExplicitlySet(bool $archived): void
+    {
+        $page = $this->createPageForCreateSerialization()
+            ->setArchived($archived);
+
+        $data = $page->toArrayForCreate();
+        $this->assertArrayHasKey('archived', $data);
+        $this->assertSame($archived, $data['archived']);
+    }
+
+    public function testPageToArrayForUpdateDoesNotIncludeArchivedWhenUnset(): void
+    {
+        $page = $this->createPageForUpdateSerialization();
+
+        $data = $page->toArrayForUpdate();
+        $this->assertArrayNotHasKey('archived', $data);
+    }
+
+    /**
+     * @dataProvider archivedValuesProvider
+     */
+    public function testPageToArrayForUpdateIncludesArchivedWhenExplicitlySet(bool $archived): void
+    {
+        $page = $this->createPageForUpdateSerialization()
+            ->setArchived($archived);
+
+        $data = $page->toArrayForUpdate();
+        $this->assertArrayHasKey('archived', $data);
+        $this->assertSame($archived, $data['archived']);
+    }
+
     public function testPageProperties(): void
     {
         /** @var Page $page */
@@ -141,5 +193,33 @@ class PageTest extends TestCase
 
         $this->assertInstanceOf(NumberPropertyValue::class, $myNumberFloat);
         $this->assertEquals(42.42, $myNumberFloat->getNumber());
+    }
+
+    /**
+     * @return bool[][]
+     */
+    public static function archivedValuesProvider(): array
+    {
+        return [
+            [false],
+            [true],
+        ];
+    }
+
+    private function createPageForCreateSerialization(): Page
+    {
+        return (new Page())
+            ->setParent((new DatabaseIdParent())->setDatabaseId('248104cd-477e-80fd-b757-e945d38000bd'))
+            ->setProperties([
+                'title' => (new TitlePropertyValue())->setTitle([Text::fromContent('Test')]),
+            ]);
+    }
+
+    private function createPageForUpdateSerialization(): Page
+    {
+        return (new Page())
+            ->setProperties([
+                'title' => (new TitlePropertyValue())->setTitle([Text::fromContent('Test')]),
+            ]);
     }
 }

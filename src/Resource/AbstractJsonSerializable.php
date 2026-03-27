@@ -7,7 +7,9 @@ namespace Brd6\NotionSdkPhp\Resource;
 use Brd6\NotionSdkPhp\Util\ArrayHelper;
 use JsonSerializable;
 
+use function array_fill_keys;
 use function array_filter;
+use function array_intersect_key;
 use function count;
 use function get_object_vars;
 use function in_array;
@@ -49,6 +51,17 @@ abstract class AbstractJsonSerializable implements JsonSerializable
         $this->onlyKeys = [];
 
         return $data;
+    }
+
+    /**
+     * @param string[] $onlyKeys
+     */
+    public function toArrayStrict(array $onlyKeys, bool $ignoreEmptyValue = true): array
+    {
+        return array_intersect_key(
+            $this->toArray($ignoreEmptyValue),
+            array_fill_keys($onlyKeys, true),
+        );
     }
 
     /**
