@@ -111,40 +111,44 @@ class PageTest extends TestCase
 
     public function testPageToArrayForCreateDoesNotIncludeArchivedWhenUnset(): void
     {
-        $page = (new Page())
-            ->setParent((new DatabaseIdParent())->setDatabaseId('248104cd-477e-80fd-b757-e945d38000bd'))
-            ->setProperties([
-                'title' => (new TitlePropertyValue())->setTitle([Text::fromContent('Test')]),
-            ]);
+        $page = $this->createPageForCreateSerialization();
 
         $data = $page->toArrayForCreate();
         $this->assertArrayNotHasKey('archived', $data);
     }
 
-    public function testPageToArrayForCreateIncludesArchivedWhenExplicitlySet(): void
+    /**
+     * @dataProvider archivedValuesProvider
+     */
+    public function testPageToArrayForCreateIncludesArchivedWhenExplicitlySet(bool $archived): void
     {
-        $page = (new Page())
-            ->setParent((new DatabaseIdParent())->setDatabaseId('248104cd-477e-80fd-b757-e945d38000bd'))
-            ->setProperties([
-                'title' => (new TitlePropertyValue())->setTitle([Text::fromContent('Test')]),
-            ])
-            ->setArchived(true);
+        $page = $this->createPageForCreateSerialization()
+            ->setArchived($archived);
 
         $data = $page->toArrayForCreate();
         $this->assertArrayHasKey('archived', $data);
-        $this->assertTrue($data['archived']);
+        $this->assertSame($archived, $data['archived']);
     }
 
-    public function testPageToArrayForUpdateIncludesArchivedFalseWhenUnset(): void
+    public function testPageToArrayForUpdateDoesNotIncludeArchivedWhenUnset(): void
     {
-        $page = (new Page())
-            ->setProperties([
-                'title' => (new TitlePropertyValue())->setTitle([Text::fromContent('Test')]),
-            ]);
+        $page = $this->createPageForUpdateSerialization();
+
+        $data = $page->toArrayForUpdate();
+        $this->assertArrayNotHasKey('archived', $data);
+    }
+
+    /**
+     * @dataProvider archivedValuesProvider
+     */
+    public function testPageToArrayForUpdateIncludesArchivedWhenExplicitlySet(bool $archived): void
+    {
+        $page = $this->createPageForUpdateSerialization()
+            ->setArchived($archived);
 
         $data = $page->toArrayForUpdate();
         $this->assertArrayHasKey('archived', $data);
-        $this->assertFalse($data['archived']);
+        $this->assertSame($archived, $data['archived']);
     }
 
     public function testPageProperties(): void
@@ -189,5 +193,33 @@ class PageTest extends TestCase
 
         $this->assertInstanceOf(NumberPropertyValue::class, $myNumberFloat);
         $this->assertEquals(42.42, $myNumberFloat->getNumber());
+    }
+
+    /**
+     * @return bool[][]
+     */
+    public static function archivedValuesProvider(): array
+    {
+        return [
+            [false],
+            [true],
+        ];
+    }
+
+    private function createPageForCreateSerialization(): Page
+    {
+        return (new Page())
+            ->setParent((new DatabaseIdParent())->setDatabaseId('248104cd-477e-80fd-b757-e945d38000bd'))
+            ->setProperties([
+                'title' => (new TitlePropertyValue())->setTitle([Text::fromContent('Test')]),
+            ]);
+    }
+
+    private function createPageForUpdateSerialization(): Page
+    {
+        return (new Page())
+            ->setProperties([
+                'title' => (new TitlePropertyValue())->setTitle([Text::fromContent('Test')]),
+            ]);
     }
 }

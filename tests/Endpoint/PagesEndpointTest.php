@@ -362,16 +362,19 @@ class PagesEndpointTest extends TestCase
         $this->assertNotEmpty($pageCreated->getId());
     }
 
-    public function testCreatePageSendsArchivedWhenExplicitlySet(): void
+    /**
+     * @dataProvider archivedValuesProvider
+     */
+    public function testCreatePageSendsArchivedWhenExplicitlySet(bool $archived): void
     {
-        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) use ($archived) {
             $this->assertStringContainsString('POST', $method);
             $this->assertStringContainsString('pages', $url);
 
             /** @var array $body */
             $body = json_decode($options['body'], true);
             $this->assertArrayHasKey('archived', $body);
-            $this->assertTrue($body['archived']);
+            $this->assertSame($archived, $body['archived']);
 
             return new MockResponseFactory(
                 (string) file_get_contents('tests/Fixtures/client_pages_create_page_200.json'),
@@ -387,13 +390,13 @@ class PagesEndpointTest extends TestCase
         $page->setProperties([
             'title' => (new TitlePropertyValue())->setTitle([Text::fromContent("It's works!")]),
         ]);
-        $page->setArchived(true);
+        $page->setArchived($archived);
 
         $pageCreated = $client->pages()->create($page);
         $this->assertNotEmpty($pageCreated->getId());
     }
 
-    public function testUpdatePageSendsArchivedFalseWhenUnset(): void
+    public function testUpdatePageDoesNotSendArchivedWhenUnset(): void
     {
         $httpClient = new MockHttpClient(function ($method, $url, $options) {
             $this->assertStringContainsString('PATCH', $method);
@@ -401,8 +404,7 @@ class PagesEndpointTest extends TestCase
 
             /** @var array $body */
             $body = json_decode($options['body'], true);
-            $this->assertArrayHasKey('archived', $body);
-            $this->assertFalse($body['archived']);
+            $this->assertArrayNotHasKey('archived', $body);
 
             return new MockResponseFactory(
                 (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
@@ -423,16 +425,19 @@ class PagesEndpointTest extends TestCase
         $this->assertNotEmpty($pageUpdated->getProperties());
     }
 
-    public function testUpdatePageSendsArchivedWhenExplicitlySetTrue(): void
+    /**
+     * @dataProvider archivedValuesProvider
+     */
+    public function testUpdatePageSendsArchivedWhenExplicitlySet(bool $archived): void
     {
-        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) use ($archived) {
             $this->assertStringContainsString('PATCH', $method);
             $this->assertStringContainsString('pages/1e7e638f78864ec591ea54ec7016e146', $url);
 
             /** @var array $body */
             $body = json_decode($options['body'], true);
             $this->assertArrayHasKey('archived', $body);
-            $this->assertTrue($body['archived']);
+            $this->assertSame($archived, $body['archived']);
 
             return new MockResponseFactory(
                 (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
@@ -448,10 +453,21 @@ class PagesEndpointTest extends TestCase
         $page->setProperties([
             'title' => (new TitlePropertyValue())->setTitle([Text::fromContent('New title!')]),
         ]);
-        $page->setArchived(true);
+        $page->setArchived($archived);
 
         $pageUpdated = $client->pages()->update($page);
         $this->assertNotEmpty($pageUpdated->getProperties());
+    }
+
+    /**
+     * @return bool[][]
+     */
+    public static function archivedValuesProvider(): array
+    {
+        return [
+            [false],
+            [true],
+        ];
     }
 
     public function testCreatePageWithDataSourceParent(): void

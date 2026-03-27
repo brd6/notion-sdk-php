@@ -17,6 +17,8 @@ use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\AbstractPropertyValue;
 use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
 use DateTimeImmutable;
 
+use function array_key_exists;
+
 class Page extends AbstractResource
 {
     public const RESOURCE_TYPE = 'page';
@@ -27,7 +29,7 @@ class Page extends AbstractResource
     protected ?UserInterface $createdBy = null;
     protected ?DateTimeImmutable $lastEditedTime = null;
     protected ?UserInterface $lastEditedBy = null;
-    protected bool $archived = false;
+    protected ?bool $archived = null;
     protected ?AbstractFile $icon = null;
     protected ?AbstractFile $cover = null;
 
@@ -49,8 +51,9 @@ class Page extends AbstractResource
     public function toArrayForCreate(): array
     {
         $data = $this->toArrayStrict(self::CREATE_ACCEPTED_KEYS);
-        if ($this->archived) {
-            $data['archived'] = true;
+
+        if ($this->archived !== null) {
+            $data['archived'] = $this->archived;
         }
 
         return $data;
@@ -58,7 +61,13 @@ class Page extends AbstractResource
 
     public function toArrayForUpdate(): array
     {
-        return $this->toArray(true, self::UPDATE_ACCEPTED_KEYS);
+        $data = $this->toArray(true, self::UPDATE_ACCEPTED_KEYS);
+
+        if ($this->archived === null) {
+            unset($data['archived']);
+        }
+
+        return $data;
     }
 
     /**
@@ -76,7 +85,9 @@ class Page extends AbstractResource
         $this->createdTime = new DateTimeImmutable((string) $this->getRawData()['created_time']);
         $this->lastEditedTime = new DateTimeImmutable((string) $this->getRawData()['last_edited_time']);
         $this->lastEditedBy = AbstractUser::fromRawData((array) $this->getRawData()['last_edited_by']);
-        $this->archived = (bool) ($this->getRawData()['archived'] ?? false);
+        $this->archived = array_key_exists('archived', $this->getRawData())
+            ? (bool) $this->getRawData()['archived']
+            : null;
         $this->icon = isset($this->getRawData()['icon']) ?
             AbstractFile::fromRawData((array) $this->getRawData()['icon']) :
             null;
@@ -143,7 +154,7 @@ class Page extends AbstractResource
 
     public function isArchived(): bool
     {
-        return $this->archived;
+        return $this->archived ?? false;
     }
 
     public function setArchived(bool $archived): self
