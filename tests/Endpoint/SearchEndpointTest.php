@@ -8,6 +8,8 @@ use Brd6\NotionSdkPhp\Client;
 use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Resource\DataSource;
 use Brd6\NotionSdkPhp\Resource\Database;
+use Brd6\NotionSdkPhp\Resource\Page;
+use Brd6\NotionSdkPhp\Resource\Page\Parent\BlockIdParent;
 use Brd6\NotionSdkPhp\Resource\Pagination\PageOrDatabaseResults;
 use Brd6\NotionSdkPhp\Resource\Search\SearchRequest;
 use Brd6\Test\NotionSdkPhp\Mock\HttpClient\MockHttpClient;
@@ -132,5 +134,38 @@ class SearchEndpointTest extends TestCase
         $this->assertInstanceOf(PageOrDatabaseResults::class, $results);
         $this->assertGreaterThan(0, count($results->getResults()));
         $this->assertInstanceOf(DataSource::class, $results->getResults()[0]);
+    }
+
+    public function testSearchWithPageBlockParentResponse(): void
+    {
+        $blockId = '7d50a184-5bbe-4d90-8f29-6bec57ed817b';
+
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            $this->assertEquals('POST', $method);
+            $this->assertStringContainsString('search', $url);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_search_page_with_block_parent_200.json'),
+                [
+                    'http_code' => 200,
+                ],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        /** @var PageOrDatabaseResults $results */
+        $results = $client->search();
+
+        $this->assertInstanceOf(PageOrDatabaseResults::class, $results);
+        $this->assertGreaterThan(0, count($results->getResults()));
+
+        /** @var Page $resultPage */
+        $resultPage = $results->getResults()[0];
+        $parent = $resultPage->getParent();
+
+        $this->assertInstanceOf(Page::class, $resultPage);
+        $this->assertInstanceOf(BlockIdParent::class, $parent);
+        $this->assertSame($blockId, $parent->getBlockId());
     }
 }

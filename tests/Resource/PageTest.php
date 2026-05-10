@@ -9,6 +9,7 @@ use Brd6\NotionSdkPhp\Resource\File\Emoji;
 use Brd6\NotionSdkPhp\Resource\File\External;
 use Brd6\NotionSdkPhp\Resource\File\Icon;
 use Brd6\NotionSdkPhp\Resource\Page;
+use Brd6\NotionSdkPhp\Resource\Page\Parent\BlockIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\DatabaseIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\NumberPropertyValue;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\TitlePropertyValue;
@@ -100,6 +101,29 @@ class PageTest extends TestCase
         $this->assertNotNull($icon->getIcon());
         $this->assertSame('book', $icon->getIcon()->getName());
         $this->assertSame('gray', $icon->getIcon()->getColor());
+    }
+
+    public function testPageWithBlockIdParent(): void
+    {
+        $blockId = '7d50a184-5bbe-4d90-8f29-6bec57ed817b';
+
+        /** @var array $rawData */
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+            true,
+        );
+        $rawData['parent'] = [
+            'type' => 'block_id',
+            'block_id' => $blockId,
+        ];
+
+        /** @var Page $page */
+        $page = Page::fromRawData($rawData);
+
+        $parent = $page->getParent();
+
+        $this->assertInstanceOf(BlockIdParent::class, $parent);
+        $this->assertSame($blockId, $parent->getBlockId());
     }
 
     public function testPageIsArchivedReturnsFalseWhenUnset(): void
