@@ -11,8 +11,15 @@ use Brd6\NotionSdkPhp\Resource\Block\CalloutBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ChildPageBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ColumnBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ColumnListBlock;
+use Brd6\NotionSdkPhp\Resource\Block\Heading1Block;
+use Brd6\NotionSdkPhp\Resource\Block\Heading2Block;
+use Brd6\NotionSdkPhp\Resource\Block\Heading3Block;
+use Brd6\NotionSdkPhp\Resource\Block\Heading4Block;
+use Brd6\NotionSdkPhp\Resource\Block\Heading5Block;
+use Brd6\NotionSdkPhp\Resource\Block\Heading6Block;
 use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
 use Brd6\NotionSdkPhp\Resource\Block\SyncedBlockBlock;
+use Brd6\NotionSdkPhp\Resource\Block\UnsupportedBlock;
 use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
 use Brd6\NotionSdkPhp\Resource\File\Emoji;
 use Brd6\NotionSdkPhp\Resource\Property\CalloutProperty;
@@ -50,6 +57,17 @@ class BlockTest extends TestCase
         AbstractBlock::fromRawData([
             'type' => 'invalid_type',
         ]);
+    }
+
+    public function testUnsupportedBlock(): void
+    {
+        $block = AbstractBlock::fromRawData([
+            'object' => 'block',
+            'type' => 'unsupported_block',
+        ]);
+
+        $this->assertInstanceOf(UnsupportedBlock::class, $block);
+        $this->assertEquals('unsupported_block', $block->getType());
     }
 
     public function testBlock(): void
@@ -110,30 +128,42 @@ class BlockTest extends TestCase
     public function testHeadingsBlock(): void
     {
         $headings = [
-            'heading_1',
-            'heading_2',
-            'heading_3',
+            'heading_1' => Heading1Block::class,
+            'heading_2' => Heading2Block::class,
+            'heading_3' => Heading3Block::class,
+            'heading_4' => Heading4Block::class,
+            'heading_5' => Heading5Block::class,
+            'heading_6' => Heading6Block::class,
         ];
 
-        foreach ($headings as $heading) {
+        foreach ($headings as $heading => $blockClass) {
             $rawContent = (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_heading1_200.json');
 
             $rawContent = str_replace('heading_1', $heading, $rawContent);
+            $rawData = (array) json_decode($rawContent, true);
 
             $block = AbstractBlock::fromRawData(
-                (array) json_decode(
-                    $rawContent,
-                    true,
-                ),
+                $rawData,
             );
 
+            $blockData = $block->toArray();
             $typeFormatted = StringHelper::snakeCaseToCamelCase($block->getType());
             $getterMethodName = "get$typeFormatted";
 
+            $this->assertInstanceOf($blockClass, $block);
             $this->assertEquals($heading, $block->getType());
             $this->assertNotNull($block->$getterMethodName());
             $this->assertInstanceOf(HeadingProperty::class, $block->$getterMethodName());
             $this->assertGreaterThan(0, count($block->$getterMethodName()->getRichText()));
+            $this->assertArrayHasKey($heading, $blockData);
+            $this->assertSame($rawData[$heading]['color'], $blockData[$heading]['color']);
+            $this->assertSame($rawData[$heading]['rich_text'][0]['type'], $blockData[$heading]['rich_text'][0]['type']);
+            $this->assertEquals($rawData[$heading]['rich_text'][0]['annotations'], $blockData[$heading]['rich_text'][0]['annotations']);
+            $this->assertSame($rawData[$heading]['rich_text'][0]['plain_text'], $blockData[$heading]['rich_text'][0]['plain_text']);
+            $this->assertSame(
+                $rawData[$heading]['rich_text'][0]['text']['content'],
+                $blockData[$heading]['rich_text'][0]['text']['content'],
+            );
 
             $richText = $block->$getterMethodName()->getRichText()[0];
 
