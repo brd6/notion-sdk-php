@@ -100,6 +100,25 @@ $myPage = $notion->databases()->query('897e5a76-ae52-4b48-9fdf-e71f5945d1af', $d
 
 If you use Notion API version `2025-09-03` or newer, the SDK supports data source endpoints via `$notion->dataSources()`, and page creation with `data_source_id` parents. When creating a database with this API version, `databases()->create()` automatically maps `properties` to the required `initial_data_source` payload.
 
+### File uploads
+
+The SDK supports the [Notion File Upload API](https://developers.notion.com/reference/create-a-file-upload) via `$notion->fileUploads()`: create a file upload, send its contents as `multipart/form-data`, then reference the upload from a block, page icon, or cover:
+
+```php
+use Brd6\NotionSdkPhp\Resource\FileUpload\FileUploadRequest;
+
+$fileUpload = $notion->fileUploads()->create(
+    (new FileUploadRequest())
+        ->setMode(FileUploadRequest::MODE_SINGLE_PART)
+        ->setFilename('image.png')
+        ->setContentType('image/png'),
+);
+
+$fileUpload = $notion->fileUploads()->send($fileUpload->getId(), $contents, 'image.png', 'image/png');
+```
+
+`retrieve()` and `list()` expose upload status, `complete()` finalizes a multi-part upload (send each part with a `$partNumber`), and `FileUploadRequest::MODE_EXTERNAL_URL` imports a file from a public HTTPS URL. See [examples/09-file-uploads-api-smoke](examples/09-file-uploads-api-smoke/) for the full flow, including attaching the upload to a page as an image block.
+
 ### Handling errors
 
 If the API returns an unsuccessful response, an `ApiResponseException` will be thrown.

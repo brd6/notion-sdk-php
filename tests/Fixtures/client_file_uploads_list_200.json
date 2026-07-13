@@ -1,0 +1,26 @@
+{
+    "object": "list",
+    "results": [
+        {
+            "object": "file_upload",
+            "id": "b52b8ed6-e029-4707-a671-832549c09de3",
+            "created_time": "2026-07-13T23:13:00.000Z",
+            "created_by": {
+                "id": "6794760a-1f15-45cd-9c65-0dfe42f5135a",
+                "type": "bot"
+            },
+            "last_edited_time": "2026-07-13T23:13:00.000Z",
+            "expiry_time": "2026-07-14T00:13:00.000Z",
+            "in_trash": false,
+            "status": "uploaded",
+            "filename": "sample.png",
+            "content_type": "image/png",
+            "content_length": 70,
+            "archived": false
+        }
+    ],
+    "next_cursor": "c7e2a9b8-3d61-4f5a-8e07-92c4d1f6b3a5",
+    "has_more": true,
+    "type": "file_upload",
+    "file_upload": {}
+}

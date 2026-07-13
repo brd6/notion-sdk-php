@@ -9,6 +9,7 @@ use Brd6\NotionSdkPhp\Endpoint\BlocksEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\CommentsEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\DataSourcesEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\DatabasesEndpoint;
+use Brd6\NotionSdkPhp\Endpoint\FileUploadsEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\PagesEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\SearchEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\UsersEndpoint;
@@ -51,6 +52,7 @@ class Client
     private PagesEndpoint $pagesEndpoint;
     private DatabasesEndpoint $databasesEndpoint;
     private DataSourcesEndpoint $dataSourcesEndpoint;
+    private FileUploadsEndpoint $fileUploadsEndpoint;
     private SearchEndpoint $searchEndpoint;
 
     public function __construct(?ClientOptions $options = null)
@@ -64,6 +66,7 @@ class Client
         $this->pagesEndpoint = new PagesEndpoint($this);
         $this->databasesEndpoint = new DatabasesEndpoint($this);
         $this->dataSourcesEndpoint = new DataSourcesEndpoint($this);
+        $this->fileUploadsEndpoint = new FileUploadsEndpoint($this);
         $this->searchEndpoint = new SearchEndpoint($this);
     }
 
@@ -205,6 +208,11 @@ class Client
     public function dataSources(): DataSourcesEndpoint
     {
         return $this->dataSourcesEndpoint;
+    }
+
+    public function fileUploads(): FileUploadsEndpoint
+    {
+        return $this->fileUploadsEndpoint;
     }
 
     public function getOptions(): ClientOptions

@@ -1,11 +1,12 @@
 # File Uploads API Integration Example
 
-This example runs Notion File Upload API integration checks using the SDK's raw request support (per-request headers and raw bodies). It validates the full upload flow directly against your workspace:
+This example runs Notion File Upload API integration checks using the SDK's `fileUploads()` endpoint. It validates the full upload flow directly against your workspace:
 
-- create a file upload (`POST /v1/file_uploads`)
-- send the file contents as `multipart/form-data` (`POST /v1/file_uploads/{id}/send`)
-- retrieve the file upload and verify its status is `uploaded`
-- attach the uploaded image to a page as an image block
+- create a file upload (`fileUploads()->create()`)
+- send the file contents as `multipart/form-data` (`fileUploads()->send()`)
+- retrieve the file upload and verify its status is `uploaded` (`fileUploads()->retrieve()`)
+- attach the uploaded image to a page as an image block (`blocks()->children()->append()`)
+- list recent uploads (`fileUploads()->list()`)
 
 It is intended for live API validation and fixture discovery without touching the test fixtures in this repository.
 
@@ -49,10 +50,11 @@ File contents sent (status: uploaded)
 File upload verified (status: uploaded)
 Attaching the uploaded image to the page...
 Image block created: <block-id>
+Listing recent uploads...
+Uploads found: <count>
 Done. Check the page in Notion to see the uploaded image.
 ```
 
 ## Notes
 
-- The multipart request is built with `php-http/multipart-stream-builder`, which the SDK already depends on, and sent through `Client::request()` using `RequestParameters::setHeaders()` and `RequestParameters::setRawBody()`.
-- Uploaded files count against your workspace storage. Free workspaces are limited to 5 MiB per file.
+- Uploaded files count against your workspace storage. Free workspaces are limited to 5 MiB per file, and multi-part uploads (`FileUploadRequest::MODE_MULTI_PART`) require a paid plan.

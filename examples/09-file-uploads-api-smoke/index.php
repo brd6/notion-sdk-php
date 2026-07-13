@@ -7,9 +7,12 @@ require_once __DIR__ . '/vendor/autoload.php';
 use Brd6\NotionSdkPhp\Client;
 use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Exception\ApiResponseException;
-use Brd6\NotionSdkPhp\RequestParameters;
+use Brd6\NotionSdkPhp\Resource\Block\ImageBlock;
+use Brd6\NotionSdkPhp\Resource\File\FileUpload as FileUploadFile;
+use Brd6\NotionSdkPhp\Resource\FileUpload;
+use Brd6\NotionSdkPhp\Resource\FileUpload\FileUploadRequest;
+use Brd6\NotionSdkPhp\Resource\Property\FileUploadProperty;
 use Dotenv\Dotenv;
-use Http\Message\MultipartStream\MultipartStreamBuilder;
 
 // 240x120 labelled PNG so the example needs no file on disk and the block is visible on the page.
 const SAMPLE_PNG_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAPAAAAB4CAIAAABD1OhwAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAB/ElEQVR42u3YMW7CMABA0VJxDSY4JhsckwkuwhApch3bMTYtSfOeOlREcUz4dU12x8v9C/6Lb7cAQYOgQdAgaAQNggZBg6BB0AgaBA2CBkGDoBE0CBoEDYIGQSNoEDQIGgQNgkbQIGgQNAgaBI2gQdAgaBA0CBpBg6BB0CBoBA2CBkGDoEHQCBoEDYIGQYOgETQIGgQNggZBI+gtu50Pt/NhmfN579yW9k4F7YPkh71bMHW6PtwEQX9glR3iG9faKMRwDR4PhS+OIyTPmmZdGLAwjfL8c39INaMl599wo5KXa35fthy9WZ+uj+FeJ2ONDo2vRL/PLs+5AcvTmI1s/AlPDI/mRqusuWaGbYeWaXe83Ne+QueWouShmhpmT6+8Vq6A5FmVV0/+lyjUVjPDtntoy2EvHncWVdjTin3/pp9yLCT33JajMl8ParYSdG5LmttgzJbx0oCV+6XCJmF6rf6m2yb/xrdsy9HbdBhN9EnkjhaegZQH7JxeNGZ4dHYvPnxvq7ziq5Nf3VOOFX8ppPnb8++dZcsBVmiwQiNoEDQIGgQNgkbQIGgQNAgaBI2gQdAgaBA0CBpBg6BB0CBoBA2CBkGDoEHQCBoEDYIGQYOgETQIGgQNggZBI2gQNAgaBA2CRtAgaBA0CBoEjaBB0CBoEDQIGkGDoOHPPAGafD74akpkogAAAABJRU5ErkJggg==';
@@ -48,69 +51,12 @@ function createNotionClient(): Client
     return new Client($options);
 }
 
-function createFileUpload(Client $notion, string $filename): array
+function buildImageBlock(string $fileUploadId): ImageBlock
 {
-    $parameters = (new RequestParameters())
-        ->setPath('file_uploads')
-        ->setMethod('POST')
-        ->setBody([
-            'mode' => 'single_part',
-            'filename' => $filename,
-            'content_type' => 'image/png',
-        ]);
+    $image = new FileUploadFile();
+    $image->setFileUpload((new FileUploadProperty())->setId($fileUploadId));
 
-    return $notion->request($parameters);
-}
-
-function sendFileUpload(Client $notion, string $fileUploadId, string $contents, string $filename): array
-{
-    $builder = new MultipartStreamBuilder();
-    $builder->addResource('file', $contents, [
-        'filename' => $filename,
-        'headers' => ['Content-Type' => 'image/png'],
-    ]);
-
-    $parameters = (new RequestParameters())
-        ->setPath("file_uploads/{$fileUploadId}/send")
-        ->setMethod('POST')
-        ->setHeaders([
-            'Content-Type' => 'multipart/form-data; boundary="' . $builder->getBoundary() . '"',
-        ])
-        ->setRawBody((string) $builder->build());
-
-    return $notion->request($parameters);
-}
-
-function retrieveFileUpload(Client $notion, string $fileUploadId): array
-{
-    $parameters = (new RequestParameters())
-        ->setPath("file_uploads/{$fileUploadId}")
-        ->setMethod('GET');
-
-    return $notion->request($parameters);
-}
-
-function attachFileUploadToPage(Client $notion, string $pageId, string $fileUploadId): array
-{
-    $parameters = (new RequestParameters())
-        ->setPath("blocks/{$pageId}/children")
-        ->setMethod('PATCH')
-        ->setBody([
-            'children' => [
-                [
-                    'object' => 'block',
-                    'type' => 'image',
-                    'image' => [
-                        'type' => 'file_upload',
-                        'file_upload' => [
-                            'id' => $fileUploadId,
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-    return $notion->request($parameters);
+    return (new ImageBlock())->setImage($image);
 }
 
 function main(): void
@@ -125,24 +71,34 @@ function main(): void
 
     try {
         echo "Creating file upload...\n";
-        $fileUpload = createFileUpload($notion, $filename);
-        $fileUploadId = (string) $fileUpload['id'];
-        echo "File upload created: {$fileUploadId} (status: {$fileUpload['status']})\n";
+        $fileUpload = $notion->fileUploads()->create(
+            (new FileUploadRequest())
+                ->setMode(FileUploadRequest::MODE_SINGLE_PART)
+                ->setFilename($filename)
+                ->setContentType('image/png'),
+        );
+        echo "File upload created: {$fileUpload->getId()} (status: {$fileUpload->getStatus()})\n";
 
         echo "Sending file contents as multipart/form-data...\n";
-        $fileUpload = sendFileUpload($notion, $fileUploadId, $contents, $filename);
-        echo "File contents sent (status: {$fileUpload['status']})\n";
+        $fileUpload = $notion->fileUploads()->send($fileUpload->getId(), $contents, $filename, 'image/png');
+        echo "File contents sent (status: {$fileUpload->getStatus()})\n";
 
-        $fileUpload = retrieveFileUpload($notion, $fileUploadId);
-        if ($fileUpload['status'] !== 'uploaded') {
-            exitWithError("Unexpected file upload status: {$fileUpload['status']}");
+        $fileUpload = $notion->fileUploads()->retrieve($fileUpload->getId());
+        if ($fileUpload->getStatus() !== FileUpload::STATUS_UPLOADED) {
+            exitWithError("Unexpected file upload status: {$fileUpload->getStatus()}");
         }
-        echo "File upload verified (status: {$fileUpload['status']})\n";
+        echo "File upload verified (status: {$fileUpload->getStatus()})\n";
 
         echo "Attaching the uploaded image to the page...\n";
-        $result = attachFileUploadToPage($notion, $pageId, $fileUploadId);
-        $blockId = (string) $result['results'][0]['id'];
-        echo "Image block created: {$blockId}\n";
+        $results = $notion->blocks()->children()->append($pageId, [buildImageBlock($fileUpload->getId())]);
+
+        /** @var ImageBlock $block */
+        $block = $results->getResults()[0];
+        echo "Image block created: {$block->getId()}\n";
+
+        echo "Listing recent uploads...\n";
+        $uploads = $notion->fileUploads()->list();
+        echo "Uploads found: " . count($uploads->getResults()) . "\n";
 
         echo "Done. Check the page in Notion to see the uploaded image.\n";
     } catch (ApiResponseException $exception) {

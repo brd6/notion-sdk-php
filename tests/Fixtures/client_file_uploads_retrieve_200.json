@@ -1,0 +1,22 @@
+{
+    "object": "file_upload",
+    "id": "c7e2a9b8-3d61-4f5a-8e07-92c4d1f6b3a5",
+    "created_time": "2026-07-13T23:13:00.000Z",
+    "created_by": {
+        "id": "6794760a-1f15-45cd-9c65-0dfe42f5135a",
+        "type": "bot"
+    },
+    "last_edited_time": "2026-07-13T23:13:00.000Z",
+    "expiry_time": "2026-07-14T00:13:00.000Z",
+    "in_trash": false,
+    "status": "uploaded",
+    "filename": "favicon.ico",
+    "content_type": "image/vnd.microsoft.icon",
+    "content_length": 32038,
+    "file_import_result": {
+        "type": "success",
+        "success": [],
+        "imported_time": "2026-07-13T23:13:09.000+00:00"
+    },
+    "archived": false
+}
