@@ -30,6 +30,7 @@ class FileUploadsEndpointTest extends TestCase
 
         $this->assertInstanceOf(FileUploadsEndpoint::class, $client->fileUploads());
         $this->assertInstanceOf(FileUploadsEndpoint::class, $fileUploads);
+        $this->assertEquals('file_upload', (new FileUpload())->getObject());
     }
 
     public function testCreateFileUpload(): void
@@ -160,8 +161,10 @@ class FileUploadsEndpointTest extends TestCase
     public function testSendFileUploadPart(): void
     {
         $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
-            $this->assertStringContainsString('name="part_number"', $options['body']);
-            $this->assertStringContainsString('2', $options['body']);
+            $this->assertMatchesRegularExpression(
+                '/name="part_number".*?\r\n\r\n2\r\n/s',
+                $options['body'],
+            );
 
             return new MockResponseFactory(
                 (string) file_get_contents('tests/Fixtures/client_file_uploads_send_200.json'),

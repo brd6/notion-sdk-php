@@ -30,6 +30,13 @@ class FileUpload extends AbstractResource
     protected array $fileImportResult = [];
     protected bool $inTrash = false;
 
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->object = self::RESOURCE_TYPE;
+    }
+
     public static function getResourceType(): string
     {
         return self::RESOURCE_TYPE;
