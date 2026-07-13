@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- Add per-request headers and raw (non-JSON) request bodies to `RequestParameters`, unblocking `multipart/form-data` endpoints such as the Notion File Upload API.
+- Add `php-http/multipart-stream-builder` as a dependency for building multipart request bodies.
+
+### Changed
+
+- Default request headers (`Notion-Version`, `Content-Type`, `User-Agent`) are now applied only when a request does not already set them, so a per-request `Content-Type` takes precedence over the JSON default. Requests that set no headers are unchanged.
+
 ## 1.9.0 - 2026-05-28
 
 ### Added

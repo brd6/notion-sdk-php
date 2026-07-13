@@ -10,7 +10,7 @@ use Http\Client\Common\HttpMethodsClient;
 use Http\Client\Common\HttpMethodsClientInterface;
 use Http\Client\Common\Plugin\AuthenticationPlugin;
 use Http\Client\Common\Plugin\BaseUriPlugin;
-use Http\Client\Common\Plugin\HeaderSetPlugin;
+use Http\Client\Common\Plugin\HeaderDefaultsPlugin;
 use Http\Client\Common\PluginClientFactory;
 use Http\Client\Curl\Client as CurlHttpClient;
 use Http\Discovery\Psr17FactoryDiscovery;
@@ -55,7 +55,7 @@ class HttpClientFactory implements HttpClientFactoryInterface
 
         $plugins = [
             new BaseUriPlugin($this->uriFactory->createUri($options->getBaseUrl())),
-            new HeaderSetPlugin($headers),
+            new HeaderDefaultsPlugin($headers),
         ];
 
         if ($options->hasAuth()) {

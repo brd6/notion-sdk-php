@@ -10,6 +10,12 @@ class RequestParameters
     private string $method = '';
     private array $query = [];
     private array $body = [];
+    private ?string $rawBody = null;
+
+    /**
+     * @var array<string, string>
+     */
+    private array $headers = [];
 
     public function getPath(): string
     {
@@ -65,6 +71,41 @@ class RequestParameters
     public function setBody(array $body): self
     {
         $this->body = $body;
+
+        return $this;
+    }
+
+    public function getRawBody(): ?string
+    {
+        return $this->rawBody;
+    }
+
+    /**
+     * Takes precedence over the JSON-encoded `body` when set.
+     */
+    public function setRawBody(?string $rawBody): self
+    {
+        $this->rawBody = $rawBody;
+
+        return $this;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
+    /**
+     * @param array<string, string> $headers
+     *
+     * @return RequestParameters
+     */
+    public function setHeaders(array $headers): self
+    {
+        $this->headers = $headers;
 
         return $this;
     }

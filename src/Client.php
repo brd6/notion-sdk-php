@@ -77,15 +77,15 @@ class Client
     public function request(RequestParameters $parameters): array
     {
         $path = $this->buildRequestPath($parameters);
-
-        $body = null;
-        if (count($parameters->getBody()) > 0) {
-            /** @var string $body */
-            $body = json_encode($parameters->getBody());
-        }
+        $body = $this->resolveRequestBody($parameters);
 
         try {
-            $response = $this->httpClient->send($parameters->getMethod(), $path, [], $body);
+            $response = $this->httpClient->send(
+                $parameters->getMethod(),
+                $path,
+                $parameters->getHeaders(),
+                $body,
+            );
         } catch (RequestException $e) {
             if (!($e instanceof HttpException)) {
                 throw new RequestTimeoutException();
@@ -99,6 +99,24 @@ class Client
         }
 
         return $this->transformResponseContentsToArray($response->getBody()->getContents());
+    }
+
+    private function resolveRequestBody(RequestParameters $parameters): ?string
+    {
+        $rawBody = $parameters->getRawBody();
+
+        if ($rawBody !== null) {
+            return $rawBody;
+        }
+
+        if (count($parameters->getBody()) > 0) {
+            /** @var string $body */
+            $body = json_encode($parameters->getBody());
+
+            return $body;
+        }
+
+        return null;
     }
 
     private function buildRequestPath(RequestParameters $parameters): string

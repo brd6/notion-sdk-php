@@ -44,6 +44,7 @@ class MockHttpClient implements HttpClientInterface
         return [
             'body' => (string) $request->getBody(),
             'query' => UrlHelper::parseQuery($request->getUri()->getQuery()),
+            'headers' => $request->getHeaders(),
         ];
     }
 }
