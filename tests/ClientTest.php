@@ -311,6 +311,7 @@ class ClientTest extends TestCase
         $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use ($body) {
             $this->assertEquals('POST', $method);
             $this->assertEquals(json_encode($body), $options['body']);
+            $this->assertEquals(['application/json'], $options['headers']['Content-Type']);
 
             return new MockResponseFactory(
                 (string) file_get_contents('tests/Fixtures/client_request_retrieve_page_200.json'),
