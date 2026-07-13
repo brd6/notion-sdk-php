@@ -100,6 +100,22 @@ $myPage = $notion->databases()->query('897e5a76-ae52-4b48-9fdf-e71f5945d1af', $d
 
 If you use Notion API version `2025-09-03` or newer, the SDK supports data source endpoints via `$notion->dataSources()`, and page creation with `data_source_id` parents. When creating a database with this API version, `databases()->create()` automatically maps `properties` to the required `initial_data_source` payload.
 
+### Custom requests
+
+`Client::request()` accepts a `RequestParameters` object. In addition to a JSON `body`, a request can carry a raw body and per-request headers — for example to send `multipart/form-data`:
+
+```php
+$parameters = (new RequestParameters())
+    ->setPath('file_uploads/b52b8ed6-e029-4707-a671-832549c09de3/send')
+    ->setMethod('POST')
+    ->setHeaders(['Content-Type' => 'multipart/form-data; boundary="boundary"'])
+    ->setRawBody($multipartBody);
+
+$rawData = $notion->request($parameters);
+```
+
+When `rawBody` is set it takes precedence over `body`. The default headers (`Notion-Version`, `Content-Type: application/json`, `User-Agent`) are applied only when the request does not set them.
+
 ### Handling errors
 
 If the API returns an unsuccessful response, an `ApiResponseException` will be thrown.

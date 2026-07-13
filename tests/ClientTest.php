@@ -15,6 +15,7 @@ use RuntimeException;
 
 use function count;
 use function file_get_contents;
+use function json_encode;
 
 class ClientTest extends TestCase
 {
@@ -296,5 +297,151 @@ class ClientTest extends TestCase
         $this->assertArrayHasKey('object', $rawData);
         $this->assertArrayHasKey('results', $rawData);
         $this->assertGreaterThan(0, count($rawData['results']));
+    }
+
+    public function testRequestWithBodyOnlySendsJsonEncodedBody(): void
+    {
+        $body = [
+            'parent' => [
+                'page_id' => 'b55c9c91-384d-452b-81db-d1ef79372b75',
+            ],
+            'properties' => [],
+        ];
+
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use ($body) {
+            $this->assertEquals('POST', $method);
+            $this->assertEquals(json_encode($body), $options['body']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_request_retrieve_page_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setAuth('secret_valid-auth')
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $params = (new RequestParameters())
+            ->setMethod('POST')
+            ->setPath('pages')
+            ->setBody($body);
+
+        $rawData = $client->request($params);
+
+        $this->assertArrayHasKey('id', $rawData);
+    }
+
+    public function testRequestWithRawBodySendsRawBodyVerbatim(): void
+    {
+        $rawBody = "--boundary\r\nContent-Disposition: form-data; name=\"file\"\r\n\r\nbinary-contents\r\n--boundary--\r\n";
+
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use ($rawBody) {
+            $this->assertEquals('POST', $method);
+            $this->assertEquals($rawBody, $options['body']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_request_retrieve_page_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setAuth('secret_valid-auth')
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $params = (new RequestParameters())
+            ->setMethod('POST')
+            ->setPath('file_uploads/valid-id/send')
+            ->setRawBody($rawBody);
+
+        $client->request($params);
+    }
+
+    public function testRequestRawBodyTakesPrecedenceOverBody(): void
+    {
+        $rawBody = 'raw-body-wins';
+
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use ($rawBody) {
+            $this->assertEquals($rawBody, $options['body']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_request_retrieve_page_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setAuth('secret_valid-auth')
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $params = (new RequestParameters())
+            ->setMethod('POST')
+            ->setPath('pages')
+            ->setBody(['ignored' => true])
+            ->setRawBody($rawBody);
+
+        $client->request($params);
+    }
+
+    public function testRequestCustomContentTypeHeaderOverridesDefault(): void
+    {
+        $contentType = 'multipart/form-data; boundary="test-boundary"';
+
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use ($contentType) {
+            $this->assertEquals([$contentType], $options['headers']['Content-Type']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_request_retrieve_page_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setAuth('secret_valid-auth')
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $params = (new RequestParameters())
+            ->setMethod('POST')
+            ->setPath('file_uploads/valid-id/send')
+            ->setHeaders(['Content-Type' => $contentType])
+            ->setRawBody('--test-boundary--');
+
+        $client->request($params);
+    }
+
+    public function testRequestWithoutHeadersCarriesDefaultHeaders(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            $this->assertEquals([ClientOptions::DEFAULT_NOTION_VERSION], $options['headers']['Notion-Version']);
+            $this->assertEquals(['application/json'], $options['headers']['Content-Type']);
+            $this->assertArrayHasKey('User-Agent', $options['headers']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_request_retrieve_page_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setAuth('secret_valid-auth')
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $params = (new RequestParameters())
+            ->setMethod('POST')
+            ->setPath('pages')
+            ->setBody(['title' => []]);
+
+        $client->request($params);
     }
 }
