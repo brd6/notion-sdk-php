@@ -243,6 +243,11 @@ abstract class AbstractBlock extends AbstractResource
         return $this->getProperty() !== null ? $this->getProperty()->toArray() : [];
     }
 
+    public function toArrayForCreate(): array
+    {
+        return $this->toArrayStrict(['object', 'type', $this->getType()]);
+    }
+
     /**
      * @return array|AbstractBlock[]
      */

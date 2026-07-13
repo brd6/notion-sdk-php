@@ -265,6 +265,8 @@ class BlocksEndpointTest extends TestCase
                 $this->assertArrayHasKey('object', $body['children'][0]);
                 $this->assertArrayHasKey('type', $body['children'][0]);
                 $this->assertArrayHasKey('heading_3', $body['children'][0]);
+                $this->assertArrayNotHasKey('archived', $body['children'][0]);
+                $this->assertArrayNotHasKey('has_children', $body['children'][0]);
                 $this->assertArrayHasKey('rich_text', $body['children'][0]['heading_3']);
                 $this->assertNotEmpty($body['children'][0]['heading_3']['rich_text']);
                 $this->assertStringContainsString(

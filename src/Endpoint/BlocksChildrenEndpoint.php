@@ -57,7 +57,7 @@ class BlocksChildrenEndpoint extends AbstractEndpoint
      */
     public function append(string $blockId, array $children): AbstractPaginationResults
     {
-        $childrenData = array_map(fn (AbstractBlock $block) => $block->toArray(), $children);
+        $childrenData = array_map(fn (AbstractBlock $block) => $block->toArrayForCreate(), $children);
 
         $requestParameters = (new RequestParameters())
             ->setPath("blocks/$blockId/children")
