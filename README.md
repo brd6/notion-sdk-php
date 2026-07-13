@@ -145,6 +145,7 @@ The `examples/` directory contains a comprehensive set of usage examples that de
 - **[06-notion-github-sync](examples/06-notion-github-sync/)** - GitHub issues synchronization
 - **[07-oauth-flow](examples/07-oauth-flow/)** - Complete OAuth 2.0 implementation
 - **[08-data-sources-api-smoke](examples/08-data-sources-api-smoke/)** - Data source integration checks for retrieve/query/search/create/update
+- **[09-file-uploads-api-smoke](examples/09-file-uploads-api-smoke/)** - File upload via raw multipart requests, attached to a page as an image block
 
 Each example is self-contained with its own dependencies, documentation, and setup instructions.
 
