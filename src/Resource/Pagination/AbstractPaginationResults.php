@@ -18,6 +18,7 @@ abstract class AbstractPaginationResults extends AbstractJsonSerializable
     protected array $results = [];
     protected string $object = '';
     protected string $type = '';
+    protected array $requestStatus = [];
     private array $rawData = [];
 
     /**
@@ -122,6 +123,18 @@ abstract class AbstractPaginationResults extends AbstractJsonSerializable
         return $this;
     }
 
+    public function getRequestStatus(): array
+    {
+        return $this->requestStatus;
+    }
+
+    public function setRequestStatus(array $requestStatus): self
+    {
+        $this->requestStatus = $requestStatus;
+
+        return $this;
+    }
+
     public function getRawData(): array
     {
         return $this->rawData;
@@ -137,6 +150,7 @@ abstract class AbstractPaginationResults extends AbstractJsonSerializable
             ((string) $this->getRawData()['next_cursor']) :
             null;
         $this->hasMore = (bool) $this->getRawData()['next_cursor'];
+        $this->requestStatus = (array) ($this->getRawData()['request_status'] ?? []);
 
         return $this;
     }

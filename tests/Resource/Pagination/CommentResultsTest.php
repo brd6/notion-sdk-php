@@ -38,4 +38,33 @@ class CommentResultsTest extends TestCase
         $this->assertEquals('8b3cfeed-c0da-451e-8f18-f7086c321980', $results[1]->getId());
         $this->assertEquals('This is another comment', $results[1]->getRichText()[0]->getPlainText());
     }
+
+    public function testRequestStatus(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/comments_list_200.json'),
+            true,
+        );
+        $rawData['request_status'] = [
+            'type' => 'incomplete',
+            'incomplete_reason' => 'query_result_limit_reached',
+        ];
+
+        $commentResults = CommentResults::fromRawData($rawData);
+
+        $this->assertEquals('incomplete', $commentResults->getRequestStatus()['type']);
+        $this->assertEquals('query_result_limit_reached', $commentResults->getRequestStatus()['incomplete_reason']);
+    }
+
+    public function testRequestStatusAbsent(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/comments_list_200.json'),
+            true,
+        );
+
+        $commentResults = CommentResults::fromRawData($rawData);
+
+        $this->assertEquals([], $commentResults->getRequestStatus());
+    }
 }
