@@ -249,10 +249,12 @@ abstract class AbstractBlock extends AbstractResource
         $data = $this->toArrayStrict(['object', 'type', $this->getType()]);
 
         if (count($this->children) > 0) {
-            $data[$this->getType()]['children'] = array_map(
+            $property = (array) ($data[$this->getType()] ?? []);
+            $property['children'] = array_map(
                 fn (AbstractBlock $child) => $child->toArrayForCreate(),
                 $this->children,
             );
+            $data[$this->getType()] = $property;
         }
 
         return $data;
