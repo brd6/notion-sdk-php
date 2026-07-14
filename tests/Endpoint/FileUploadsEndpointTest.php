@@ -20,6 +20,7 @@ use DateTimeImmutable;
 use function count;
 use function file_get_contents;
 use function json_decode;
+use function strpos;
 
 class FileUploadsEndpointTest extends TestCase
 {
@@ -54,12 +55,8 @@ class FileUploadsEndpointTest extends TestCase
         });
 
         $client = new Client((new ClientOptions())->setHttpClient($httpClient));
-        $fileUploadRequest = (new FileUploadRequest())
-            ->setMode(FileUploadRequest::MODE_SINGLE_PART)
-            ->setFilename('sample.png')
-            ->setContentType('image/png');
 
-        $fileUpload = $client->fileUploads()->create($fileUploadRequest);
+        $fileUpload = $client->fileUploads()->create(FileUploadRequest::singlePart('sample.png', 'image/png'));
 
         $this->assertNotEmpty($fileUpload->getId());
         $this->assertEquals(FileUpload::STATUS_PENDING, $fileUpload->getStatus());
@@ -84,12 +81,10 @@ class FileUploadsEndpointTest extends TestCase
         });
 
         $client = new Client((new ClientOptions())->setHttpClient($httpClient));
-        $fileUploadRequest = (new FileUploadRequest())
-            ->setMode(FileUploadRequest::MODE_EXTERNAL_URL)
-            ->setFilename('image.png')
-            ->setExternalUrl('https://example.com/image.png');
 
-        $fileUpload = $client->fileUploads()->create($fileUploadRequest);
+        $fileUpload = $client->fileUploads()->create(
+            FileUploadRequest::externalUrl('https://example.com/image.png', 'image.png'),
+        );
 
         $this->assertEquals(FileUpload::STATUS_PENDING, $fileUpload->getStatus());
     }
@@ -109,16 +104,70 @@ class FileUploadsEndpointTest extends TestCase
         });
 
         $client = new Client((new ClientOptions())->setHttpClient($httpClient));
-        $fileUploadRequest = (new FileUploadRequest())
-            ->setMode(FileUploadRequest::MODE_MULTI_PART)
-            ->setFilename('sample-large.txt')
-            ->setContentType('text/plain')
-            ->setNumberOfParts(2);
 
-        $fileUpload = $client->fileUploads()->create($fileUploadRequest);
+        $fileUpload = $client->fileUploads()->create(
+            FileUploadRequest::multiPart(2, 'sample-large.txt', 'text/plain'),
+        );
 
         $this->assertEquals(['total' => 2, 'sent' => 0], $fileUpload->getNumberOfParts());
         $this->assertNotEmpty($fileUpload->getCompleteUrl());
+    }
+
+    public function testCreateFileUploadWithoutRequest(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            $this->assertEquals('POST', $method);
+            $this->assertEquals('', $options['body']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_file_uploads_create_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $fileUpload = $client->fileUploads()->create();
+
+        $this->assertEquals(FileUpload::STATUS_PENDING, $fileUpload->getStatus());
+    }
+
+    public function testUploadFileUpload(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            $this->assertEquals('POST', $method);
+
+            if (strpos($url, '/send') !== false) {
+                $this->assertStringStartsWith(
+                    'multipart/form-data; boundary=',
+                    $options['headers']['Content-Type'][0],
+                );
+                $this->assertStringContainsString('filename="sample.png"', $options['body']);
+                $this->assertStringContainsString('file-contents', $options['body']);
+
+                return new MockResponseFactory(
+                    (string) file_get_contents('tests/Fixtures/client_file_uploads_send_200.json'),
+                    ['http_code' => 200],
+                );
+            }
+
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+            $this->assertEquals('single_part', $body['mode']);
+            $this->assertEquals('sample.png', $body['filename']);
+            $this->assertArrayNotHasKey('content_type', $body);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_file_uploads_create_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $fileUpload = $client->fileUploads()->upload('file-contents', 'sample.png');
+
+        $this->assertEquals(FileUpload::STATUS_UPLOADED, $fileUpload->getStatus());
     }
 
     public function testSendFileUpload(): void
@@ -174,12 +223,12 @@ class FileUploadsEndpointTest extends TestCase
 
         $client = new Client((new ClientOptions())->setHttpClient($httpClient));
 
-        $fileUpload = $client->fileUploads()->send(
+        $fileUpload = $client->fileUploads()->sendPart(
             'b52b8ed6-e029-4707-a671-832549c09de3',
             'part-contents',
+            2,
             'sample-large.txt',
             'text/plain',
-            2,
         );
 
         $this->assertEquals(FileUpload::STATUS_UPLOADED, $fileUpload->getStatus());

@@ -18,6 +18,31 @@ class FileUploadRequest extends AbstractJsonSerializable
     protected ?int $numberOfParts = null;
     protected ?string $externalUrl = null;
 
+    public static function singlePart(?string $filename = null, ?string $contentType = null): self
+    {
+        return (new self())
+            ->setMode(self::MODE_SINGLE_PART)
+            ->setFilename($filename)
+            ->setContentType($contentType);
+    }
+
+    public static function multiPart(int $numberOfParts, string $filename, ?string $contentType = null): self
+    {
+        return (new self())
+            ->setMode(self::MODE_MULTI_PART)
+            ->setNumberOfParts($numberOfParts)
+            ->setFilename($filename)
+            ->setContentType($contentType);
+    }
+
+    public static function externalUrl(string $externalUrl, ?string $filename = null): self
+    {
+        return (new self())
+            ->setMode(self::MODE_EXTERNAL_URL)
+            ->setExternalUrl($externalUrl)
+            ->setFilename($filename);
+    }
+
     public function getMode(): ?string
     {
         return $this->mode;

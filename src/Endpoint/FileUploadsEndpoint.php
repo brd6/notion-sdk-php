@@ -33,12 +33,12 @@ class FileUploadsEndpoint extends AbstractEndpoint
      * @throws InvalidResourceTypeException
      * @throws RequestTimeoutException
      */
-    public function create(FileUploadRequest $fileUploadRequest): FileUpload
+    public function create(?FileUploadRequest $fileUploadRequest = null): FileUpload
     {
         $requestParameters = (new RequestParameters())
             ->setPath('file_uploads')
             ->setMethod('POST')
-            ->setBody($fileUploadRequest->toArray());
+            ->setBody($fileUploadRequest ? $fileUploadRequest->toArray() : []);
 
         $rawData = $this->getClient()->request($requestParameters);
 
@@ -46,6 +46,24 @@ class FileUploadsEndpoint extends AbstractEndpoint
         $fileUpload = FileUpload::fromRawData($rawData);
 
         return $fileUpload;
+    }
+
+    /**
+     * Uploads a file in one call: creates a single-part file upload and sends its contents.
+     * The content type is derived by Notion from the filename extension when not provided.
+     *
+     * @throws ApiResponseException
+     * @throws Exception
+     * @throws HttpResponseException
+     * @throws InvalidResourceException
+     * @throws InvalidResourceTypeException
+     * @throws RequestTimeoutException
+     */
+    public function upload(string $contents, string $filename, ?string $contentType = null): FileUpload
+    {
+        $fileUpload = $this->create(FileUploadRequest::singlePart($filename, $contentType));
+
+        return $this->send($fileUpload->getId(), $contents, $filename, $contentType);
     }
 
     /**
@@ -60,8 +78,45 @@ class FileUploadsEndpoint extends AbstractEndpoint
         string $fileUploadId,
         string $contents,
         string $filename,
-        ?string $contentType = null,
-        ?int $partNumber = null
+        ?string $contentType = null
+    ): FileUpload {
+        return $this->sendMultipart($fileUploadId, $contents, $filename, $contentType, null);
+    }
+
+    /**
+     * Sends one part of a multi-part file upload; call complete() after the last part.
+     *
+     * @throws ApiResponseException
+     * @throws Exception
+     * @throws HttpResponseException
+     * @throws InvalidResourceException
+     * @throws InvalidResourceTypeException
+     * @throws RequestTimeoutException
+     */
+    public function sendPart(
+        string $fileUploadId,
+        string $contents,
+        int $partNumber,
+        string $filename,
+        ?string $contentType = null
+    ): FileUpload {
+        return $this->sendMultipart($fileUploadId, $contents, $filename, $contentType, $partNumber);
+    }
+
+    /**
+     * @throws ApiResponseException
+     * @throws Exception
+     * @throws HttpResponseException
+     * @throws InvalidResourceException
+     * @throws InvalidResourceTypeException
+     * @throws RequestTimeoutException
+     */
+    private function sendMultipart(
+        string $fileUploadId,
+        string $contents,
+        string $filename,
+        ?string $contentType,
+        ?int $partNumber
     ): FileUpload {
         $builder = new MultipartStreamBuilder();
         $builder->addResource('file', $contents, array_filter([

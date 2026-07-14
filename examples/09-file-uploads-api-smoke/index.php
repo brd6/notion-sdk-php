@@ -10,7 +10,6 @@ use Brd6\NotionSdkPhp\Exception\ApiResponseException;
 use Brd6\NotionSdkPhp\Resource\Block\ImageBlock;
 use Brd6\NotionSdkPhp\Resource\File\FileUpload as FileUploadFile;
 use Brd6\NotionSdkPhp\Resource\FileUpload;
-use Brd6\NotionSdkPhp\Resource\FileUpload\FileUploadRequest;
 use Brd6\NotionSdkPhp\Resource\Property\FileUploadProperty;
 use Dotenv\Dotenv;
 
@@ -70,18 +69,9 @@ function main(): void
     $contents = (string) base64_decode(SAMPLE_PNG_BASE64, true);
 
     try {
-        echo "Creating file upload...\n";
-        $fileUpload = $notion->fileUploads()->create(
-            (new FileUploadRequest())
-                ->setMode(FileUploadRequest::MODE_SINGLE_PART)
-                ->setFilename($filename)
-                ->setContentType('image/png'),
-        );
-        echo "File upload created: {$fileUpload->getId()} (status: {$fileUpload->getStatus()})\n";
-
-        echo "Sending file contents as multipart/form-data...\n";
-        $fileUpload = $notion->fileUploads()->send($fileUpload->getId(), $contents, $filename, 'image/png');
-        echo "File contents sent (status: {$fileUpload->getStatus()})\n";
+        echo "Uploading {$filename}...\n";
+        $fileUpload = $notion->fileUploads()->upload($contents, $filename);
+        echo "File uploaded: {$fileUpload->getId()} (status: {$fileUpload->getStatus()})\n";
 
         $fileUpload = $notion->fileUploads()->retrieve($fileUpload->getId());
         if ($fileUpload->getStatus() !== FileUpload::STATUS_UPLOADED) {

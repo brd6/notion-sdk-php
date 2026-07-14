@@ -2,8 +2,7 @@
 
 This example runs Notion File Upload API integration checks using the SDK's `fileUploads()` endpoint. It validates the full upload flow directly against your workspace:
 
-- create a file upload (`fileUploads()->create()`)
-- send the file contents as `multipart/form-data` (`fileUploads()->send()`)
+- upload a file in one call — create + multipart send (`fileUploads()->upload()`)
 - retrieve the file upload and verify its status is `uploaded` (`fileUploads()->retrieve()`)
 - attach the uploaded image to a page as an image block (`blocks()->children()->append()`)
 - list recent uploads (`fileUploads()->list()`)
@@ -43,10 +42,8 @@ php index.php
 The script uploads a small PNG embedded in the example (no file on disk needed) and appends it to the configured page as an image block. Expected output:
 
 ```text
-Creating file upload...
-File upload created: <id> (status: pending)
-Sending file contents as multipart/form-data...
-File contents sent (status: uploaded)
+Uploading sample.png...
+File uploaded: <id> (status: uploaded)
 File upload verified (status: uploaded)
 Attaching the uploaded image to the page...
 Image block created: <block-id>

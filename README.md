@@ -102,22 +102,28 @@ If you use Notion API version `2025-09-03` or newer, the SDK supports data sourc
 
 ### File uploads
 
-The SDK supports the [Notion File Upload API](https://developers.notion.com/reference/create-a-file-upload) via `$notion->fileUploads()`: create a file upload, send its contents as `multipart/form-data`, then reference the upload from a block, page icon, or cover:
+The SDK supports the [Notion File Upload API](https://developers.notion.com/reference/create-a-file-upload) via `$notion->fileUploads()`. Uploading a file takes one call — Notion derives the content type from the filename:
+
+```php
+$fileUpload = $notion->fileUploads()->upload($contents, 'image.png');
+```
+
+The uploaded file can then be referenced from a block, page icon, or cover. For larger files and imports, the underlying operations are exposed directly:
 
 ```php
 use Brd6\NotionSdkPhp\Resource\FileUpload\FileUploadRequest;
 
-$fileUpload = $notion->fileUploads()->create(
-    (new FileUploadRequest())
-        ->setMode(FileUploadRequest::MODE_SINGLE_PART)
-        ->setFilename('image.png')
-        ->setContentType('image/png'),
-);
+// import from a public HTTPS URL
+$fileUpload = $notion->fileUploads()->create(FileUploadRequest::externalUrl('https://example.com/image.png'));
 
-$fileUpload = $notion->fileUploads()->send($fileUpload->getId(), $contents, 'image.png', 'image/png');
+// multi-part upload (paid workspaces): create, send each part, then complete
+$fileUpload = $notion->fileUploads()->create(FileUploadRequest::multiPart(2, 'large.txt'));
+$notion->fileUploads()->sendPart($fileUpload->getId(), $firstChunk, 1, 'large.txt');
+$notion->fileUploads()->sendPart($fileUpload->getId(), $secondChunk, 2, 'large.txt');
+$fileUpload = $notion->fileUploads()->complete($fileUpload->getId());
 ```
 
-`retrieve()` and `list()` expose upload status, `complete()` finalizes a multi-part upload (send each part with a `$partNumber`), and `FileUploadRequest::MODE_EXTERNAL_URL` imports a file from a public HTTPS URL. See [examples/09-file-uploads-api-smoke](examples/09-file-uploads-api-smoke/) for the full flow, including attaching the upload to a page as an image block.
+`retrieve()` and `list()` expose upload status. See [examples/09-file-uploads-api-smoke](examples/09-file-uploads-api-smoke/) for the full flow, including attaching the upload to a page as an image block.
 
 ### Handling errors
 
