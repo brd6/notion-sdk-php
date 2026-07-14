@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Brd6\NotionSdkPhp\Endpoint;
 
 use Brd6\NotionSdkPhp\Client;
+use Brd6\NotionSdkPhp\ClientOptions;
 use stdClass;
 
+use function array_key_exists;
 use function array_keys;
 use function count;
 use function is_array;
+use function version_compare;
 
 abstract class AbstractEndpoint
 {
@@ -23,6 +26,31 @@ abstract class AbstractEndpoint
     protected function getClient(): Client
     {
         return $this->client;
+    }
+
+    protected function supportsVersion(string $minimumVersion): bool
+    {
+        return version_compare($this->getClient()->getOptions()->getNotionVersion(), $minimumVersion, '>=');
+    }
+
+    /**
+     * Renames the `archived` key to `in_trash` for clients on Notion-Version 2026-03-11 or newer;
+     * payloads for older versions are returned unchanged.
+     *
+     * @psalm-suppress MixedAssignment
+     */
+    protected function normalizeTrashKey(array $data): array
+    {
+        if (!$this->supportsVersion(ClientOptions::NOTION_VERSION_2026_03_11)) {
+            return $data;
+        }
+
+        if (array_key_exists('archived', $data)) {
+            $data['in_trash'] = $data['archived'];
+            unset($data['archived']);
+        }
+
+        return $data;
     }
 
     /**

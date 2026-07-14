@@ -25,6 +25,38 @@ class DataSourceTest extends TestCase
         DataSource::fromRawData([]);
     }
 
+    public function testDataSourceHydratesInTrashPayloadWithoutArchivedKey(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+            true,
+        );
+        unset($rawData['archived']);
+        $rawData['in_trash'] = true;
+
+        /** @var DataSource $dataSource */
+        $dataSource = DataSource::fromRawData($rawData);
+
+        $this->assertTrue($dataSource->isArchived());
+        $this->assertTrue($dataSource->isInTrash());
+    }
+
+    public function testDataSourceHydratesArchivedPayload(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+            true,
+        );
+        $rawData['archived'] = true;
+        unset($rawData['in_trash']);
+
+        /** @var DataSource $dataSource */
+        $dataSource = DataSource::fromRawData($rawData);
+
+        $this->assertTrue($dataSource->isArchived());
+        $this->assertTrue($dataSource->isInTrash());
+    }
+
     public function testDataSource(): void
     {
         /** @var DataSource $dataSource */

@@ -68,7 +68,7 @@ class PagesEndpoint extends AbstractEndpoint
     {
         $childrenData = array_map(fn (AbstractBlock $block) => $block->toArrayForCreate(), $children);
 
-        $data = array_merge($page->toArrayForCreate(), ['children' => $childrenData]);
+        $data = array_merge($this->normalizeTrashKey($page->toArrayForCreate()), ['children' => $childrenData]);
 
         $requestParameters = (new RequestParameters())
             ->setPath('pages')
@@ -98,7 +98,7 @@ class PagesEndpoint extends AbstractEndpoint
         $requestParameters = (new RequestParameters())
             ->setPath("pages/{$page->getId()}")
             ->setMethod('PATCH')
-            ->setBody($page->toArrayForUpdate());
+            ->setBody($this->normalizeTrashKey($page->toArrayForUpdate()));
 
         $rawData = $this->getClient()->request($requestParameters);
 

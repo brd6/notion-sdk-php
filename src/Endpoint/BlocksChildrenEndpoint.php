@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Endpoint;
 
+use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Exception\ApiResponseException;
 use Brd6\NotionSdkPhp\Exception\HttpResponseException;
 use Brd6\NotionSdkPhp\Exception\InvalidPaginationResponseException;
@@ -47,6 +48,7 @@ class BlocksChildrenEndpoint extends AbstractEndpoint
     /**
      * @param string $blockId
      * @param array|AbstractBlock[] $children
+     * @param string|null $afterBlockId inserts the children after this existing block instead of at the end
      *
      * @throws ApiResponseException
      * @throws Exception
@@ -55,15 +57,31 @@ class BlocksChildrenEndpoint extends AbstractEndpoint
      * @throws RequestTimeoutException
      * @throws UnsupportedPaginationResponseTypeException
      */
-    public function append(string $blockId, array $children): AbstractPaginationResults
-    {
+    public function append(
+        string $blockId,
+        array $children,
+        ?string $afterBlockId = null
+    ): AbstractPaginationResults {
         $childrenData = array_map(fn (AbstractBlock $block) => $block->toArrayForCreate(), $children);
+
+        $body = [
+            'children' => $childrenData,
+        ];
+
+        if ($afterBlockId !== null) {
+            if ($this->supportsVersion(ClientOptions::NOTION_VERSION_2026_03_11)) {
+                $body['position'] = [
+                    'type' => 'after_block',
+                    'after_block' => ['id' => $afterBlockId],
+                ];
+            } else {
+                $body['after'] = $afterBlockId;
+            }
+        }
 
         $requestParameters = (new RequestParameters())
             ->setPath("blocks/$blockId/children")
-            ->setBody([
-                'children' => $childrenData,
-            ])
+            ->setBody($body)
             ->setMethod('PATCH');
 
         $rawData = $this->getClient()->request($requestParameters);

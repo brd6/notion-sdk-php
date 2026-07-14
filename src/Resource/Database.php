@@ -84,7 +84,7 @@ class Database extends AbstractResource
             new DateTimeImmutable((string) $this->getRawData()['last_edited_time']) :
             null;
         $this->lastEditedBy = AbstractUser::fromRawData((array) ($this->getRawData()['last_edited_by'] ?? []));
-        $this->archived = (bool) ($this->getRawData()['archived'] ?? false);
+        $this->archived = (bool) ($this->getRawData()['archived'] ?? $this->getRawData()['in_trash'] ?? false);
         $this->icon = isset($this->getRawData()['icon']) ?
             AbstractFile::fromRawData((array) $this->getRawData()['icon']) :
             null;
@@ -167,6 +167,16 @@ class Database extends AbstractResource
         $this->archived = $archived;
 
         return $this;
+    }
+
+    public function isInTrash(): bool
+    {
+        return $this->isArchived();
+    }
+
+    public function setInTrash(bool $inTrash): self
+    {
+        return $this->setArchived($inTrash);
     }
 
     public static function getResourceType(): string

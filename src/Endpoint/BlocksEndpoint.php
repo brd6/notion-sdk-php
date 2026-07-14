@@ -65,10 +65,10 @@ class BlocksEndpoint extends AbstractEndpoint
 
         $requestParameters = (new RequestParameters())
             ->setPath("blocks/{$block->getId()}")
-            ->setBody([
+            ->setBody($this->normalizeTrashKey([
                 $block->getType() => $data,
                 'archived' => $block->isArchived(),
-            ])
+            ]))
             ->setMethod('PATCH');
 
         $rawData = $this->getClient()->request($requestParameters);

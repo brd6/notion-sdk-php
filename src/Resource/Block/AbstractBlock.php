@@ -85,8 +85,8 @@ abstract class AbstractBlock extends AbstractResource
         $this->createdBy = AbstractUser::fromRawData((array) $this->getRawData()['created_by']);
         $this->lastEditedTime = new DateTimeImmutable((string) $this->getRawData()['last_edited_time']);
         $this->lastEditedBy = AbstractUser::fromRawData((array) $this->getRawData()['last_edited_by']);
-        $this->archived = (bool) $this->getRawData()['archived'];
-        $this->hasChildren = (bool) $this->getRawData()['has_children'];
+        $this->archived = (bool) ($this->getRawData()['archived'] ?? $this->getRawData()['in_trash'] ?? false);
+        $this->hasChildren = (bool) ($this->getRawData()['has_children'] ?? false);
 
         $this->initializeChildren();
         $this->initializeBlockProperty();
@@ -206,6 +206,16 @@ abstract class AbstractBlock extends AbstractResource
         $this->archived = $archived;
 
         return $this;
+    }
+
+    public function isInTrash(): bool
+    {
+        return $this->isArchived();
+    }
+
+    public function setInTrash(bool $inTrash): self
+    {
+        return $this->setArchived($inTrash);
     }
 
     public function isHasChildren(): bool

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Endpoint;
 
+use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Exception\ApiResponseException;
 use Brd6\NotionSdkPhp\Exception\HttpResponseException;
 use Brd6\NotionSdkPhp\Exception\InvalidPaginationResponseException;
@@ -19,7 +20,6 @@ use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Http\Client\Exception;
 
 use function array_merge;
-use function version_compare;
 
 class DatabasesEndpoint extends AbstractEndpoint
 {
@@ -69,7 +69,7 @@ class DatabasesEndpoint extends AbstractEndpoint
     {
         $data = $database->toArray();
 
-        if (version_compare($this->getClient()->getOptions()->getNotionVersion(), '2025-09-03', '>=')) {
+        if ($this->supportsVersion(ClientOptions::NOTION_VERSION_2025_09_03)) {
             $data['initial_data_source'] = [
                 'properties' => (array) ($data['properties'] ?? []),
             ];
@@ -105,7 +105,7 @@ class DatabasesEndpoint extends AbstractEndpoint
         $requestParameters = (new RequestParameters())
             ->setPath("databases/{$database->getId()}")
             ->setMethod('PATCH')
-            ->setBody($database->toArrayForUpdate());
+            ->setBody($this->normalizeTrashKey($database->toArrayForUpdate()));
 
         $rawData = $this->getClient()->request($requestParameters);
 

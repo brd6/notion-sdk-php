@@ -126,6 +126,38 @@ class PageTest extends TestCase
         $this->assertSame($blockId, $parent->getBlockId());
     }
 
+    public function testPageHydratesInTrashPayloadWithoutArchivedKey(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+            true,
+        );
+        unset($rawData['archived']);
+        $rawData['in_trash'] = true;
+
+        /** @var Page $page */
+        $page = Page::fromRawData($rawData);
+
+        $this->assertTrue($page->isArchived());
+        $this->assertTrue($page->isInTrash());
+    }
+
+    public function testPageHydratesArchivedPayload(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+            true,
+        );
+        $rawData['archived'] = true;
+        unset($rawData['in_trash']);
+
+        /** @var Page $page */
+        $page = Page::fromRawData($rawData);
+
+        $this->assertTrue($page->isArchived());
+        $this->assertTrue($page->isInTrash());
+    }
+
     public function testPageIsArchivedReturnsFalseWhenUnset(): void
     {
         $page = new Page();

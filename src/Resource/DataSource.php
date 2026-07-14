@@ -83,8 +83,8 @@ class DataSource extends AbstractResource
             new DateTimeImmutable((string) $this->getRawData()['last_edited_time']) :
             null;
         $this->lastEditedBy = AbstractUser::fromRawData((array) ($this->getRawData()['last_edited_by'] ?? []));
-        $this->archived = (bool) ($this->getRawData()['archived'] ?? false);
-        $this->inTrash = (bool) ($this->getRawData()['in_trash'] ?? false);
+        $this->archived = (bool) ($this->getRawData()['archived'] ?? $this->getRawData()['in_trash'] ?? false);
+        $this->inTrash = (bool) ($this->getRawData()['in_trash'] ?? $this->getRawData()['archived'] ?? false);
         $this->icon = isset($this->getRawData()['icon']) ?
             AbstractFile::fromRawData((array) $this->getRawData()['icon']) :
             null;

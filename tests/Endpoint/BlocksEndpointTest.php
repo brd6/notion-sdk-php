@@ -23,6 +23,7 @@ use Brd6\Test\NotionSdkPhp\Mock\HttpClient\MockHttpClient;
 use Brd6\Test\NotionSdkPhp\Mock\HttpClient\MockResponseFactory;
 use Brd6\Test\NotionSdkPhp\TestCase;
 
+use function array_keys;
 use function count;
 use function file_get_contents;
 use function json_decode;
@@ -423,5 +424,94 @@ class BlocksEndpointTest extends TestCase
         $this->assertInstanceOf(Text::class, $cells2[0][0]);
         $this->assertEquals('Content', $cells2[0][0]->getText()->getContent());
         $this->assertEmpty($cells2[2]);
+    }
+
+    public function testUpdateBlockSendsInTrashOn20260311(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertArrayHasKey('in_trash', $body);
+            $this->assertArrayNotHasKey('archived', $body);
+            $this->assertArrayHasKey('paragraph', $body);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setNotionVersion(ClientOptions::NOTION_VERSION_2026_03_11)
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $paragraphProperty = new ParagraphProperty();
+        $paragraphProperty->setRichText([Text::fromContent('Hello world!')]);
+
+        $block = new ParagraphBlock();
+        $block->setId('0c940186-ab70-4351-bb34-2d16f0635d49');
+        $block->setParagraph($paragraphProperty);
+
+        $client->blocks()->update($block);
+    }
+
+    public function testAppendBlockChildrenAfterBlockId(): void
+    {
+        $buildHttpClient = fn (callable $assertBody) => new MockHttpClient(
+            function (string $method, string $url, array $options) use ($assertBody) {
+                /** @var array $body */
+                $body = json_decode($options['body'], true);
+                $assertBody($body);
+
+                return new MockResponseFactory(
+                    (string) file_get_contents(
+                        'tests/Fixtures/client_blocks_retrieve_block_children_page_size_4_200.json',
+                    ),
+                    ['http_code' => 200],
+                );
+            },
+        );
+
+        $buildBlock = static function (): Heading3Block {
+            $heading3 = new Heading3Block();
+            $heading3Property = new HeadingProperty();
+            $heading3Property->setRichText([Text::fromContent('New title here')]);
+            $heading3->setHeading3($heading3Property);
+
+            return $heading3;
+        };
+
+        $legacyClient = new Client((new ClientOptions())->setHttpClient($buildHttpClient(
+            function (array $body): void {
+                $this->assertEquals('after-block-id', $body['after']);
+                $this->assertArrayNotHasKey('position', $body);
+            },
+        )));
+        $legacyClient->blocks()->children()->append('parent-block-id', [$buildBlock()], 'after-block-id');
+
+        $currentClient = new Client(
+            (new ClientOptions())
+                ->setNotionVersion(ClientOptions::NOTION_VERSION_2026_03_11)
+                ->setHttpClient($buildHttpClient(
+                    function (array $body): void {
+                        $this->assertEquals(
+                            ['type' => 'after_block', 'after_block' => ['id' => 'after-block-id']],
+                            $body['position'],
+                        );
+                        $this->assertArrayNotHasKey('after', $body);
+                    },
+                )),
+        );
+        $currentClient->blocks()->children()->append('parent-block-id', [$buildBlock()], 'after-block-id');
+
+        $defaultClient = new Client((new ClientOptions())->setHttpClient($buildHttpClient(
+            function (array $body): void {
+                $this->assertEquals(['children'], array_keys($body));
+            },
+        )));
+        $defaultClient->blocks()->children()->append('parent-block-id', [$buildBlock()]);
     }
 }
