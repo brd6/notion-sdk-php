@@ -102,10 +102,26 @@ class DatabasesEndpoint extends AbstractEndpoint
      */
     public function update(Database $database): Database
     {
+        $data = $database->toArrayForUpdate();
+
+        if ($this->supportsVersion(ClientOptions::NOTION_VERSION_2025_09_03)) {
+            // Schema changes moved to Update Data Source on 2025-09-03: use dataSources()->update().
+            unset($data['properties']);
+
+            // 2025-09-03 rejects explicit nulls for icon and cover; older versions accept them.
+            if (($data['icon'] ?? null) === null) {
+                unset($data['icon']);
+            }
+
+            if (($data['cover'] ?? null) === null) {
+                unset($data['cover']);
+            }
+        }
+
         $requestParameters = (new RequestParameters())
             ->setPath("databases/{$database->getId()}")
             ->setMethod('PATCH')
-            ->setBody($this->normalizeTrashKey($database->toArrayForUpdate()));
+            ->setBody($this->normalizeTrashKey($data));
 
         $rawData = $this->getClient()->request($requestParameters);
 

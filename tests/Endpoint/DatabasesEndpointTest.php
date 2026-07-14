@@ -416,4 +416,42 @@ class DatabasesEndpointTest extends TestCase
         $this->assertNotEmpty($database->getId());
         $this->assertNotEmpty($database->getProperties());
     }
+
+    public function testUpdateDatabaseWith2025VersionDropsProperties(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertArrayHasKey('title', $body);
+            $this->assertArrayNotHasKey('properties', $body);
+            $this->assertArrayNotHasKey('icon', $body);
+            $this->assertArrayNotHasKey('cover', $body);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_databases_update_database_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setNotionVersion(ClientOptions::NOTION_VERSION_2025_09_03)
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $database = new Database();
+        $database->setId('c5a8c1b2-8a71-4e92-a8c9-26d6b00738fe');
+        $database->setTitle([Text::fromContent('Database new title!')]);
+
+        $inStockSelectObject = new SelectPropertyObject();
+        $inStockSelectObject->setSelect(
+            (new SelectPropertyConfiguration())->setOptions([
+                (new SelectProperty())->setName('Yes')->setColor('green'),
+            ]),
+        );
+        $database->setProperties(['in stock' => $inStockSelectObject]);
+
+        $client->databases()->update($database);
+    }
 }
