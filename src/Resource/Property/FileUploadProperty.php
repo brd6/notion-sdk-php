@@ -12,7 +12,7 @@ class FileUploadProperty extends AbstractProperty
     {
         $property = new self();
 
-        $property->id = (string) $rawData['id'];
+        $property->id = (string) ($rawData['id'] ?? '');
 
         return $property;
     }
