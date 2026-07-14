@@ -18,12 +18,14 @@ use Http\Client\Exception;
 class BlocksEndpoint extends AbstractEndpoint
 {
     private BlocksChildrenEndpoint $childrenEndpoint;
+    private BlocksMeetingNotesEndpoint $meetingNotesEndpoint;
 
     public function __construct(Client $client)
     {
         parent::__construct($client);
 
         $this->childrenEndpoint = new BlocksChildrenEndpoint($client);
+        $this->meetingNotesEndpoint = new BlocksMeetingNotesEndpoint($client);
     }
 
     /**
@@ -79,6 +81,11 @@ class BlocksEndpoint extends AbstractEndpoint
     public function children(): BlocksChildrenEndpoint
     {
         return $this->childrenEndpoint;
+    }
+
+    public function meetingNotes(): BlocksMeetingNotesEndpoint
+    {
+        return $this->meetingNotesEndpoint;
     }
 
     /**

@@ -10,12 +10,16 @@ use Brd6\NotionSdkPhp\Endpoint\BlocksEndpoint;
 use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ChildPageBlock;
 use Brd6\NotionSdkPhp\Resource\Block\Heading3Block;
+use Brd6\NotionSdkPhp\Resource\Block\MeetingNotesBlock;
+use Brd6\NotionSdkPhp\Resource\Block\MeetingNotesQueryRequest;
+use Brd6\NotionSdkPhp\Resource\Block\MeetingNotesQueryResults;
 use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
 use Brd6\NotionSdkPhp\Resource\Block\TableRowBlock;
 use Brd6\NotionSdkPhp\Resource\Pagination\BlockResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
 use Brd6\NotionSdkPhp\Resource\Property\HeadingProperty;
+use Brd6\NotionSdkPhp\Resource\Property\MeetingNotesProperty;
 use Brd6\NotionSdkPhp\Resource\Property\ParagraphProperty;
 use Brd6\NotionSdkPhp\Resource\RichText\Text;
 use Brd6\NotionSdkPhp\Resource\UserInterface;
@@ -513,5 +517,70 @@ class BlocksEndpointTest extends TestCase
             },
         )));
         $defaultClient->blocks()->children()->append('parent-block-id', [$buildBlock()]);
+    }
+
+    public function testQueryMeetingNotes(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            $this->assertEquals('POST', $method);
+            $this->assertStringContainsString('blocks/meeting_notes/query', $url);
+
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertEquals('title', $body['filter']['property']);
+            $this->assertEquals(
+                [['property' => 'last_edited_time', 'direction' => 'descending']],
+                $body['sort'],
+            );
+            $this->assertEquals(10, $body['limit']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_blocks_meeting_notes_query_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $queryRequest = (new MeetingNotesQueryRequest())
+            ->setFilter([
+                'property' => 'title',
+                'filter' => [
+                    'operator' => 'string_contains',
+                    'value' => ['type' => 'exact', 'value' => 'Sync'],
+                ],
+            ])
+            ->setSort([['property' => 'last_edited_time', 'direction' => 'descending']])
+            ->setLimit(10);
+
+        $results = $client->blocks()->meetingNotes()->query($queryRequest);
+
+        $this->assertInstanceOf(MeetingNotesQueryResults::class, $results);
+        $this->assertFalse($results->isHasMore());
+        $this->assertCount(1, $results->getResults());
+
+        $block = $results->getResults()[0];
+        $this->assertInstanceOf(MeetingNotesBlock::class, $block);
+        $this->assertEquals('Q3 Sync', $block->getMeetingNotes()->getTitle()[0]->getPlainText());
+        $this->assertEquals(MeetingNotesProperty::STATUS_NOTES_READY, $block->getMeetingNotes()->getStatus());
+    }
+
+    public function testQueryMeetingNotesWithoutRequest(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            $this->assertEquals('', $options['body']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_blocks_meeting_notes_query_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $results = $client->blocks()->meetingNotes()->query();
+
+        $this->assertCount(1, $results->getResults());
     }
 }
