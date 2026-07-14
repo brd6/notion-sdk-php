@@ -75,6 +75,34 @@ class BlockTest extends TestCase
         $this->assertEquals('unsupported_block', $block->getType());
     }
 
+    public function testUnsupportedBlockExposesBlockType(): void
+    {
+        /** @var UnsupportedBlock $block */
+        $block = AbstractBlock::fromRawData([
+            'object' => 'block',
+            'id' => 'c02fc1d3-db8b-45c5-a222-27595b15aea7',
+            'type' => 'unsupported',
+            'unsupported' => [
+                'block_type' => 'form',
+            ],
+        ]);
+
+        $this->assertInstanceOf(UnsupportedBlock::class, $block);
+        $this->assertEquals('unsupported', $block->getType());
+        $this->assertEquals('form', $block->getBlockType());
+    }
+
+    public function testUnknownBlockTypeHasNoBlockType(): void
+    {
+        /** @var UnsupportedBlock $block */
+        $block = AbstractBlock::fromRawData([
+            'object' => 'block',
+            'type' => 'unsupported_block',
+        ]);
+
+        $this->assertNull($block->getBlockType());
+    }
+
     public function testBlock(): void
     {
         $block = AbstractBlock::fromRawData(
