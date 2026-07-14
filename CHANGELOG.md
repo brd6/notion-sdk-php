@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
+- Expose `request_status` on paginated results, so consumers can detect incomplete result sets (for example when a query hits the API's pagination depth limit) via `getRequestStatus()`.
 - Add `isLocked()`/`setLocked()` on `Page` and `Database`: pages and databases can be locked or unlocked through `update()`, and hydration reflects the `is_locked` state. Updates that never call `setLocked()` send byte-identical payloads to before.
 - Add `$notion->customEmojis()->list()` (Notion API `2026-03-11`) to list the workspace's custom emojis, with pagination and an exact-name filter for id resolution.
 - Add `blocks()->meetingNotes()->query()` (Notion API `2026-03-11`) to search AI meeting notes across the workspace by title, attendees, dates, and editors, with sorting and a result limit — the endpoint has no cursor pagination.
