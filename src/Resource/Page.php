@@ -15,6 +15,7 @@ use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\AbstractParentProperty;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\AbstractPropertyValue;
 use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
+use Brd6\NotionSdkPhp\Util\StringHelper;
 use DateTimeImmutable;
 
 use function array_diff_key;
@@ -90,13 +91,16 @@ class Page extends AbstractResource
         }
 
         foreach ($this->properties as $name => $propertyValue) {
+            // toArray() snake_cases array keys, including the property names.
+            $serializedName = StringHelper::camelCaseToSnakeCase($name);
+
             if (in_array($propertyValue->getType(), self::READ_ONLY_PROPERTY_VALUE_TYPES, true)) {
-                unset($data['properties'][$name]);
+                unset($data['properties'][$serializedName]);
 
                 continue;
             }
 
-            $serialized = $data['properties'][$name] ?? null;
+            $serialized = $data['properties'][$serializedName] ?? null;
 
             if (!is_array($serialized)) {
                 continue;
@@ -112,7 +116,7 @@ class Page extends AbstractResource
             }
 
             if (!$hasValue) {
-                unset($data['properties'][$name]);
+                unset($data['properties'][$serializedName]);
             }
         }
 
