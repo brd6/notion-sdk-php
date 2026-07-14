@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Added
+
+- Expose `block_type` on `UnsupportedBlock`, identifying the underlying block type (for example `form` or `button`) the API cannot represent.
+
 ### Fixed
 
 - Add support for `agent_id` page parents so pages parented to a Notion agent hydrate instead of throwing `UnsupportedParentTypeException`.
