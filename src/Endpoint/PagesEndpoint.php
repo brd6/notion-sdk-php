@@ -66,7 +66,7 @@ class PagesEndpoint extends AbstractEndpoint
      */
     public function create(Page $page, array $children = []): Page
     {
-        $childrenData = array_map(fn (AbstractBlock $block) => $block->toArray(), $children);
+        $childrenData = array_map(fn (AbstractBlock $block) => $block->toArrayForCreate(), $children);
 
         $data = array_merge($page->toArrayForCreate(), ['children' => $childrenData]);
 

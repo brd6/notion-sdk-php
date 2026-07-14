@@ -135,6 +135,8 @@ class PagesEndpointTest extends TestCase
 
             $this->assertArrayHasKey('icon', $body);
             $this->assertArrayHasKey('children', $body);
+            $this->assertArrayNotHasKey('archived', $body['children'][0]);
+            $this->assertArrayNotHasKey('has_children', $body['children'][0]);
             $this->assertArrayHasKey('properties', $body);
             $this->assertNotEmpty($body['properties']['title']);
             $this->assertStringContainsString(

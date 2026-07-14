@@ -17,6 +17,7 @@ use ReflectionClass;
 
 use function array_map;
 use function class_exists;
+use function count;
 use function preg_replace;
 
 abstract class AbstractBlock extends AbstractResource
@@ -241,6 +242,22 @@ abstract class AbstractBlock extends AbstractResource
     public function propertyToArray(): array
     {
         return $this->getProperty() !== null ? $this->getProperty()->toArray() : [];
+    }
+
+    public function toArrayForCreate(): array
+    {
+        $data = $this->toArrayStrict(['object', 'type', $this->getType()]);
+
+        if (count($this->children) > 0) {
+            $property = (array) ($data[$this->getType()] ?? []);
+            $property['children'] = array_map(
+                fn (AbstractBlock $child) => $child->toArrayForCreate(),
+                $this->children,
+            );
+            $data[$this->getType()] = $property;
+        }
+
+        return $data;
     }
 
     /**
