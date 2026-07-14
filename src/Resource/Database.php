@@ -19,12 +19,13 @@ use Brd6\NotionSdkPhp\Resource\RichText\AbstractRichText;
 use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
 use DateTimeImmutable;
 
+use function array_key_exists;
 use function array_map;
 
 class Database extends AbstractResource
 {
     public const RESOURCE_TYPE = 'database';
-    private const UPDATE_ACCEPTED_KEYS = ['title', 'properties', 'icon', 'cover'];
+    private const UPDATE_ACCEPTED_KEYS = ['title', 'properties', 'icon', 'cover', 'is_locked'];
 
     protected ?DateTimeImmutable $createdTime = null;
     protected ?UserInterface $createdBy = null;
@@ -52,6 +53,7 @@ class Database extends AbstractResource
     protected ?AbstractParentProperty $parent = null;
     protected string $url = '';
     protected bool $archived = false;
+    protected ?bool $isLocked = null;
 
     public function __construct()
     {
@@ -62,7 +64,13 @@ class Database extends AbstractResource
 
     public function toArrayForUpdate(): array
     {
-        return $this->toArray(true, self::UPDATE_ACCEPTED_KEYS);
+        $data = $this->toArray(true, self::UPDATE_ACCEPTED_KEYS);
+
+        if ($this->isLocked === null) {
+            unset($data['is_locked']);
+        }
+
+        return $data;
     }
 
     /**
@@ -85,6 +93,9 @@ class Database extends AbstractResource
             null;
         $this->lastEditedBy = AbstractUser::fromRawData((array) ($this->getRawData()['last_edited_by'] ?? []));
         $this->archived = (bool) ($this->getRawData()['archived'] ?? $this->getRawData()['in_trash'] ?? false);
+        $this->isLocked = array_key_exists('is_locked', $this->getRawData())
+            ? (bool) $this->getRawData()['is_locked']
+            : null;
         $this->icon = isset($this->getRawData()['icon']) ?
             AbstractFile::fromRawData((array) $this->getRawData()['icon']) :
             null;
@@ -172,6 +183,18 @@ class Database extends AbstractResource
     public function isInTrash(): bool
     {
         return $this->isArchived();
+    }
+
+    public function isLocked(): bool
+    {
+        return $this->isLocked ?? false;
+    }
+
+    public function setLocked(bool $isLocked): self
+    {
+        $this->isLocked = $isLocked;
+
+        return $this;
     }
 
     public function setInTrash(bool $inTrash): self

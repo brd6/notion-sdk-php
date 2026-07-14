@@ -23,13 +23,14 @@ class Page extends AbstractResource
 {
     public const RESOURCE_TYPE = 'page';
     private const CREATE_ACCEPTED_KEYS = ['object', 'properties', 'parent', 'icon', 'cover'];
-    private const UPDATE_ACCEPTED_KEYS = ['properties', 'archived', 'icon', 'cover'];
+    private const UPDATE_ACCEPTED_KEYS = ['properties', 'archived', 'icon', 'cover', 'is_locked'];
 
     protected ?DateTimeImmutable $createdTime = null;
     protected ?UserInterface $createdBy = null;
     protected ?DateTimeImmutable $lastEditedTime = null;
     protected ?UserInterface $lastEditedBy = null;
     protected ?bool $archived = null;
+    protected ?bool $isLocked = null;
     protected ?AbstractFile $icon = null;
     protected ?AbstractFile $cover = null;
 
@@ -67,6 +68,10 @@ class Page extends AbstractResource
             unset($data['archived']);
         }
 
+        if ($this->isLocked === null) {
+            unset($data['is_locked']);
+        }
+
         return $data;
     }
 
@@ -90,6 +95,9 @@ class Page extends AbstractResource
             : (array_key_exists('in_trash', $this->getRawData())
                 ? (bool) $this->getRawData()['in_trash']
                 : null);
+        $this->isLocked = array_key_exists('is_locked', $this->getRawData())
+            ? (bool) $this->getRawData()['is_locked']
+            : null;
         $this->icon = isset($this->getRawData()['icon']) ?
             AbstractFile::fromRawData((array) $this->getRawData()['icon']) :
             null;
@@ -169,6 +177,18 @@ class Page extends AbstractResource
     public function isInTrash(): bool
     {
         return $this->isArchived();
+    }
+
+    public function isLocked(): bool
+    {
+        return $this->isLocked ?? false;
+    }
+
+    public function setLocked(bool $isLocked): self
+    {
+        $this->isLocked = $isLocked;
+
+        return $this;
     }
 
     public function setInTrash(bool $inTrash): self
