@@ -19,6 +19,7 @@ use Brd6\NotionSdkPhp\Resource\File\File;
 use Brd6\NotionSdkPhp\Resource\Page;
 use Brd6\NotionSdkPhp\Resource\Page\MarkdownContentUpdate;
 use Brd6\NotionSdkPhp\Resource\Page\PageMarkdownRequest;
+use Brd6\NotionSdkPhp\Resource\Page\PagePosition;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\DataSourceIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\PageIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyItem\AbstractPropertyItem;
@@ -823,6 +824,75 @@ class PagesEndpointTest extends TestCase
             'b55c9c91-384d-452b-81db-d1ef79372b75',
             (new DataSourceIdParent())->setDataSourceId('1a44be12-0953-4631-b498-9e5817518db8'),
         );
+    }
+
+    public function testCreatePageWithPosition(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertEquals(
+                ['type' => 'after_block', 'after_block' => ['id' => '7d50a184-5bbe-4d90-8f29-6bec57ed817b']],
+                $body['position'],
+            );
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $page = new Page();
+        $page->setParent((new PageIdParent())->setPageId('4a808e6e-8845-4d49-a447-fb2a4c460f6f'));
+        $page->setProperties(['title' => (new TitlePropertyValue())->setTitle([Text::fromContent('Positioned')])]);
+
+        $client->pages()->create($page, [], PagePosition::afterBlock('7d50a184-5bbe-4d90-8f29-6bec57ed817b'));
+    }
+
+    public function testCreatePageFromMarkdownWithPosition(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertEquals(['type' => 'page_start'], $body['position']);
+            $this->assertEquals('# Title', $body['markdown']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $client->pages()->createFromMarkdown($this->buildMarkdownPage(), '# Title', PagePosition::pageStart());
+    }
+
+    public function testCreatePageWithoutPositionOmitsKey(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertArrayNotHasKey('position', $body);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $page = new Page();
+        $page->setParent((new PageIdParent())->setPageId('4a808e6e-8845-4d49-a447-fb2a4c460f6f'));
+        $page->setProperties(['title' => (new TitlePropertyValue())->setTitle([Text::fromContent('Plain')])]);
+
+        $client->pages()->create($page);
     }
 
     private function buildMarkdownPage(): Page
