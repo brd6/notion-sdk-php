@@ -20,6 +20,7 @@ use Brd6\NotionSdkPhp\Resource\Page;
 use Brd6\NotionSdkPhp\Resource\Page\MarkdownContentUpdate;
 use Brd6\NotionSdkPhp\Resource\Page\PageMarkdownRequest;
 use Brd6\NotionSdkPhp\Resource\Page\PagePosition;
+use Brd6\NotionSdkPhp\Resource\Page\PageTemplate;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\DataSourceIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\PageIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyItem\AbstractPropertyItem;
@@ -893,6 +894,87 @@ class PagesEndpointTest extends TestCase
         $page->setProperties(['title' => (new TitlePropertyValue())->setTitle([Text::fromContent('Plain')])]);
 
         $client->pages()->create($page);
+    }
+
+    public function testCreatePageWithTemplate(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertEquals(
+                [
+                    'type' => 'template_id',
+                    'template_id' => '195de922-1179-449f-ab80-75a27c979105',
+                    'timezone' => 'Europe/Paris',
+                ],
+                $body['template'],
+            );
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $page = new Page();
+        $page->setParent((new PageIdParent())->setPageId('4a808e6e-8845-4d49-a447-fb2a4c460f6f'));
+
+        $client->pages()->create(
+            $page,
+            [],
+            null,
+            PageTemplate::templateId('195de922-1179-449f-ab80-75a27c979105', 'Europe/Paris'),
+        );
+    }
+
+    public function testUpdatePageWithTemplateAndEraseContent(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertEquals(['type' => 'default'], $body['template']);
+            $this->assertTrue($body['erase_content']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $page = new Page();
+        $page->setId('1e7e638f78864ec591ea54ec7016e146');
+
+        $client->pages()->update($page, PageTemplate::defaultTemplate(), true);
+    }
+
+    public function testUpdatePageWithoutTemplateOmitsKeys(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertArrayNotHasKey('template', $body);
+            $this->assertArrayNotHasKey('erase_content', $body);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $page = new Page();
+        $page->setId('1e7e638f78864ec591ea54ec7016e146');
+        $page->setArchived(true);
+
+        $client->pages()->update($page);
     }
 
     private function buildMarkdownPage(): Page
