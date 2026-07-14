@@ -554,7 +554,7 @@ class BlocksEndpointTest extends TestCase
             ->setSort([['property' => 'last_edited_time', 'direction' => 'descending']])
             ->setLimit(10);
 
-        $results = $client->blocks()->queryMeetingNotes($queryRequest);
+        $results = $client->blocks()->meetingNotes()->query($queryRequest);
 
         $this->assertInstanceOf(MeetingNotesQueryResults::class, $results);
         $this->assertFalse($results->isHasMore());
@@ -579,7 +579,7 @@ class BlocksEndpointTest extends TestCase
 
         $client = new Client((new ClientOptions())->setHttpClient($httpClient));
 
-        $results = $client->blocks()->queryMeetingNotes();
+        $results = $client->blocks()->meetingNotes()->query();
 
         $this->assertCount(1, $results->getResults());
     }

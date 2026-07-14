@@ -13,19 +13,19 @@ use Brd6\NotionSdkPhp\Exception\RequestTimeoutException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\RequestParameters;
 use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
-use Brd6\NotionSdkPhp\Resource\Block\MeetingNotesQueryRequest;
-use Brd6\NotionSdkPhp\Resource\Block\MeetingNotesQueryResults;
 use Http\Client\Exception;
 
 class BlocksEndpoint extends AbstractEndpoint
 {
     private BlocksChildrenEndpoint $childrenEndpoint;
+    private BlocksMeetingNotesEndpoint $meetingNotesEndpoint;
 
     public function __construct(Client $client)
     {
         parent::__construct($client);
 
         $this->childrenEndpoint = new BlocksChildrenEndpoint($client);
+        $this->meetingNotesEndpoint = new BlocksMeetingNotesEndpoint($client);
     }
 
     /**
@@ -78,32 +78,14 @@ class BlocksEndpoint extends AbstractEndpoint
         return AbstractBlock::fromRawData($rawData);
     }
 
-    /**
-     * Queries AI meeting notes across the workspace. Requires Notion-Version 2026-03-11.
-     *
-     * @throws ApiResponseException
-     * @throws Exception
-     * @throws HttpResponseException
-     * @throws InvalidResourceException
-     * @throws InvalidResourceTypeException
-     * @throws RequestTimeoutException
-     * @throws UnsupportedUserTypeException
-     */
-    public function queryMeetingNotes(?MeetingNotesQueryRequest $queryRequest = null): MeetingNotesQueryResults
-    {
-        $requestParameters = (new RequestParameters())
-            ->setPath('blocks/meeting_notes/query')
-            ->setMethod('POST')
-            ->setBody($queryRequest ? $queryRequest->toArray() : []);
-
-        $rawData = $this->getClient()->request($requestParameters);
-
-        return MeetingNotesQueryResults::fromRawData($rawData);
-    }
-
     public function children(): BlocksChildrenEndpoint
     {
         return $this->childrenEndpoint;
+    }
+
+    public function meetingNotes(): BlocksMeetingNotesEndpoint
+    {
+        return $this->meetingNotesEndpoint;
     }
 
     /**
