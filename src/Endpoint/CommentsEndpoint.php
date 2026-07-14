@@ -22,6 +22,7 @@ use Brd6\NotionSdkPhp\RequestParameters;
 use Brd6\NotionSdkPhp\Resource\Comment;
 use Brd6\NotionSdkPhp\Resource\Pagination\CommentResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
+use Brd6\NotionSdkPhp\Resource\RichText\AbstractRichText;
 use Http\Client\Exception;
 
 use function array_merge;
@@ -85,6 +86,145 @@ class CommentsEndpoint extends AbstractEndpoint
      */
     public function create(Comment $comment): Comment
     {
+        $data = $this->buildCreateData($comment);
+
+        $richTextData = [];
+        foreach ($comment->getRichText() as $richText) {
+            $richTextData[] = $richText->toArray();
+        }
+        $data['rich_text'] = $richTextData;
+
+        return $this->requestComment(
+            (new RequestParameters())
+                ->setPath('comments')
+                ->setMethod('POST')
+                ->setBody($data),
+        );
+    }
+
+    /**
+     * Creates a comment whose content is written as inline markdown.
+     * Requires Notion-Version 2026-03-11.
+     *
+     * @throws ApiResponseException
+     * @throws Exception
+     * @throws HttpResponseException
+     * @throws InvalidFileException
+     * @throws InvalidParentException
+     * @throws InvalidResourceException
+     * @throws InvalidResourceTypeException
+     * @throws InvalidRichTextException
+     * @throws RequestTimeoutException
+     * @throws UnsupportedFileTypeException
+     * @throws UnsupportedParentTypeException
+     * @throws UnsupportedRichTextTypeException
+     * @throws UnsupportedUserTypeException
+     */
+    public function createFromMarkdown(Comment $comment, string $markdown): Comment
+    {
+        $data = $this->buildCreateData($comment);
+        $data['markdown'] = $markdown;
+
+        return $this->requestComment(
+            (new RequestParameters())
+                ->setPath('comments')
+                ->setMethod('POST')
+                ->setBody($data),
+        );
+    }
+
+    /**
+     * A connection can only update comments it created. Requires Notion-Version 2026-03-11.
+     *
+     * @param AbstractRichText[] $richText
+     *
+     * @throws ApiResponseException
+     * @throws Exception
+     * @throws HttpResponseException
+     * @throws InvalidFileException
+     * @throws InvalidParentException
+     * @throws InvalidResourceException
+     * @throws InvalidResourceTypeException
+     * @throws InvalidRichTextException
+     * @throws RequestTimeoutException
+     * @throws UnsupportedFileTypeException
+     * @throws UnsupportedParentTypeException
+     * @throws UnsupportedRichTextTypeException
+     * @throws UnsupportedUserTypeException
+     */
+    public function update(string $commentId, array $richText): Comment
+    {
+        $richTextData = [];
+        foreach ($richText as $richTextItem) {
+            $richTextData[] = $richTextItem->toArray();
+        }
+
+        return $this->requestComment(
+            (new RequestParameters())
+                ->setPath("comments/$commentId")
+                ->setMethod('PATCH')
+                ->setBody(['rich_text' => $richTextData]),
+        );
+    }
+
+    /**
+     * A connection can only update comments it created. Requires Notion-Version 2026-03-11.
+     *
+     * @throws ApiResponseException
+     * @throws Exception
+     * @throws HttpResponseException
+     * @throws InvalidFileException
+     * @throws InvalidParentException
+     * @throws InvalidResourceException
+     * @throws InvalidResourceTypeException
+     * @throws InvalidRichTextException
+     * @throws RequestTimeoutException
+     * @throws UnsupportedFileTypeException
+     * @throws UnsupportedParentTypeException
+     * @throws UnsupportedRichTextTypeException
+     * @throws UnsupportedUserTypeException
+     */
+    public function updateFromMarkdown(string $commentId, string $markdown): Comment
+    {
+        return $this->requestComment(
+            (new RequestParameters())
+                ->setPath("comments/$commentId")
+                ->setMethod('PATCH')
+                ->setBody(['markdown' => $markdown]),
+        );
+    }
+
+    /**
+     * A connection can only delete comments it created. Requires Notion-Version 2026-03-11.
+     *
+     * @throws ApiResponseException
+     * @throws Exception
+     * @throws HttpResponseException
+     * @throws InvalidFileException
+     * @throws InvalidParentException
+     * @throws InvalidResourceException
+     * @throws InvalidResourceTypeException
+     * @throws InvalidRichTextException
+     * @throws RequestTimeoutException
+     * @throws UnsupportedFileTypeException
+     * @throws UnsupportedParentTypeException
+     * @throws UnsupportedRichTextTypeException
+     * @throws UnsupportedUserTypeException
+     */
+    public function delete(string $commentId): Comment
+    {
+        return $this->requestComment(
+            (new RequestParameters())
+                ->setPath("comments/$commentId")
+                ->setMethod('DELETE'),
+        );
+    }
+
+    /**
+     * @throws InvalidParentException
+     */
+    private function buildCreateData(Comment $comment): array
+    {
         $data = [];
         $parent = $comment->getParent();
 
@@ -96,12 +236,6 @@ class CommentsEndpoint extends AbstractEndpoint
             throw new InvalidParentException('Either parent.page_id or discussion_id must be provided');
         }
 
-        $richTextData = [];
-        foreach ($comment->getRichText() as $richText) {
-            $richTextData[] = $richText->toArray();
-        }
-        $data['rich_text'] = $richTextData;
-
         if (count($comment->getAttachments()) > 0) {
             $attachmentsData = [];
             foreach ($comment->getAttachments() as $attachment) {
@@ -110,16 +244,31 @@ class CommentsEndpoint extends AbstractEndpoint
             $data['attachments'] = $attachmentsData;
         }
 
-        $requestParameters = (new RequestParameters())
-            ->setPath('comments')
-            ->setMethod('POST')
-            ->setBody($data);
+        return $data;
+    }
 
+    /**
+     * @throws ApiResponseException
+     * @throws Exception
+     * @throws HttpResponseException
+     * @throws InvalidFileException
+     * @throws InvalidParentException
+     * @throws InvalidResourceException
+     * @throws InvalidResourceTypeException
+     * @throws InvalidRichTextException
+     * @throws RequestTimeoutException
+     * @throws UnsupportedFileTypeException
+     * @throws UnsupportedParentTypeException
+     * @throws UnsupportedRichTextTypeException
+     * @throws UnsupportedUserTypeException
+     */
+    private function requestComment(RequestParameters $requestParameters): Comment
+    {
         $rawData = $this->getClient()->request($requestParameters);
 
-        /** @var Comment $createdComment */
-        $createdComment = Comment::fromRawData($rawData);
+        /** @var Comment $comment */
+        $comment = Comment::fromRawData($rawData);
 
-        return $createdComment;
+        return $comment;
     }
 }

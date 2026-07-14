@@ -173,4 +173,108 @@ class CommentsEndpointTest extends TestCase
         $this->assertInstanceOf(Comment::class, $createdComment);
         $this->assertEquals('7a793800-3e55-4d5e-8009-2261de026179', $createdComment->getId());
     }
+
+    public function testCreateCommentFromMarkdown(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            $this->assertEquals('POST', $method);
+
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertEquals('This is a **bold** comment', $body['markdown']);
+            $this->assertArrayNotHasKey('rich_text', $body);
+            $this->assertEquals('59833787-2cf9-4fdf-8782-e53db20768a5', $body['parent']['page_id']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/comment_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $comment = new Comment();
+        $comment->setParent((new PageIdParent())->setPageId('59833787-2cf9-4fdf-8782-e53db20768a5'));
+
+        $createdComment = $client->comments()->createFromMarkdown($comment, 'This is a **bold** comment');
+
+        $this->assertInstanceOf(Comment::class, $createdComment);
+    }
+
+    public function testUpdateComment(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            $this->assertEquals('PATCH', $method);
+            $this->assertStringContainsString('comments/7a793800-3e55-4d5e-8009-2261de026179', $url);
+
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertEquals('Updated comment', $body['rich_text'][0]['text']['content']);
+            $this->assertArrayNotHasKey('markdown', $body);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/comment_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $updatedComment = $client->comments()->update(
+            '7a793800-3e55-4d5e-8009-2261de026179',
+            [Text::fromContent('Updated comment')],
+        );
+
+        $this->assertInstanceOf(Comment::class, $updatedComment);
+    }
+
+    public function testUpdateCommentFromMarkdown(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            $this->assertEquals('PATCH', $method);
+
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertEquals('*Updated* comment', $body['markdown']);
+            $this->assertArrayNotHasKey('rich_text', $body);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/comment_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $updatedComment = $client->comments()->updateFromMarkdown(
+            '7a793800-3e55-4d5e-8009-2261de026179',
+            '*Updated* comment',
+        );
+
+        $this->assertInstanceOf(Comment::class, $updatedComment);
+    }
+
+    public function testDeleteComment(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            $this->assertEquals('DELETE', $method);
+            $this->assertStringContainsString('comments/7a793800-3e55-4d5e-8009-2261de026179', $url);
+            $this->assertEquals('', $options['body']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/comment_deleted_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $deletedComment = $client->comments()->delete('7a793800-3e55-4d5e-8009-2261de026179');
+
+        $this->assertInstanceOf(Comment::class, $deletedComment);
+        $this->assertEquals('7a793800-3e55-4d5e-8009-2261de026179', $deletedComment->getId());
+    }
 }
