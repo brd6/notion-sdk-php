@@ -1,0 +1,21 @@
+{
+    "object": "file_upload",
+    "id": "a3f5c1d2-77b4-4e08-9c26-1b52f8d90a14",
+    "created_time": "2026-07-13T23:13:00.000Z",
+    "created_by": {
+        "id": "6794760a-1f15-45cd-9c65-0dfe42f5135a",
+        "type": "bot"
+    },
+    "last_edited_time": "2026-07-13T23:14:00.000Z",
+    "expiry_time": "2026-07-14T00:13:00.000Z",
+    "in_trash": false,
+    "status": "uploaded",
+    "filename": "sample-large.txt",
+    "content_type": "text/plain",
+    "content_length": 5242884,
+    "number_of_parts": {
+        "total": 2,
+        "sent": 2
+    },
+    "archived": false
+}
