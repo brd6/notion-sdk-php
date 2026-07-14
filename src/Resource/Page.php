@@ -79,9 +79,6 @@ class Page extends AbstractResource
     }
 
     /**
-     * The API rejects computed property values in create and update payloads, and a
-     * property hydrated with a null value serializes without a usable value key.
-     *
      * @psalm-suppress MixedAssignment
      */
     private function removeReadOnlyPropertyValues(array $data): array
@@ -91,7 +88,6 @@ class Page extends AbstractResource
         }
 
         foreach ($this->properties as $name => $propertyValue) {
-            // toArray() snake_cases array keys, including the property names.
             $serializedName = StringHelper::camelCaseToSnakeCase($name);
 
             if (in_array($propertyValue->getType(), self::READ_ONLY_PROPERTY_VALUE_TYPES, true)) {
