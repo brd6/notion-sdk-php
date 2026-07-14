@@ -9,6 +9,7 @@ use Brd6\NotionSdkPhp\Resource\File\Emoji;
 use Brd6\NotionSdkPhp\Resource\File\External;
 use Brd6\NotionSdkPhp\Resource\File\Icon;
 use Brd6\NotionSdkPhp\Resource\Page;
+use Brd6\NotionSdkPhp\Resource\Page\Parent\AgentIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\BlockIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\DatabaseIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\NumberPropertyValue;
@@ -124,6 +125,29 @@ class PageTest extends TestCase
 
         $this->assertInstanceOf(BlockIdParent::class, $parent);
         $this->assertSame($blockId, $parent->getBlockId());
+    }
+
+    public function testPageWithAgentIdParent(): void
+    {
+        $agentId = '8e61b295-6ccf-4e01-9f3a-7cfd68fe928c';
+
+        /** @var array $rawData */
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+            true,
+        );
+        $rawData['parent'] = [
+            'type' => 'agent_id',
+            'agent_id' => $agentId,
+        ];
+
+        /** @var Page $page */
+        $page = Page::fromRawData($rawData);
+
+        $parent = $page->getParent();
+
+        $this->assertInstanceOf(AgentIdParent::class, $parent);
+        $this->assertSame($agentId, $parent->getAgentId());
     }
 
     public function testPageHydratesInTrashPayloadWithoutArchivedKey(): void
