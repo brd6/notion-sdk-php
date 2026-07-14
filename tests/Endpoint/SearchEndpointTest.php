@@ -125,7 +125,7 @@ class SearchEndpointTest extends TestCase
         $client = new Client((new ClientOptions())->setHttpClient($httpClient));
         $searchRequest = (new SearchRequest())->setFilter([
             'property' => 'object',
-            'value' => 'data_source',
+            'value' => SearchRequest::FILTER_VALUE_DATA_SOURCE,
         ]);
 
         /** @var PageOrDatabaseResults $results */
@@ -167,5 +167,12 @@ class SearchEndpointTest extends TestCase
         $this->assertInstanceOf(Page::class, $resultPage);
         $this->assertInstanceOf(BlockIdParent::class, $parent);
         $this->assertSame($blockId, $parent->getBlockId());
+    }
+
+    public function testSearchFilterValueConstants(): void
+    {
+        $this->assertEquals('page', SearchRequest::FILTER_VALUE_PAGE);
+        $this->assertEquals('data_source', SearchRequest::FILTER_VALUE_DATA_SOURCE);
+        $this->assertEquals('database', SearchRequest::FILTER_VALUE_DATABASE);
     }
 }

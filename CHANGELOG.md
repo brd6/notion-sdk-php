@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add an optional `$afterBlockId` parameter to `blocks()->children()->append()` to insert blocks after an existing block.
 - Add markdown page content support (Notion API `2026-03-11`): `pages()->createFromMarkdown()`, `retrieveMarkdown()`, and `updateMarkdown()` with a `PageMarkdownRequest` builder covering the `update_content`, `replace_content`, `insert_content`, and `replace_content_range` commands.
 - Add async-task support for long markdown operations: `createFromMarkdownAsync()`/`updateMarkdownAsync()` return an `AsyncTask` to poll via the new `$notion->asyncTasks()->retrieve()`.
+- Add `FILTER_VALUE_PAGE`, `FILTER_VALUE_DATA_SOURCE`, and legacy `FILTER_VALUE_DATABASE` constants on `SearchRequest` for the search filter values.
 
 ### Changed
 
@@ -26,6 +27,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
+- `databases()->update()` on Notion API `2025-09-03` or newer no longer sends `properties` (schema changes moved to `dataSources()->update()`) and omits unset `icon`/`cover`, which that version rejects as explicit nulls. Payloads on older versions are unchanged.
 - Blocks sent as children in `blocks()->children()->append()` and `pages()->create()` now serialize only creatable fields (`object`, `type`, and the block's own property) via `AbstractBlock::toArrayForCreate()`. The Notion API rejects payloads carrying read-only fields such as `archived` with a validation error.
 - Nested blocks set with `setChildren()` now serialize inside the block's type property — the only shape the Notion API accepts — and recursively emit only creatable fields, so appending a block with nested children works instead of failing validation.
 

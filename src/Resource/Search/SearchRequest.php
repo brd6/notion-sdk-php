@@ -8,6 +8,14 @@ use Brd6\NotionSdkPhp\Resource\AbstractJsonSerializable;
 
 class SearchRequest extends AbstractJsonSerializable
 {
+    public const FILTER_VALUE_PAGE = 'page';
+    public const FILTER_VALUE_DATA_SOURCE = 'data_source';
+
+    /**
+     * Pre-2025-09-03 filter value; on newer API versions use FILTER_VALUE_DATA_SOURCE.
+     */
+    public const FILTER_VALUE_DATABASE = 'database';
+
     protected array $filter = [];
     protected array $sort = [];
     protected ?string $query = null;
