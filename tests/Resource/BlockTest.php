@@ -470,4 +470,34 @@ class BlockTest extends TestCase
         $this->assertTrue($block->isHasChildren());
         $this->assertEmpty($block->getChildren());
     }
+
+    public function testBlockHydratesInTrashPayloadWithoutArchivedKey(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
+            true,
+        );
+        unset($rawData['archived']);
+        $rawData['in_trash'] = true;
+
+        $block = AbstractBlock::fromRawData($rawData);
+
+        $this->assertTrue($block->isArchived());
+        $this->assertTrue($block->isInTrash());
+    }
+
+    public function testBlockHydratesArchivedPayload(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
+            true,
+        );
+        $rawData['archived'] = true;
+        unset($rawData['in_trash']);
+
+        $block = AbstractBlock::fromRawData($rawData);
+
+        $this->assertTrue($block->isArchived());
+        $this->assertTrue($block->isInTrash());
+    }
 }

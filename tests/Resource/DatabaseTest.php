@@ -27,6 +27,38 @@ class DatabaseTest extends TestCase
         Database::fromRawData([]);
     }
 
+    public function testDatabaseHydratesInTrashPayloadWithoutArchivedKey(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_databases_retrieve_database_200.json'),
+            true,
+        );
+        unset($rawData['archived']);
+        $rawData['in_trash'] = true;
+
+        /** @var Database $database */
+        $database = Database::fromRawData($rawData);
+
+        $this->assertTrue($database->isArchived());
+        $this->assertTrue($database->isInTrash());
+    }
+
+    public function testDatabaseHydratesArchivedPayload(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_databases_retrieve_database_200.json'),
+            true,
+        );
+        $rawData['archived'] = true;
+        unset($rawData['in_trash']);
+
+        /** @var Database $database */
+        $database = Database::fromRawData($rawData);
+
+        $this->assertTrue($database->isArchived());
+        $this->assertTrue($database->isInTrash());
+    }
+
     public function testDatabase(): void
     {
         /** @var Database $database */

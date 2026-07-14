@@ -667,4 +667,102 @@ class PagesEndpointTest extends TestCase
         $this->assertNotNull($createdPage->getCreatedBy());
         $this->assertNotNull($createdPage->getLastEditedBy());
     }
+
+    public function testUpdatePageSendsInTrashOn20260311(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertTrue($body['in_trash']);
+            $this->assertArrayNotHasKey('archived', $body);
+            $this->assertEquals(['2026-03-11'], $options['headers']['Notion-Version']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setNotionVersion(ClientOptions::NOTION_VERSION_2026_03_11)
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $page = new Page();
+        $page->setId('1e7e638f78864ec591ea54ec7016e146');
+        $page->setInTrash(true);
+
+        $client->pages()->update($page);
+    }
+
+    public function testCreatePageSendsInTrashOn20260311(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertArrayHasKey('in_trash', $body);
+            $this->assertFalse($body['in_trash']);
+            $this->assertArrayNotHasKey('archived', $body);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setNotionVersion(ClientOptions::NOTION_VERSION_2026_03_11)
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $page = new Page();
+        $page->setParent((new PageIdParent())->setPageId('4a808e6e-8845-4d49-a447-fb2a4c460f6f'));
+        $page->setProperties(['title' => (new TitlePropertyValue())->setTitle([Text::fromContent('Test Page')])]);
+        $page->setArchived(false);
+
+        $client->pages()->create($page);
+    }
+
+    public function testTwoClientsWithDifferentVersionsSerializeIndependently(): void
+    {
+        $buildHttpClient = fn (string $expectedTrashKey) => new MockHttpClient(
+            function ($method, $url, $options) use ($expectedTrashKey) {
+                /** @var array $body */
+                $body = json_decode($options['body'], true);
+                $otherTrashKey = $expectedTrashKey === 'archived' ? 'in_trash' : 'archived';
+
+                $this->assertTrue($body[$expectedTrashKey]);
+                $this->assertArrayNotHasKey($otherTrashKey, $body);
+
+                return new MockResponseFactory(
+                    (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+                    ['http_code' => 200],
+                );
+            },
+        );
+
+        $legacyClient = new Client((new ClientOptions())->setHttpClient($buildHttpClient('archived')));
+        $currentClient = new Client(
+            (new ClientOptions())
+                ->setNotionVersion(ClientOptions::NOTION_VERSION_2026_03_11)
+                ->setHttpClient($buildHttpClient('in_trash')),
+        );
+
+        $buildPage = static function (): Page {
+            $page = new Page();
+            $page->setId('1e7e638f78864ec591ea54ec7016e146');
+            $page->setArchived(true);
+
+            return $page;
+        };
+
+        $legacyClient->pages()->update($buildPage());
+        $currentClient->pages()->update($buildPage());
+        $legacyClient->pages()->update($buildPage());
+        $currentClient->pages()->update($buildPage());
+    }
 }

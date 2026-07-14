@@ -87,7 +87,9 @@ class Page extends AbstractResource
         $this->lastEditedBy = AbstractUser::fromRawData((array) $this->getRawData()['last_edited_by']);
         $this->archived = array_key_exists('archived', $this->getRawData())
             ? (bool) $this->getRawData()['archived']
-            : null;
+            : (array_key_exists('in_trash', $this->getRawData())
+                ? (bool) $this->getRawData()['in_trash']
+                : null);
         $this->icon = isset($this->getRawData()['icon']) ?
             AbstractFile::fromRawData((array) $this->getRawData()['icon']) :
             null;
@@ -162,6 +164,16 @@ class Page extends AbstractResource
         $this->archived = $archived;
 
         return $this;
+    }
+
+    public function isInTrash(): bool
+    {
+        return $this->isArchived();
+    }
+
+    public function setInTrash(bool $inTrash): self
+    {
+        return $this->setArchived($inTrash);
     }
 
     public static function getResourceType(): string

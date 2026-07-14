@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add `php-http/multipart-stream-builder` as a dependency for building multipart request bodies.
 - Add support for the Notion File Upload API via `$notion->fileUploads()`: a one-call `upload()` for the common case, plus create, send/sendPart (`multipart/form-data`), complete, retrieve, and list.
 - Add the `file_upload` file-object type so blocks referencing uploaded files hydrate instead of throwing `UnsupportedFileTypeException`.
+- Add support for Notion API version `2026-03-11`, opt-in per client via `setNotionVersion(ClientOptions::NOTION_VERSION_2026_03_11)`: write payloads use `in_trash` instead of `archived`, and the new `blocks()->children()->append()` insertion position serializes as `position` instead of `after`. Clients on older versions send byte-identical payloads to before, and two clients on different versions can run side by side in one process.
+- Add `NOTION_VERSION_2022_06_28`, `NOTION_VERSION_2025_09_03`, and `NOTION_VERSION_2026_03_11` constants on `ClientOptions`; the default version is unchanged.
+- Add `isInTrash()`/`setInTrash()` on `Page`, blocks, and `Database`, and accept both the `archived` and `in_trash` response keys during hydration regardless of the client version.
+- Add an optional `$afterBlockId` parameter to `blocks()->children()->append()` to insert blocks after an existing block.
 
 ### Changed
 

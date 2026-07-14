@@ -100,6 +100,18 @@ $myPage = $notion->databases()->query('897e5a76-ae52-4b48-9fdf-e71f5945d1af', $d
 
 If you use Notion API version `2025-09-03` or newer, the SDK supports data source endpoints via `$notion->dataSources()`, and page creation with `data_source_id` parents. When creating a database with this API version, `databases()->create()` automatically maps `properties` to the required `initial_data_source` payload.
 
+### Notion API 2026-03-11
+
+The API version is selected per `Client`, so an integration can run different versions side by side in one process:
+
+```php
+$notion = new Client((new ClientOptions())
+    ->setAuth($_ENV['NOTION_TOKEN'])
+    ->setNotionVersion(ClientOptions::NOTION_VERSION_2026_03_11));
+```
+
+On `2026-03-11` the SDK sends `in_trash` instead of `archived` and expresses the `blocks()->children()->append()` insertion position (`$afterBlockId`) as `position`; on older versions payloads are unchanged. Responses hydrate correctly on every version — `isArchived()` and `isInTrash()` both work regardless of which key the API returned.
+
 ### File uploads
 
 The SDK supports the [Notion File Upload API](https://developers.notion.com/reference/create-a-file-upload) via `$notion->fileUploads()`. Uploading a file takes one call — Notion derives the content type from the filename:
