@@ -769,6 +769,62 @@ class PagesEndpointTest extends TestCase
         $currentClient->pages()->update($buildPage());
     }
 
+    public function testMovePage(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            $this->assertEquals('POST', $method);
+            $this->assertStringContainsString(
+                'pages/b55c9c91-384d-452b-81db-d1ef79372b75/move',
+                $url,
+            );
+
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertEquals(
+                ['parent' => ['type' => 'page_id', 'page_id' => '59833787-2cf9-4fdf-8782-e53db20768a5']],
+                $body,
+            );
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $page = $client->pages()->move(
+            'b55c9c91-384d-452b-81db-d1ef79372b75',
+            (new PageIdParent())->setPageId('59833787-2cf9-4fdf-8782-e53db20768a5'),
+        );
+
+        $this->assertInstanceOf(Page::class, $page);
+    }
+
+    public function testMovePageToDataSource(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertEquals('data_source_id', $body['parent']['type']);
+            $this->assertEquals('1a44be12-0953-4631-b498-9e5817518db8', $body['parent']['data_source_id']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $client->pages()->move(
+            'b55c9c91-384d-452b-81db-d1ef79372b75',
+            (new DataSourceIdParent())->setDataSourceId('1a44be12-0953-4631-b498-9e5817518db8'),
+        );
+    }
+
     private function buildMarkdownPage(): Page
     {
         $page = new Page();

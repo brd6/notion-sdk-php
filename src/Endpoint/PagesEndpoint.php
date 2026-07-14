@@ -15,6 +15,7 @@ use Brd6\NotionSdkPhp\Resource\AsyncTask;
 use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Page;
 use Brd6\NotionSdkPhp\Resource\Page\PageMarkdownRequest;
+use Brd6\NotionSdkPhp\Resource\Page\Parent\AbstractParentProperty;
 use Brd6\NotionSdkPhp\Resource\PageMarkdown;
 use Http\Client\Exception;
 
@@ -109,6 +110,31 @@ class PagesEndpoint extends AbstractEndpoint
         $pageUpdated = Page::fromRawData($rawData);
 
         return $pageUpdated;
+    }
+
+    /**
+     * Moves a page under a new page or data source parent.
+     *
+     * @throws ApiResponseException
+     * @throws Exception
+     * @throws HttpResponseException
+     * @throws InvalidResourceException
+     * @throws InvalidResourceTypeException
+     * @throws RequestTimeoutException
+     */
+    public function move(string $pageId, AbstractParentProperty $parent): Page
+    {
+        $requestParameters = (new RequestParameters())
+            ->setPath("pages/$pageId/move")
+            ->setMethod('POST')
+            ->setBody(['parent' => $parent->toArray()]);
+
+        $rawData = $this->getClient()->request($requestParameters);
+
+        /** @var Page $pageMoved */
+        $pageMoved = Page::fromRawData($rawData);
+
+        return $pageMoved;
     }
 
     /**
