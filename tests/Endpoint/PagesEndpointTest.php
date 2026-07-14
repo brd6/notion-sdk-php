@@ -28,6 +28,7 @@ use Brd6\NotionSdkPhp\Resource\Page\PropertyItem\TitlePropertyItem;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\AbstractPropertyValue;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\DatePropertyValue;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\FilesPropertyValue;
+use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\RichTextPropertyValue;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\TitlePropertyValue;
 use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PropertyItemResults;
@@ -965,6 +966,36 @@ class PagesEndpointTest extends TestCase
         $page = new Page();
         $page->setId('1e7e638f78864ec591ea54ec7016e146');
         $page->setArchived(true);
+
+        $client->pages()->update($page);
+    }
+
+    public function testUpdatePagePreservesCamelCasePropertyNames(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertArrayHasKey('myCamelField', $body['properties']);
+            $this->assertArrayNotHasKey('my_camel_field', $body['properties']);
+            $this->assertEquals(
+                'hello',
+                $body['properties']['myCamelField']['rich_text'][0]['text']['content'],
+            );
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $page = new Page();
+        $page->setId('1e7e638f78864ec591ea54ec7016e146');
+        $page->setProperties([
+            'myCamelField' => (new RichTextPropertyValue())->setRichText([Text::fromContent('hello')]),
+        ]);
 
         $client->pages()->update($page);
     }
