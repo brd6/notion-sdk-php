@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
+- Add file-upload embeds: `EmbedProperty::fromFileUpload()` attaches an uploaded file to an embed block, which is how the Notion API renders uploaded `.html` files as HTML blocks. Responses hydrate the temporary signed `url` the API returns.
 - Add per-request headers and raw (non-JSON) request bodies to `RequestParameters`, unblocking `multipart/form-data` endpoints such as the Notion File Upload API.
 - Add `php-http/multipart-stream-builder` as a dependency for building multipart request bodies.
 - Add support for the Notion File Upload API via `$notion->fileUploads()`: a one-call `upload()` for the common case, plus create, send/sendPart (`multipart/form-data`), complete, retrieve, and list.
