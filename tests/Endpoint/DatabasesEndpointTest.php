@@ -427,6 +427,8 @@ class DatabasesEndpointTest extends TestCase
             $this->assertArrayNotHasKey('properties', $body);
             $this->assertArrayNotHasKey('icon', $body);
             $this->assertArrayNotHasKey('cover', $body);
+            $this->assertArrayNotHasKey('object', $body);
+            $this->assertArrayNotHasKey('id', $body);
 
             return new MockResponseFactory(
                 (string) file_get_contents('tests/Fixtures/client_databases_update_database_200.json'),
