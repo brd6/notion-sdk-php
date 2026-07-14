@@ -6,6 +6,8 @@ namespace Brd6\NotionSdkPhp\Resource\Page;
 
 use Brd6\NotionSdkPhp\Resource\AbstractJsonSerializable;
 
+use function array_map;
+
 class PageMarkdownRequest extends AbstractJsonSerializable
 {
     public const TYPE_UPDATE_CONTENT = 'update_content';
@@ -23,11 +25,16 @@ class PageMarkdownRequest extends AbstractJsonSerializable
     protected array $replaceContentRange = [];
 
     /**
-     * @param array $contentUpdates array of operations: {old_str, new_str, replace_all_matches?}, max 100
+     * @param MarkdownContentUpdate[] $contentUpdates max 100 operations
      */
     public static function updateContent(array $contentUpdates, bool $allowDeletingContent = false): self
     {
-        $updateContent = ['content_updates' => $contentUpdates];
+        $updateContent = [
+            'content_updates' => array_map(
+                static fn (MarkdownContentUpdate $contentUpdate) => $contentUpdate->toArray(),
+                $contentUpdates,
+            ),
+        ];
 
         if ($allowDeletingContent) {
             $updateContent['allow_deleting_content'] = true;

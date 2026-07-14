@@ -17,6 +17,7 @@ use Brd6\NotionSdkPhp\Resource\File\Emoji;
 use Brd6\NotionSdkPhp\Resource\File\External;
 use Brd6\NotionSdkPhp\Resource\File\File;
 use Brd6\NotionSdkPhp\Resource\Page;
+use Brd6\NotionSdkPhp\Resource\Page\MarkdownContentUpdate;
 use Brd6\NotionSdkPhp\Resource\Page\PageMarkdownRequest;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\DataSourceIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\PageIdParent;
@@ -884,7 +885,10 @@ class PagesEndpointTest extends TestCase
 
             $this->assertEquals('update_content', $body['type']);
             $this->assertEquals(
-                [['old_str' => 'old text', 'new_str' => 'new text']],
+                [
+                    ['old_str' => 'old text', 'new_str' => 'new text'],
+                    ['old_str' => 'everywhere', 'new_str' => '', 'replace_all_matches' => true],
+                ],
                 $body['update_content']['content_updates'],
             );
             $this->assertArrayNotHasKey('allow_async', $body);
@@ -899,7 +903,10 @@ class PagesEndpointTest extends TestCase
 
         $pageMarkdown = $client->pages()->updateMarkdown(
             'b55c9c91-384d-452b-81db-d1ef79372b75',
-            PageMarkdownRequest::updateContent([['old_str' => 'old text', 'new_str' => 'new text']]),
+            PageMarkdownRequest::updateContent([
+                new MarkdownContentUpdate('old text', 'new text'),
+                new MarkdownContentUpdate('everywhere', '', true),
+            ]),
         );
 
         $this->assertEquals('page_markdown', $pageMarkdown->getObject());
