@@ -6,8 +6,6 @@ namespace Brd6\NotionSdkPhp\Resource\Page;
 
 use Brd6\NotionSdkPhp\Resource\AbstractJsonSerializable;
 
-use function array_filter;
-
 class PageMarkdownRequest extends AbstractJsonSerializable
 {
     public const TYPE_UPDATE_CONTENT = 'update_content';
@@ -29,22 +27,28 @@ class PageMarkdownRequest extends AbstractJsonSerializable
      */
     public static function updateContent(array $contentUpdates, bool $allowDeletingContent = false): self
     {
+        $updateContent = ['content_updates' => $contentUpdates];
+
+        if ($allowDeletingContent) {
+            $updateContent['allow_deleting_content'] = true;
+        }
+
         return (new self())
             ->setType(self::TYPE_UPDATE_CONTENT)
-            ->setUpdateContent(array_filter([
-                'content_updates' => $contentUpdates,
-                'allow_deleting_content' => $allowDeletingContent ?: null,
-            ]));
+            ->setUpdateContent($updateContent);
     }
 
     public static function replaceContent(string $newStr, bool $allowDeletingContent = false): self
     {
+        $replaceContent = ['new_str' => $newStr];
+
+        if ($allowDeletingContent) {
+            $replaceContent['allow_deleting_content'] = true;
+        }
+
         return (new self())
             ->setType(self::TYPE_REPLACE_CONTENT)
-            ->setReplaceContent(array_filter([
-                'new_str' => $newStr,
-                'allow_deleting_content' => $allowDeletingContent ?: null,
-            ]));
+            ->setReplaceContent($replaceContent);
     }
 
     /**
@@ -53,13 +57,19 @@ class PageMarkdownRequest extends AbstractJsonSerializable
      */
     public static function insertContent(string $content, ?string $position = null, ?string $after = null): self
     {
+        $insertContent = ['content' => $content];
+
+        if ($position !== null) {
+            $insertContent['position'] = ['type' => $position];
+        }
+
+        if ($after !== null) {
+            $insertContent['after'] = $after;
+        }
+
         return (new self())
             ->setType(self::TYPE_INSERT_CONTENT)
-            ->setInsertContent(array_filter([
-                'content' => $content,
-                'position' => $position !== null ? ['type' => $position] : null,
-                'after' => $after,
-            ]));
+            ->setInsertContent($insertContent);
     }
 
     /**
@@ -70,13 +80,18 @@ class PageMarkdownRequest extends AbstractJsonSerializable
         string $contentRange,
         bool $allowDeletingContent = false
     ): self {
+        $replaceContentRange = [
+            'content' => $content,
+            'content_range' => $contentRange,
+        ];
+
+        if ($allowDeletingContent) {
+            $replaceContentRange['allow_deleting_content'] = true;
+        }
+
         return (new self())
             ->setType(self::TYPE_REPLACE_CONTENT_RANGE)
-            ->setReplaceContentRange(array_filter([
-                'content' => $content,
-                'content_range' => $contentRange,
-                'allow_deleting_content' => $allowDeletingContent ?: null,
-            ]));
+            ->setReplaceContentRange($replaceContentRange);
     }
 
     public function getType(): ?string

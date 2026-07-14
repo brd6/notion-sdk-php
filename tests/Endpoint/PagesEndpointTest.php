@@ -7,6 +7,7 @@ namespace Brd6\Test\NotionSdkPhp\Endpoint;
 use Brd6\NotionSdkPhp\Client;
 use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Endpoint\PagesEndpoint;
+use Brd6\NotionSdkPhp\Resource\AsyncTask;
 use Brd6\NotionSdkPhp\Resource\Block\CalloutBlock;
 use Brd6\NotionSdkPhp\Resource\Block\FileBlock;
 use Brd6\NotionSdkPhp\Resource\Block\Heading1Block;
@@ -15,7 +16,6 @@ use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
 use Brd6\NotionSdkPhp\Resource\File\Emoji;
 use Brd6\NotionSdkPhp\Resource\File\External;
 use Brd6\NotionSdkPhp\Resource\File\File;
-use Brd6\NotionSdkPhp\Resource\AsyncTask;
 use Brd6\NotionSdkPhp\Resource\Page;
 use Brd6\NotionSdkPhp\Resource\Page\PageMarkdownRequest;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\DataSourceIdParent;
@@ -814,7 +814,7 @@ class PagesEndpointTest extends TestCase
             $this->assertArrayNotHasKey('children', $body);
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/Fixtures/client_pages_update_markdown_202.json'),
+                (string) file_get_contents('tests/Fixtures/client_pages_update_page_markdown_202.json'),
                 ['http_code' => 202],
             );
         });
@@ -839,7 +839,7 @@ class PagesEndpointTest extends TestCase
             $this->assertArrayNotHasKey('include_transcript', $options['query']);
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_markdown_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_markdown_200.json'),
                 ['http_code' => 200],
             );
         });
@@ -860,7 +860,7 @@ class PagesEndpointTest extends TestCase
             $this->assertEquals('true', $options['query']['include_transcript']);
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_markdown_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_markdown_200.json'),
                 ['http_code' => 200],
             );
         });
@@ -890,7 +890,7 @@ class PagesEndpointTest extends TestCase
             $this->assertArrayNotHasKey('allow_async', $body);
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/Fixtures/client_pages_update_markdown_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_pages_update_page_markdown_200.json'),
                 ['http_code' => 200],
             );
         });
@@ -917,7 +917,7 @@ class PagesEndpointTest extends TestCase
             $this->assertTrue($body['replace_content']['allow_deleting_content']);
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/Fixtures/client_pages_update_markdown_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_pages_update_page_markdown_200.json'),
                 ['http_code' => 200],
             );
         });
@@ -927,6 +927,29 @@ class PagesEndpointTest extends TestCase
         $client->pages()->updateMarkdown(
             'b55c9c91-384d-452b-81db-d1ef79372b75',
             PageMarkdownRequest::replaceContent('# New content', true),
+        );
+    }
+
+    public function testUpdatePageMarkdownReplaceContentWithEmptyString(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertEquals('replace_content', $body['type']);
+            $this->assertSame('', $body['replace_content']['new_str']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_update_page_markdown_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $client->pages()->updateMarkdown(
+            'b55c9c91-384d-452b-81db-d1ef79372b75',
+            PageMarkdownRequest::replaceContent('', true),
         );
     }
 
@@ -941,7 +964,7 @@ class PagesEndpointTest extends TestCase
             $this->assertEquals(['type' => 'end'], $body['insert_content']['position']);
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/Fixtures/client_pages_update_markdown_200.json'),
+                (string) file_get_contents('tests/Fixtures/client_pages_update_page_markdown_200.json'),
                 ['http_code' => 200],
             );
         });
@@ -964,7 +987,7 @@ class PagesEndpointTest extends TestCase
             $this->assertTrue($body['allow_async']);
 
             return new MockResponseFactory(
-                (string) file_get_contents('tests/Fixtures/client_pages_update_markdown_202.json'),
+                (string) file_get_contents('tests/Fixtures/client_pages_update_page_markdown_202.json'),
                 ['http_code' => 202],
             );
         });

@@ -58,12 +58,10 @@ class AsyncTasksEndpointTest extends TestCase
 
     public function testRetrieveFailedAsyncTask(): void
     {
-        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
-            return new MockResponseFactory(
-                (string) file_get_contents('tests/Fixtures/client_async_tasks_retrieve_failed_200.json'),
-                ['http_code' => 200],
-            );
-        });
+        $httpClient = new MockHttpClient(fn (string $method, string $url, array $options) => new MockResponseFactory(
+            (string) file_get_contents('tests/Fixtures/client_async_tasks_retrieve_failed_200.json'),
+            ['http_code' => 200],
+        ));
 
         $client = new Client((new ClientOptions())->setHttpClient($httpClient));
 
@@ -79,12 +77,10 @@ class AsyncTasksEndpointTest extends TestCase
 
     public function testRetrieveQueuedAsyncTask(): void
     {
-        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
-            return new MockResponseFactory(
-                (string) file_get_contents('tests/Fixtures/client_pages_update_markdown_202.json'),
-                ['http_code' => 200],
-            );
-        });
+        $httpClient = new MockHttpClient(fn (string $method, string $url, array $options) => new MockResponseFactory(
+            (string) file_get_contents('tests/Fixtures/client_async_tasks_retrieve_queued_200.json'),
+            ['http_code' => 200],
+        ));
 
         $client = new Client((new ClientOptions())->setHttpClient($httpClient));
 
