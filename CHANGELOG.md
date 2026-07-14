@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
+- Add comment editing (Notion API `2026-03-11`): `comments()->update()` and `updateFromMarkdown()` rewrite a comment's content, `delete()` removes it, and `createFromMarkdown()` writes a new comment as inline markdown. A connection can only edit comments it created.
 - Expose `block_type` on `UnsupportedBlock`, identifying the underlying block type (for example `form` or `button`) the API cannot represent.
 
 ### Fixed
