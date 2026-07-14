@@ -211,4 +211,35 @@ class DataSourcesEndpointTest extends TestCase
             (new PaginationRequest())->setPageSize(5),
         );
     }
+
+    public function testUpdateNormalizesHydratedEmptyPropertyConfigurations(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertSame([], $body['properties']['Date']['date']);
+            $this->assertStringContainsString('"date":{}', $options['body']);
+            $this->assertArrayNotHasKey('Last edited by', $body['properties']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+            true,
+        );
+        $rawData['properties']['Date'] = ['id' => 'a1', 'name' => 'Date', 'type' => 'date', 'date' => []];
+        $rawData['properties']['Last edited by'] = ['id' => 'b2', 'name' => 'Last edited by', 'type' => 'last_edited_by', 'last_edited_by' => []];
+
+        /** @var DataSource $dataSource */
+        $dataSource = DataSource::fromRawData($rawData);
+
+        $client->dataSources()->update($dataSource);
+    }
 }

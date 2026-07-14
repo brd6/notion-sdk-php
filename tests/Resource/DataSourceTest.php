@@ -25,6 +25,26 @@ class DataSourceTest extends TestCase
         DataSource::fromRawData([]);
     }
 
+    public function testUpdateSerializationOmitsReadOnlyPropertyConfigurations(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+            true,
+        );
+        $rawData['properties']['Created time'] = ['id' => 'a1', 'name' => 'Created time', 'type' => 'created_time', 'created_time' => []];
+        $rawData['properties']['Last edited by'] = ['id' => 'b2', 'name' => 'Last edited by', 'type' => 'last_edited_by', 'last_edited_by' => []];
+
+        /** @var DataSource $dataSource */
+        $dataSource = DataSource::fromRawData($rawData);
+
+        $properties = $dataSource->toArrayForUpdate()['properties'];
+
+        $this->assertArrayHasKey('Name', $properties);
+        $this->assertArrayHasKey('Projects', $properties);
+        $this->assertArrayNotHasKey('Created time', $properties);
+        $this->assertArrayNotHasKey('Last edited by', $properties);
+    }
+
     public function testDataSourceHydratesInTrashPayloadWithoutArchivedKey(): void
     {
         $rawData = (array) json_decode(
