@@ -17,8 +17,11 @@ use Brd6\NotionSdkPhp\Resource\Block\Heading3Block;
 use Brd6\NotionSdkPhp\Resource\Block\Heading4Block;
 use Brd6\NotionSdkPhp\Resource\Block\Heading5Block;
 use Brd6\NotionSdkPhp\Resource\Block\Heading6Block;
+use Brd6\NotionSdkPhp\Resource\Block\MeetingNotesBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
 use Brd6\NotionSdkPhp\Resource\Block\SyncedBlockBlock;
+use Brd6\NotionSdkPhp\Resource\Block\TabBlock;
+use Brd6\NotionSdkPhp\Resource\Block\TranscriptionBlock;
 use Brd6\NotionSdkPhp\Resource\Block\UnsupportedBlock;
 use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
 use Brd6\NotionSdkPhp\Resource\File\Emoji;
@@ -26,8 +29,10 @@ use Brd6\NotionSdkPhp\Resource\Property\CalloutProperty;
 use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
 use Brd6\NotionSdkPhp\Resource\Property\FileProperty;
 use Brd6\NotionSdkPhp\Resource\Property\HeadingProperty;
+use Brd6\NotionSdkPhp\Resource\Property\MeetingNotesProperty;
 use Brd6\NotionSdkPhp\Resource\Property\ParagraphProperty;
 use Brd6\NotionSdkPhp\Resource\Property\SyncedBlockProperty;
+use Brd6\NotionSdkPhp\Resource\Property\TabProperty;
 use Brd6\NotionSdkPhp\Resource\RichText\Equation;
 use Brd6\NotionSdkPhp\Resource\RichText\Mention;
 use Brd6\NotionSdkPhp\Resource\RichText\Mention\CustomEmojiMention;
@@ -499,5 +504,68 @@ class BlockTest extends TestCase
 
         $this->assertTrue($block->isArchived());
         $this->assertTrue($block->isInTrash());
+    }
+
+    public function testTabBlock(): void
+    {
+        $block = AbstractBlock::fromRawData(
+            (array) json_decode(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_tab_200.json'),
+                true,
+            ),
+        );
+
+        $this->assertInstanceOf(TabBlock::class, $block);
+        $this->assertEquals('tab', $block->getType());
+        $this->assertInstanceOf(TabProperty::class, $block->getTab());
+        $this->assertTrue($block->isHasChildren());
+    }
+
+    public function testTabBlockSerialization(): void
+    {
+        $block = new TabBlock();
+        $block->setTab(new TabProperty());
+
+        $this->assertEquals('tab', $block->toArrayForCreate()['type']);
+    }
+
+    public function testMeetingNotesBlock(): void
+    {
+        $block = AbstractBlock::fromRawData(
+            (array) json_decode(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_meeting_notes_200.json'),
+                true,
+            ),
+        );
+
+        $this->assertInstanceOf(MeetingNotesBlock::class, $block);
+        $this->assertEquals('meeting_notes', $block->getType());
+
+        $property = $block->getMeetingNotes();
+        $this->assertInstanceOf(MeetingNotesProperty::class, $property);
+        $this->assertEquals('notes_ready', $property->getStatus());
+        $this->assertInstanceOf(Text::class, $property->getTitle()[0]);
+        $this->assertEquals('Weekly sync', $property->getTitle()[0]->getText()->getContent());
+        $this->assertEquals('0d940186-ab70-4351-bb34-2d16f0635d50', $property->getChildren()['summary_block_id']);
+        $this->assertNotEmpty($property->getCalendarEvent()['attendees']);
+        $this->assertNotEmpty($property->getRecording()['start_time']);
+    }
+
+    public function testTranscriptionBlock(): void
+    {
+        $block = AbstractBlock::fromRawData(
+            (array) json_decode(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_transcription_200.json'),
+                true,
+            ),
+        );
+
+        $this->assertInstanceOf(TranscriptionBlock::class, $block);
+        $this->assertEquals('transcription', $block->getType());
+
+        $property = $block->getTranscription();
+        $this->assertInstanceOf(MeetingNotesProperty::class, $property);
+        $this->assertEquals(MeetingNotesProperty::STATUS_TRANSCRIPTION_IN_PROGRESS, $property->getStatus());
+        $this->assertEquals('Weekly sync', $property->getTitle()[0]->getText()->getContent());
     }
 }
