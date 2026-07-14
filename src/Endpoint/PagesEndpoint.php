@@ -16,6 +16,7 @@ use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Page;
 use Brd6\NotionSdkPhp\Resource\Page\PageMarkdownRequest;
 use Brd6\NotionSdkPhp\Resource\Page\PagePosition;
+use Brd6\NotionSdkPhp\Resource\Page\PageTemplate;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\AbstractParentProperty;
 use Brd6\NotionSdkPhp\Resource\PageMarkdown;
 use Http\Client\Exception;
@@ -69,14 +70,22 @@ class PagesEndpoint extends AbstractEndpoint
      * @throws InvalidResourceTypeException
      * @throws RequestTimeoutException
      */
-    public function create(Page $page, array $children = [], ?PagePosition $position = null): Page
-    {
+    public function create(
+        Page $page,
+        array $children = [],
+        ?PagePosition $position = null,
+        ?PageTemplate $template = null
+    ): Page {
         $childrenData = array_map(fn (AbstractBlock $block) => $block->toArrayForCreate(), $children);
 
         $data = array_merge($this->normalizeTrashKey($page->toArrayForCreate()), ['children' => $childrenData]);
 
         if ($position !== null) {
             $data['position'] = $position->toArray();
+        }
+
+        if ($template !== null) {
+            $data['template'] = $template->toArray();
         }
 
         $requestParameters = (new RequestParameters())
@@ -102,12 +111,22 @@ class PagesEndpoint extends AbstractEndpoint
      * @throws InvalidResourceTypeException
      * @throws RequestTimeoutException
      */
-    public function update(Page $page): Page
+    public function update(Page $page, ?PageTemplate $template = null, ?bool $eraseContent = null): Page
     {
+        $data = $this->normalizeTrashKey($page->toArrayForUpdate());
+
+        if ($template !== null) {
+            $data['template'] = $template->toArray();
+        }
+
+        if ($eraseContent !== null) {
+            $data['erase_content'] = $eraseContent;
+        }
+
         $requestParameters = (new RequestParameters())
             ->setPath("pages/{$page->getId()}")
             ->setMethod('PATCH')
-            ->setBody($this->normalizeTrashKey($page->toArrayForUpdate()));
+            ->setBody($data);
 
         $rawData = $this->getClient()->request($requestParameters);
 
