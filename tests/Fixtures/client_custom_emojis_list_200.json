@@ -1,0 +1,19 @@
+{
+    "object": "list",
+    "results": [
+        {
+            "id": "550e8400-e29b-41d4-a716-446655440000",
+            "name": "party_parrot",
+            "url": "https://s3-us-west-2.amazonaws.com/public.notion-static.com/custom_emojis/party_parrot.gif"
+        },
+        {
+            "id": "660f9511-f3ac-52e5-b827-557766551111",
+            "name": "shipit",
+            "url": "https://s3-us-west-2.amazonaws.com/public.notion-static.com/custom_emojis/shipit.png"
+        }
+    ],
+    "next_cursor": null,
+    "has_more": false,
+    "type": "custom_emoji",
+    "custom_emoji": {}
+}
