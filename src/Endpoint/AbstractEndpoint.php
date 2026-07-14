@@ -68,13 +68,17 @@ abstract class AbstractEndpoint
             }
 
             $propertyConfigKeys = array_keys($propertyRawData);
-            if (count($propertyConfigKeys) !== 1) {
+
+            if (count($propertyConfigKeys) === 1) {
+                $propertyConfigKey = (string) $propertyConfigKeys[0];
+            } elseif (isset($propertyRawData['type'])) {
+                $propertyConfigKey = (string) $propertyRawData['type'];
+            } else {
                 $data['properties'][$propertyName] = $propertyRawData;
 
                 continue;
             }
 
-            $propertyConfigKey = (string) $propertyConfigKeys[0];
             if (($propertyRawData[$propertyConfigKey] ?? null) === []) {
                 $propertyRawData[$propertyConfigKey] = new stdClass();
             }

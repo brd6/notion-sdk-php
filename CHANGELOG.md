@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
+- Data source retrieve-then-update now works: schema update payloads drop the computed property configurations the API refuses (created/edited metadata columns), and hydrated empty property configurations serialize as `{}` instead of `[]`.
 - Property names are no longer snake_cased in request payloads. A property named `myField` was silently renamed to `my_field` when writing page values or database schemas, so the API either rejected the write or targeted the wrong property.
 
 ## 1.12.0 - 2026-07-14

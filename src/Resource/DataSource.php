@@ -19,11 +19,19 @@ use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
 use DateTimeImmutable;
 
 use function array_map;
+use function in_array;
+use function is_array;
 
 class DataSource extends AbstractResource
 {
     public const RESOURCE_TYPE = 'data_source';
     private const UPDATE_ACCEPTED_KEYS = ['title', 'properties', 'in_trash'];
+    private const READ_ONLY_PROPERTY_CONFIGURATION_TYPES = [
+        'created_by',
+        'created_time',
+        'last_edited_by',
+        'last_edited_time',
+    ];
 
     protected ?DateTimeImmutable $createdTime = null;
     protected ?UserInterface $createdBy = null;
@@ -61,7 +69,19 @@ class DataSource extends AbstractResource
 
     public function toArrayForUpdate(): array
     {
-        return $this->toArrayStrict(self::UPDATE_ACCEPTED_KEYS);
+        $data = $this->toArrayStrict(self::UPDATE_ACCEPTED_KEYS);
+
+        if (!isset($data['properties']) || !is_array($data['properties'])) {
+            return $data;
+        }
+
+        foreach ($this->properties as $name => $propertyObject) {
+            if (in_array($propertyObject->getType(), self::READ_ONLY_PROPERTY_CONFIGURATION_TYPES, true)) {
+                unset($data['properties'][$name]);
+            }
+        }
+
+        return $data;
     }
 
     /**
