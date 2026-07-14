@@ -6,10 +6,6 @@ namespace Brd6\NotionSdkPhp\Resource\Block;
 
 use Brd6\NotionSdkPhp\Resource\Property\TabProperty;
 
-/**
- * The tab payload is an empty object: a tab's label and content are expressed
- * through its paragraph children.
- */
 class TabBlock extends AbstractBlock
 {
     protected ?TabProperty $tab = null;

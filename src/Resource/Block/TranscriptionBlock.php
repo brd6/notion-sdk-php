@@ -8,19 +8,12 @@ use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
 use Brd6\NotionSdkPhp\Resource\Property\MeetingNotesProperty;
 
-/**
- * The pre-2026-03-11 name of the meeting notes block: responses on older API
- * versions carry `transcription` with the same payload shape. Read-only at
- * the Notion API.
- */
 class TranscriptionBlock extends AbstractBlock
 {
     protected ?MeetingNotesProperty $transcription = null;
 
     /**
-     * The payload's `children` key holds block-id references (summary, notes,
-     * transcript), not inline child blocks; fetch actual children through
-     * blocks()->children()->list().
+     * The payload's `children` key holds block-id references, not inline child blocks.
      */
     protected function initializeChildren(): void
     {
