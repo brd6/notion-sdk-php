@@ -7,18 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
-### Fixed
-
-- Page, database, and data source update payloads no longer carry the read-only `object` and `id` fields. The API ignores them when well-formed but rejects updates on `2026-03-11` when the id was provided without hyphens, even though the same id works in the request path.
-
-## Unreleased
-
 ### Added
 
 - Add `dataSources()->listTemplates()` to list a data source's page templates (id, name, default flag), with pagination and a name filter — pairs with `PageTemplate::templateId()` for applying one.
 - Add page template support: an optional `PageTemplate` on `pages()->create()` and `update()` applies a data source's default template or a specific template (`PageTemplate::none()`, `::defaultTemplate()`, `::templateId()`, with an optional timezone for relative dates), and an optional `$eraseContent` flag on `update()` clears existing page content.
 - Add an optional `PagePosition` to `pages()->create()`, `createFromMarkdown()`, and `createFromMarkdownAsync()` to place the new page at the start or end of its parent or after a specific block (`PagePosition::pageStart()`, `::pageEnd()`, `::afterBlock()`).
 - Add `pages()->move()` to move a page under a new page or data source parent.
+
+### Fixed
+
+- Retrieve-then-update now works: update payloads for pages, databases, and data sources carry only the writable fields. Previously every hydrated field leaked into the body — computed property values (formula, rollup, created/edited metadata), null-valued properties serialized as empty arrays, and read-only top-level fields like `created_time` — which the API rejects, so updating a retrieved resource always failed. This subsumes the earlier removal of the read-only `object` and `id` fields, which the `2026-03-11` API rejects when the id was provided without hyphens.
 
 ## 1.11.0 - 2026-07-14
 

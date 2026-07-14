@@ -15,15 +15,28 @@ use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\AbstractParentProperty;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\AbstractPropertyValue;
 use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
+use Brd6\NotionSdkPhp\Util\StringHelper;
 use DateTimeImmutable;
 
+use function array_diff_key;
 use function array_key_exists;
+use function in_array;
+use function is_array;
 
 class Page extends AbstractResource
 {
     public const RESOURCE_TYPE = 'page';
     private const CREATE_ACCEPTED_KEYS = ['object', 'properties', 'parent', 'icon', 'cover'];
     private const UPDATE_ACCEPTED_KEYS = ['properties', 'archived', 'icon', 'cover', 'is_locked'];
+    private const READ_ONLY_PROPERTY_VALUE_TYPES = [
+        'created_by',
+        'created_time',
+        'last_edited_by',
+        'last_edited_time',
+        'formula',
+        'rollup',
+        'unique_id',
+    ];
 
     protected ?DateTimeImmutable $createdTime = null;
     protected ?UserInterface $createdBy = null;
@@ -51,7 +64,7 @@ class Page extends AbstractResource
 
     public function toArrayForCreate(): array
     {
-        $data = $this->toArrayStrict(self::CREATE_ACCEPTED_KEYS);
+        $data = $this->removeReadOnlyPropertyValues($this->toArrayStrict(self::CREATE_ACCEPTED_KEYS));
 
         if ($this->archived !== null) {
             $data['archived'] = $this->archived;
@@ -62,16 +75,45 @@ class Page extends AbstractResource
 
     public function toArrayForUpdate(): array
     {
-        $data = $this->toArray(true, self::UPDATE_ACCEPTED_KEYS);
+        return $this->removeReadOnlyPropertyValues($this->toArrayStrict(self::UPDATE_ACCEPTED_KEYS));
+    }
 
-        unset($data['object'], $data['id']);
-
-        if ($this->archived === null) {
-            unset($data['archived']);
+    /**
+     * @psalm-suppress MixedAssignment
+     */
+    private function removeReadOnlyPropertyValues(array $data): array
+    {
+        if (!isset($data['properties']) || !is_array($data['properties'])) {
+            return $data;
         }
 
-        if ($this->isLocked === null) {
-            unset($data['is_locked']);
+        foreach ($this->properties as $name => $propertyValue) {
+            $serializedName = StringHelper::camelCaseToSnakeCase($name);
+
+            if (in_array($propertyValue->getType(), self::READ_ONLY_PROPERTY_VALUE_TYPES, true)) {
+                unset($data['properties'][$serializedName]);
+
+                continue;
+            }
+
+            $serialized = $data['properties'][$serializedName] ?? null;
+
+            if (!is_array($serialized)) {
+                continue;
+            }
+
+            $hasValue = false;
+            foreach (array_diff_key($serialized, ['id' => true, 'type' => true]) as $value) {
+                if ($value !== null && $value !== []) {
+                    $hasValue = true;
+
+                    break;
+                }
+            }
+
+            if (!$hasValue) {
+                unset($data['properties'][$serializedName]);
+            }
         }
 
         return $data;

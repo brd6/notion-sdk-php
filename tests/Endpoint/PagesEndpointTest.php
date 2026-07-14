@@ -292,16 +292,8 @@ class PagesEndpointTest extends TestCase
                 $body = json_decode($options['body'], true);
 
                 $expectedKeys = [
-                    'created_time',
-                    'created_by',
-                    'last_edited_time',
-                    'last_edited_by',
                     'archived',
-                    'icon',
-                    'cover',
                     'properties',
-                    'parent',
-                    'url',
                 ];
 
                 $actualKeys = array_keys($body);
