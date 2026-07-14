@@ -27,6 +27,27 @@ class DatabaseTest extends TestCase
         Database::fromRawData([]);
     }
 
+    public function testDatabaseIsLockedRoundTrip(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_databases_retrieve_database_200.json'),
+            true,
+        );
+        $rawData['is_locked'] = true;
+
+        /** @var Database $database */
+        $database = Database::fromRawData($rawData);
+
+        $this->assertTrue($database->isLocked());
+
+        $unset = new Database();
+        $this->assertArrayNotHasKey('is_locked', $unset->toArrayForUpdate());
+
+        $locked = new Database();
+        $locked->setLocked(false);
+        $this->assertFalse($locked->toArrayForUpdate()['is_locked']);
+    }
+
     public function testDatabaseHydratesInTrashPayloadWithoutArchivedKey(): void
     {
         $rawData = (array) json_decode(

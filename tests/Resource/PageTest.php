@@ -182,6 +182,35 @@ class PageTest extends TestCase
         $this->assertTrue($page->isInTrash());
     }
 
+    public function testPageHydratesIsLocked(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+            true,
+        );
+        $rawData['is_locked'] = true;
+
+        /** @var Page $page */
+        $page = Page::fromRawData($rawData);
+
+        $this->assertTrue($page->isLocked());
+    }
+
+    public function testPageToArrayForUpdateOmitsIsLockedWhenUnset(): void
+    {
+        $page = $this->createPageForUpdateSerialization();
+
+        $this->assertArrayNotHasKey('is_locked', $page->toArrayForUpdate());
+    }
+
+    public function testPageToArrayForUpdateIncludesIsLockedWhenSet(): void
+    {
+        $page = $this->createPageForUpdateSerialization();
+        $page->setLocked(true);
+
+        $this->assertTrue($page->toArrayForUpdate()['is_locked']);
+    }
+
     public function testPageIsArchivedReturnsFalseWhenUnset(): void
     {
         $page = new Page();
