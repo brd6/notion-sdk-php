@@ -16,6 +16,7 @@ use Brd6\NotionSdkPhp\Resource\Pagination\BlockResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
 use Brd6\NotionSdkPhp\Resource\Property\HeadingProperty;
+use Brd6\NotionSdkPhp\Resource\Property\ParagraphProperty;
 use Brd6\NotionSdkPhp\Resource\RichText\Text;
 use Brd6\NotionSdkPhp\Resource\UserInterface;
 use Brd6\Test\NotionSdkPhp\Mock\HttpClient\MockHttpClient;
@@ -267,6 +268,13 @@ class BlocksEndpointTest extends TestCase
                 $this->assertArrayHasKey('heading_3', $body['children'][0]);
                 $this->assertArrayNotHasKey('archived', $body['children'][0]);
                 $this->assertArrayNotHasKey('has_children', $body['children'][0]);
+                $this->assertArrayNotHasKey('children', $body['children'][0]);
+                $this->assertArrayHasKey('children', $body['children'][0]['heading_3']);
+                $this->assertEquals(
+                    'Nested paragraph',
+                    $body['children'][0]['heading_3']['children'][0]['paragraph']['rich_text'][0]['text']['content'],
+                );
+                $this->assertArrayNotHasKey('archived', $body['children'][0]['heading_3']['children'][0]);
                 $this->assertArrayHasKey('rich_text', $body['children'][0]['heading_3']);
                 $this->assertNotEmpty($body['children'][0]['heading_3']['rich_text']);
                 $this->assertStringContainsString(
@@ -296,6 +304,12 @@ class BlocksEndpointTest extends TestCase
         $heading3Property = new HeadingProperty();
         $heading3Property->setRichText([$richText]);
         $heading3->setHeading3($heading3Property);
+
+        $nestedParagraph = new ParagraphBlock();
+        $nestedParagraphProperty = new ParagraphProperty();
+        $nestedParagraphProperty->setRichText([Text::fromContent('Nested paragraph')]);
+        $nestedParagraph->setParagraph($nestedParagraphProperty);
+        $heading3->setChildren([$nestedParagraph]);
 
         /** @var BlockResults $paginationResponse */
         $paginationResponse = $client

@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 
 - Blocks sent as children in `blocks()->children()->append()` and `pages()->create()` now serialize only creatable fields (`object`, `type`, and the block's own property) via `AbstractBlock::toArrayForCreate()`. The Notion API rejects payloads carrying read-only fields such as `archived` with a validation error.
+- Nested blocks set with `setChildren()` now serialize inside the block's type property — the only shape the Notion API accepts — and recursively emit only creatable fields, so appending a block with nested children works instead of failing validation.
 
 ## 1.9.0 - 2026-05-28
 
