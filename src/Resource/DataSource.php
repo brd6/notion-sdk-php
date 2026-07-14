@@ -61,7 +61,11 @@ class DataSource extends AbstractResource
 
     public function toArrayForUpdate(): array
     {
-        return $this->toArray(true, self::UPDATE_ACCEPTED_KEYS);
+        $data = $this->toArray(true, self::UPDATE_ACCEPTED_KEYS);
+
+        unset($data['object'], $data['id']);
+
+        return $data;
     }
 
     /**

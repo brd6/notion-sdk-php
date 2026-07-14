@@ -292,8 +292,6 @@ class PagesEndpointTest extends TestCase
                 $body = json_decode($options['body'], true);
 
                 $expectedKeys = [
-                    'object',
-                    'id',
                     'created_time',
                     'created_by',
                     'last_edited_time',
@@ -681,6 +679,8 @@ class PagesEndpointTest extends TestCase
 
             $this->assertTrue($body['in_trash']);
             $this->assertArrayNotHasKey('archived', $body);
+            $this->assertArrayNotHasKey('object', $body);
+            $this->assertArrayNotHasKey('id', $body);
             $this->assertEquals(['2026-03-11'], $options['headers']['Notion-Version']);
 
             return new MockResponseFactory(

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+### Fixed
+
+- Page, database, and data source update payloads no longer carry the read-only `object` and `id` fields. The API ignores them when well-formed but rejects updates on `2026-03-11` when the id was provided without hyphens, even though the same id works in the request path.
+
+## Unreleased
+
 ### Added
 
 - Add `dataSources()->listTemplates()` to list a data source's page templates (id, name, default flag), with pagination and a name filter — pairs with `PageTemplate::templateId()` for applying one.

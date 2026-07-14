@@ -66,6 +66,8 @@ class Database extends AbstractResource
     {
         $data = $this->toArray(true, self::UPDATE_ACCEPTED_KEYS);
 
+        unset($data['object'], $data['id']);
+
         if ($this->isLocked === null) {
             unset($data['is_locked']);
         }

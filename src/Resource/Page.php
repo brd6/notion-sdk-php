@@ -64,6 +64,8 @@ class Page extends AbstractResource
     {
         $data = $this->toArray(true, self::UPDATE_ACCEPTED_KEYS);
 
+        unset($data['object'], $data['id']);
+
         if ($this->archived === null) {
             unset($data['archived']);
         }
