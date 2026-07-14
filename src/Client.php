@@ -8,6 +8,7 @@ use Brd6\NotionSdkPhp\Constant\NotionErrorCodeConstant;
 use Brd6\NotionSdkPhp\Endpoint\AsyncTasksEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\BlocksEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\CommentsEndpoint;
+use Brd6\NotionSdkPhp\Endpoint\CustomEmojisEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\DataSourcesEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\DatabasesEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\FileUploadsEndpoint;
@@ -53,6 +54,7 @@ class Client
     private UsersEndpoint $usersEndpoint;
     private PagesEndpoint $pagesEndpoint;
     private DatabasesEndpoint $databasesEndpoint;
+    private CustomEmojisEndpoint $customEmojisEndpoint;
     private DataSourcesEndpoint $dataSourcesEndpoint;
     private FileUploadsEndpoint $fileUploadsEndpoint;
     private SearchEndpoint $searchEndpoint;
@@ -68,6 +70,7 @@ class Client
         $this->usersEndpoint = new UsersEndpoint($this);
         $this->pagesEndpoint = new PagesEndpoint($this);
         $this->databasesEndpoint = new DatabasesEndpoint($this);
+        $this->customEmojisEndpoint = new CustomEmojisEndpoint($this);
         $this->dataSourcesEndpoint = new DataSourcesEndpoint($this);
         $this->fileUploadsEndpoint = new FileUploadsEndpoint($this);
         $this->searchEndpoint = new SearchEndpoint($this);
@@ -211,6 +214,11 @@ class Client
     public function databases(): DatabasesEndpoint
     {
         return $this->databasesEndpoint;
+    }
+
+    public function customEmojis(): CustomEmojisEndpoint
+    {
+        return $this->customEmojisEndpoint;
     }
 
     public function dataSources(): DataSourcesEndpoint

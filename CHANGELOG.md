@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
+- Add `$notion->customEmojis()->list()` (Notion API `2026-03-11`) to list the workspace's custom emojis, with pagination and an exact-name filter for id resolution.
 - Add `blocks()->meetingNotes()->query()` (Notion API `2026-03-11`) to search AI meeting notes across the workspace by title, attendees, dates, and editors, with sorting and a result limit — the endpoint has no cursor pagination.
 - Add comment editing (Notion API `2026-03-11`): `comments()->update()` and `updateFromMarkdown()` rewrite a comment's content, `delete()` removes it, and `createFromMarkdown()` writes a new comment as inline markdown. A connection can only edit comments it created.
 - Expose `block_type` on `UnsupportedBlock`, identifying the underlying block type (for example `form` or `button`) the API cannot represent.
