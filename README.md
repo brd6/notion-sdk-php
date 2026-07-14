@@ -125,6 +125,21 @@ $fileUpload = $notion->fileUploads()->complete($fileUpload->getId());
 
 `retrieve()` and `list()` expose upload status. See [examples/09-file-uploads-api-smoke](examples/09-file-uploads-api-smoke/) for the full flow, including attaching the upload to a page as an image block.
 
+### Markdown page content (Notion API 2026-03-11)
+
+With a client on Notion API version `2026-03-11`, page content can be written and read as enhanced markdown:
+
+```php
+$page = (new Page())->setParent((new PageIdParent())->setPageId($parentPageId));
+$created = $notion->pages()->createFromMarkdown($page, "# Title\n\nSome content.");
+
+$markdown = $notion->pages()->retrieveMarkdown($created->getId())->getMarkdown();
+
+$notion->pages()->updateMarkdown($created->getId(), PageMarkdownRequest::replaceContent("# Title\n\nNew content."));
+```
+
+Long content can be handled asynchronously: `createFromMarkdownAsync()` and `updateMarkdownAsync()` return an `AsyncTask` to poll with `$notion->asyncTasks()->retrieve($task->getId())` until `isTerminal()`.
+
 ### Handling errors
 
 If the API returns an unsuccessful response, an `ApiResponseException` will be thrown.

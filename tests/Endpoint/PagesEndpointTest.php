@@ -15,7 +15,9 @@ use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
 use Brd6\NotionSdkPhp\Resource\File\Emoji;
 use Brd6\NotionSdkPhp\Resource\File\External;
 use Brd6\NotionSdkPhp\Resource\File\File;
+use Brd6\NotionSdkPhp\Resource\AsyncTask;
 use Brd6\NotionSdkPhp\Resource\Page;
+use Brd6\NotionSdkPhp\Resource\Page\PageMarkdownRequest;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\DataSourceIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\PageIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyItem\AbstractPropertyItem;
@@ -764,5 +766,217 @@ class PagesEndpointTest extends TestCase
         $currentClient->pages()->update($buildPage());
         $legacyClient->pages()->update($buildPage());
         $currentClient->pages()->update($buildPage());
+    }
+
+    private function buildMarkdownPage(): Page
+    {
+        $page = new Page();
+        $page->setParent((new PageIdParent())->setPageId('4a808e6e-8845-4d49-a447-fb2a4c460f6f'));
+
+        return $page;
+    }
+
+    public function testCreatePageFromMarkdown(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            $this->assertEquals('POST', $method);
+
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertEquals("# Title\n\nBody text.", $body['markdown']);
+            $this->assertArrayNotHasKey('children', $body);
+            $this->assertArrayNotHasKey('allow_async', $body);
+            $this->assertEquals('4a808e6e-8845-4d49-a447-fb2a4c460f6f', $body['parent']['page_id']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $page = $client->pages()->createFromMarkdown($this->buildMarkdownPage(), "# Title\n\nBody text.");
+
+        $this->assertInstanceOf(Page::class, $page);
+        $this->assertNotEmpty($page->getId());
+    }
+
+    public function testCreatePageFromMarkdownAsync(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertEquals("# Title\n\nBody text.", $body['markdown']);
+            $this->assertTrue($body['allow_async']);
+            $this->assertArrayNotHasKey('children', $body);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_update_markdown_202.json'),
+                ['http_code' => 202],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $asyncTask = $client->pages()->createFromMarkdownAsync($this->buildMarkdownPage(), "# Title\n\nBody text.");
+
+        $this->assertEquals(AsyncTask::STATUS_QUEUED, $asyncTask->getStatus());
+        $this->assertNotEmpty($asyncTask->getStatusUrl());
+        $this->assertEquals(2, $asyncTask->getPollAfterSeconds());
+    }
+
+    public function testRetrievePageMarkdown(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            $this->assertEquals('GET', $method);
+            $this->assertStringContainsString(
+                'pages/b55c9c91-384d-452b-81db-d1ef79372b75/markdown',
+                $url,
+            );
+            $this->assertArrayNotHasKey('include_transcript', $options['query']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_markdown_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $pageMarkdown = $client->pages()->retrieveMarkdown('b55c9c91-384d-452b-81db-d1ef79372b75');
+
+        $this->assertEquals('page_markdown', $pageMarkdown->getObject());
+        $this->assertStringContainsString('# Markdown Test Page', $pageMarkdown->getMarkdown());
+        $this->assertFalse($pageMarkdown->isTruncated());
+        $this->assertEmpty($pageMarkdown->getUnknownBlockIds());
+    }
+
+    public function testRetrievePageMarkdownWithTranscript(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            $this->assertEquals('true', $options['query']['include_transcript']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_markdown_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $client->pages()->retrieveMarkdown('b55c9c91-384d-452b-81db-d1ef79372b75', true);
+    }
+
+    public function testUpdatePageMarkdownContent(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            $this->assertEquals('PATCH', $method);
+            $this->assertStringContainsString(
+                'pages/b55c9c91-384d-452b-81db-d1ef79372b75/markdown',
+                $url,
+            );
+
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertEquals('update_content', $body['type']);
+            $this->assertEquals(
+                [['old_str' => 'old text', 'new_str' => 'new text']],
+                $body['update_content']['content_updates'],
+            );
+            $this->assertArrayNotHasKey('allow_async', $body);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_update_markdown_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $pageMarkdown = $client->pages()->updateMarkdown(
+            'b55c9c91-384d-452b-81db-d1ef79372b75',
+            PageMarkdownRequest::updateContent([['old_str' => 'old text', 'new_str' => 'new text']]),
+        );
+
+        $this->assertEquals('page_markdown', $pageMarkdown->getObject());
+        $this->assertStringContainsString('Replaced content.', $pageMarkdown->getMarkdown());
+    }
+
+    public function testUpdatePageMarkdownReplaceContent(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertEquals('replace_content', $body['type']);
+            $this->assertEquals('# New content', $body['replace_content']['new_str']);
+            $this->assertTrue($body['replace_content']['allow_deleting_content']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_update_markdown_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $client->pages()->updateMarkdown(
+            'b55c9c91-384d-452b-81db-d1ef79372b75',
+            PageMarkdownRequest::replaceContent('# New content', true),
+        );
+    }
+
+    public function testUpdatePageMarkdownInsertContent(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertEquals('insert_content', $body['type']);
+            $this->assertEquals('## Appended', $body['insert_content']['content']);
+            $this->assertEquals(['type' => 'end'], $body['insert_content']['position']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_update_markdown_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $client->pages()->updateMarkdown(
+            'b55c9c91-384d-452b-81db-d1ef79372b75',
+            PageMarkdownRequest::insertContent('## Appended', PageMarkdownRequest::POSITION_END),
+        );
+    }
+
+    public function testUpdatePageMarkdownAsync(): void
+    {
+        $httpClient = new MockHttpClient(function ($method, $url, $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertEquals('replace_content', $body['type']);
+            $this->assertTrue($body['allow_async']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_pages_update_markdown_202.json'),
+                ['http_code' => 202],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $asyncTask = $client->pages()->updateMarkdownAsync(
+            'b55c9c91-384d-452b-81db-d1ef79372b75',
+            PageMarkdownRequest::replaceContent('# New content'),
+        );
+
+        $this->assertEquals(AsyncTask::STATUS_QUEUED, $asyncTask->getStatus());
+        $this->assertFalse($asyncTask->isTerminal());
     }
 }

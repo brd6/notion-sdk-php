@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Brd6\NotionSdkPhp;
 
 use Brd6\NotionSdkPhp\Constant\NotionErrorCodeConstant;
+use Brd6\NotionSdkPhp\Endpoint\AsyncTasksEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\BlocksEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\CommentsEndpoint;
 use Brd6\NotionSdkPhp\Endpoint\DataSourcesEndpoint;
@@ -46,6 +47,7 @@ class Client
 
     private ClientOptions $options;
     private HttpMethodsClientInterface $httpClient;
+    private AsyncTasksEndpoint $asyncTasksEndpoint;
     private BlocksEndpoint $blocksEndpoint;
     private CommentsEndpoint $commentsEndpoint;
     private UsersEndpoint $usersEndpoint;
@@ -60,6 +62,7 @@ class Client
         $this->options = $options ?? new ClientOptions();
         $this->initializeHttpClient();
 
+        $this->asyncTasksEndpoint = new AsyncTasksEndpoint($this);
         $this->blocksEndpoint = new BlocksEndpoint($this);
         $this->commentsEndpoint = new CommentsEndpoint($this);
         $this->usersEndpoint = new UsersEndpoint($this);
@@ -178,6 +181,11 @@ class Client
     {
         return isset($rawData['code']) &&
             in_array($rawData['code'], NotionErrorCodeConstant::API_ERROR_CODES);
+    }
+
+    public function asyncTasks(): AsyncTasksEndpoint
+    {
+        return $this->asyncTasksEndpoint;
     }
 
     public function blocks(): BlocksEndpoint
