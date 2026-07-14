@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
+- Add `dataSources()->listTemplates()` to list a data source's page templates (id, name, default flag), with pagination and a name filter — pairs with `PageTemplate::templateId()` for applying one.
 - Add page template support: an optional `PageTemplate` on `pages()->create()` and `update()` applies a data source's default template or a specific template (`PageTemplate::none()`, `::defaultTemplate()`, `::templateId()`, with an optional timezone for relative dates), and an optional `$eraseContent` flag on `update()` clears existing page content.
 - Add an optional `PagePosition` to `pages()->create()`, `createFromMarkdown()`, and `createFromMarkdownAsync()` to place the new page at the start or end of its parent or after a specific block (`PagePosition::pageStart()`, `::pageEnd()`, `::afterBlock()`).
 - Add `pages()->move()` to move a page under a new page or data source parent.

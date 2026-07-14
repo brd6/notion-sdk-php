@@ -13,6 +13,7 @@ use Brd6\NotionSdkPhp\Exception\RequestTimeoutException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedPaginationResponseTypeException;
 use Brd6\NotionSdkPhp\RequestParameters;
 use Brd6\NotionSdkPhp\Resource\DataSource;
+use Brd6\NotionSdkPhp\Resource\DataSource\DataSourceTemplateResults;
 use Brd6\NotionSdkPhp\Resource\Database\DatabaseRequest;
 use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
@@ -105,6 +106,38 @@ class DataSourcesEndpoint extends AbstractEndpoint
      * @throws InvalidResourceTypeException
      * @throws RequestTimeoutException
      */
+    /**
+     * Lists the page templates available in a data source.
+     *
+     * @param string|null $name filters templates by name
+     *
+     * @throws ApiResponseException
+     * @throws Exception
+     * @throws HttpResponseException
+     * @throws RequestTimeoutException
+     */
+    public function listTemplates(
+        string $dataSourceId,
+        ?string $name = null,
+        ?PaginationRequest $paginationRequest = null
+    ): DataSourceTemplateResults {
+        $paginationRequest = $paginationRequest ?? new PaginationRequest();
+
+        $query = array_merge(
+            $paginationRequest->toArray(),
+            $name !== null ? ['name' => $name] : [],
+        );
+
+        $requestParameters = (new RequestParameters())
+            ->setPath("data_sources/$dataSourceId/templates")
+            ->setQuery($query)
+            ->setMethod('GET');
+
+        $rawData = $this->getClient()->request($requestParameters);
+
+        return DataSourceTemplateResults::fromRawData($rawData);
+    }
+
     public function create(DataSource $dataSource): DataSource
     {
         $data = self::normalizeEmptyPropertyConfigurations($dataSource->toArray());

@@ -8,6 +8,8 @@ use Brd6\NotionSdkPhp\Client;
 use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Endpoint\DataSourcesEndpoint;
 use Brd6\NotionSdkPhp\Resource\DataSource;
+use Brd6\NotionSdkPhp\Resource\DataSource\DataSourceTemplate;
+use Brd6\NotionSdkPhp\Resource\DataSource\DataSourceTemplateResults;
 use Brd6\NotionSdkPhp\Resource\Database\DatabaseRequest;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\TitlePropertyObject;
 use Brd6\NotionSdkPhp\Resource\Page;
@@ -154,5 +156,59 @@ class DataSourcesEndpointTest extends TestCase
 
         $this->assertSame('data_source', $created->getObject());
         $this->assertNotEmpty($created->getId());
+    }
+
+    public function testListTemplates(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            $this->assertEquals('GET', $method);
+            $this->assertStringContainsString(
+                'data_sources/164b19c5-58e5-4a47-a3a9-c905d9519c65/templates',
+                $url,
+            );
+            $this->assertArrayNotHasKey('name', $options['query']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_data_sources_list_templates_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $results = $client->dataSources()->listTemplates('164b19c5-58e5-4a47-a3a9-c905d9519c65');
+
+        $this->assertInstanceOf(DataSourceTemplateResults::class, $results);
+        $this->assertFalse($results->isHasMore());
+        $this->assertNull($results->getNextCursor());
+        $this->assertCount(2, $results->getTemplates());
+
+        $template = $results->getTemplates()[0];
+        $this->assertInstanceOf(DataSourceTemplate::class, $template);
+        $this->assertEquals('195de922-1179-449f-ab80-75a27c979105', $template->getId());
+        $this->assertEquals('Bug report', $template->getName());
+        $this->assertTrue($template->isDefault());
+        $this->assertFalse($results->getTemplates()[1]->isDefault());
+    }
+
+    public function testListTemplatesWithNameAndPagination(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            $this->assertEquals('Bug report', $options['query']['name']);
+            $this->assertEquals(5, (int) $options['query']['page_size']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_data_sources_list_templates_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $client->dataSources()->listTemplates(
+            '164b19c5-58e5-4a47-a3a9-c905d9519c65',
+            'Bug report',
+            (new PaginationRequest())->setPageSize(5),
+        );
     }
 }
