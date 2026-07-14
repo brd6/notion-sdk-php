@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
+- Add an optional `PagePosition` to `pages()->create()`, `createFromMarkdown()`, and `createFromMarkdownAsync()` to place the new page at the start or end of its parent or after a specific block (`PagePosition::pageStart()`, `::pageEnd()`, `::afterBlock()`).
 - Add `pages()->move()` to move a page under a new page or data source parent.
 
 ## 1.11.0 - 2026-07-14

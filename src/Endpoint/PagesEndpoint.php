@@ -15,6 +15,7 @@ use Brd6\NotionSdkPhp\Resource\AsyncTask;
 use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Page;
 use Brd6\NotionSdkPhp\Resource\Page\PageMarkdownRequest;
+use Brd6\NotionSdkPhp\Resource\Page\PagePosition;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\AbstractParentProperty;
 use Brd6\NotionSdkPhp\Resource\PageMarkdown;
 use Http\Client\Exception;
@@ -68,11 +69,15 @@ class PagesEndpoint extends AbstractEndpoint
      * @throws InvalidResourceTypeException
      * @throws RequestTimeoutException
      */
-    public function create(Page $page, array $children = []): Page
+    public function create(Page $page, array $children = [], ?PagePosition $position = null): Page
     {
         $childrenData = array_map(fn (AbstractBlock $block) => $block->toArrayForCreate(), $children);
 
         $data = array_merge($this->normalizeTrashKey($page->toArrayForCreate()), ['children' => $childrenData]);
+
+        if ($position !== null) {
+            $data['position'] = $position->toArray();
+        }
 
         $requestParameters = (new RequestParameters())
             ->setPath('pages')
@@ -148,10 +153,10 @@ class PagesEndpoint extends AbstractEndpoint
      * @throws InvalidResourceTypeException
      * @throws RequestTimeoutException
      */
-    public function createFromMarkdown(Page $page, string $markdown): Page
+    public function createFromMarkdown(Page $page, string $markdown, ?PagePosition $position = null): Page
     {
         $rawData = $this->getClient()->request(
-            $this->buildCreateFromMarkdownParameters($page, $markdown, false),
+            $this->buildCreateFromMarkdownParameters($page, $markdown, false, $position),
         );
 
         /** @var Page $pageCreated */
@@ -171,10 +176,10 @@ class PagesEndpoint extends AbstractEndpoint
      * @throws InvalidResourceTypeException
      * @throws RequestTimeoutException
      */
-    public function createFromMarkdownAsync(Page $page, string $markdown): AsyncTask
+    public function createFromMarkdownAsync(Page $page, string $markdown, ?PagePosition $position = null): AsyncTask
     {
         $rawData = $this->getClient()->request(
-            $this->buildCreateFromMarkdownParameters($page, $markdown, true),
+            $this->buildCreateFromMarkdownParameters($page, $markdown, true, $position),
         );
 
         /** @var AsyncTask $asyncTask */
@@ -259,7 +264,8 @@ class PagesEndpoint extends AbstractEndpoint
     private function buildCreateFromMarkdownParameters(
         Page $page,
         string $markdown,
-        bool $allowAsync
+        bool $allowAsync,
+        ?PagePosition $position = null
     ): RequestParameters {
         $data = array_merge(
             $this->normalizeTrashKey($page->toArrayForCreate()),
@@ -268,6 +274,10 @@ class PagesEndpoint extends AbstractEndpoint
 
         if ($allowAsync) {
             $data['allow_async'] = true;
+        }
+
+        if ($position !== null) {
+            $data['position'] = $position->toArray();
         }
 
         return (new RequestParameters())
