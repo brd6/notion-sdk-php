@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Add `NOTION_VERSION_2022_06_28`, `NOTION_VERSION_2025_09_03`, and `NOTION_VERSION_2026_03_11` constants on `ClientOptions`; the default version is unchanged.
 - Add `isInTrash()`/`setInTrash()` on `Page`, blocks, and `Database`, and accept both the `archived` and `in_trash` response keys during hydration — including for data sources — regardless of the client version.
 - Add an optional `$afterBlockId` parameter to `blocks()->children()->append()` to insert blocks after an existing block.
+- Add `tab`, `meeting_notes`, and `transcription` block classes so these blocks hydrate with their content instead of degrading to `UnsupportedBlock` and dropping the payload. Meeting notes and transcription blocks are read-only at the API; tab blocks are creatable, with the label carried by paragraph children.
 - Add markdown page content support (Notion API `2026-03-11`): `pages()->createFromMarkdown()`, `retrieveMarkdown()`, and `updateMarkdown()` with a `PageMarkdownRequest` builder covering the `update_content`, `replace_content`, `insert_content`, and `replace_content_range` commands.
 - Add async-task support for long markdown operations: `createFromMarkdownAsync()`/`updateMarkdownAsync()` return an `AsyncTask` to poll via the new `$notion->asyncTasks()->retrieve()`.
 

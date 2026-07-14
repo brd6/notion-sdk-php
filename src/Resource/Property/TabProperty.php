@@ -1,0 +1,13 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Brd6\NotionSdkPhp\Resource\Property;
+
+class TabProperty extends AbstractProperty
+{
+    public static function fromRawData(array $rawData): self
+    {
+        return new self();
+    }
+}
