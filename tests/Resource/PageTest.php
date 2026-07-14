@@ -231,10 +231,10 @@ class PageTest extends TestCase
         $this->assertArrayNotHasKey('Created', $properties);
         $this->assertArrayNotHasKey('Last Edited Time', $properties);
         $this->assertArrayNotHasKey('Last Edited By', $properties);
-        $this->assertArrayNotHasKey('formula_2', $properties);
-        $this->assertArrayNotHasKey('formula_test_1', $properties);
         $this->assertArrayNotHasKey('formula2', $properties);
         $this->assertArrayNotHasKey('formulaTest1', $properties);
+        $this->assertArrayNotHasKey('formula_2', $properties);
+        $this->assertArrayNotHasKey('formula_test_1', $properties);
     }
 
     public function testUpdateSerializationOmitsValuelessPropertyValues(): void
