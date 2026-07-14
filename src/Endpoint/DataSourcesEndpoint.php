@@ -106,6 +106,7 @@ class DataSourcesEndpoint extends AbstractEndpoint
      * @throws InvalidResourceTypeException
      * @throws RequestTimeoutException
      */
+
     /**
      * Lists the page templates available in a data source.
      *
