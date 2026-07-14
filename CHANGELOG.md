@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
+- Retrieve-then-update now works: update payloads for pages, databases, and data sources carry only the writable fields. Previously every hydrated field leaked into the body — computed property values (formula, rollup, created/edited metadata), null-valued properties serialized as empty arrays, and read-only top-level fields like `created_time` — which the API rejects, so updating a retrieved resource always failed.
+
+## Unreleased
+
+### Fixed
+
 - Page, database, and data source update payloads no longer carry the read-only `object` and `id` fields. The API ignores them when well-formed but rejects updates on `2026-03-11` when the id was provided without hyphens, even though the same id works in the request path.
 
 ## Unreleased

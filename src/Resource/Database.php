@@ -64,15 +64,7 @@ class Database extends AbstractResource
 
     public function toArrayForUpdate(): array
     {
-        $data = $this->toArray(true, self::UPDATE_ACCEPTED_KEYS);
-
-        unset($data['object'], $data['id']);
-
-        if ($this->isLocked === null) {
-            unset($data['is_locked']);
-        }
-
-        return $data;
+        return $this->toArrayStrict(self::UPDATE_ACCEPTED_KEYS);
     }
 
     /**

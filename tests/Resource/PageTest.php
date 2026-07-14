@@ -211,6 +211,67 @@ class PageTest extends TestCase
         $this->assertTrue($page->toArrayForUpdate()['is_locked']);
     }
 
+    public function testUpdateSerializationOmitsReadOnlyPropertyValues(): void
+    {
+        /** @var Page $page */
+        $page = Page::fromRawData(
+            (array) json_decode(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_properties_200.json'),
+                true,
+            ),
+        );
+
+        $properties = $page->toArrayForUpdate()['properties'];
+
+        $this->assertArrayHasKey('Name', $properties);
+        $this->assertArrayHasKey('Status', $properties);
+        $this->assertArrayHasKey('My number', $properties);
+        $this->assertArrayHasKey('Stakeholders', $properties);
+        $this->assertArrayNotHasKey('Created By', $properties);
+        $this->assertArrayNotHasKey('Created', $properties);
+        $this->assertArrayNotHasKey('Last Edited Time', $properties);
+        $this->assertArrayNotHasKey('Last Edited By', $properties);
+        $this->assertArrayNotHasKey('formula2', $properties);
+        $this->assertArrayNotHasKey('formulaTest1', $properties);
+    }
+
+    public function testUpdateSerializationOmitsValuelessPropertyValues(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_properties_200.json'),
+            true,
+        );
+        $rawData['properties']['Type']['select'] = null;
+        $rawData['properties']['My number']['number'] = null;
+
+        /** @var Page $page */
+        $page = Page::fromRawData($rawData);
+
+        $properties = $page->toArrayForUpdate()['properties'];
+
+        $this->assertArrayNotHasKey('Type', $properties);
+        $this->assertArrayNotHasKey('My number', $properties);
+        $this->assertArrayHasKey('Status', $properties);
+        $this->assertArrayHasKey('Name', $properties);
+    }
+
+    public function testCreateSerializationOmitsReadOnlyPropertyValues(): void
+    {
+        /** @var Page $page */
+        $page = Page::fromRawData(
+            (array) json_decode(
+                (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_properties_200.json'),
+                true,
+            ),
+        );
+
+        $properties = $page->toArrayForCreate()['properties'];
+
+        $this->assertArrayHasKey('Name', $properties);
+        $this->assertArrayNotHasKey('formula2', $properties);
+        $this->assertArrayNotHasKey('Created By', $properties);
+    }
+
     public function testPageIsArchivedReturnsFalseWhenUnset(): void
     {
         $page = new Page();
