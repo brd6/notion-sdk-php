@@ -1,0 +1,16 @@
+{
+    "templates": [
+        {
+            "id": "195de922-1179-449f-ab80-75a27c979105",
+            "name": "Bug report",
+            "is_default": true
+        },
+        {
+            "id": "287ef033-228a-55a0-bc91-86b38d08a216",
+            "name": "Feature request",
+            "is_default": false
+        }
+    ],
+    "has_more": false,
+    "next_cursor": null
+}
