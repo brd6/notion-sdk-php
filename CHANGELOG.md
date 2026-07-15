@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 1.12.3 - 2026-07-16
+
+### Fixed
+
+- Updating a data source schema now accepts raw property-configuration arrays, exactly like database creation: `DataSource::setProperties()` hydrates raw configs into the matching typed property objects (resolving the type from an explicit `type` key or the single configuration key), so programmatic schema updates no longer require hand-building typed objects. Already-typed properties serialize byte-identically to before, and a malformed raw configuration now fails fast with a typed exception instead of a runtime error later.
+
 ## 1.12.2 - 2026-07-15
 
 ### Fixed
