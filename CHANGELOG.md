@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 1.12.2 - 2026-07-15
+
+### Fixed
+
+- Creating a database or updating a data source schema with relation properties now works: a relation's empty `single_property`/`dual_property` configuration serializes as `{}` instead of `[]`, which the API rejected. `RelationPropertyConfiguration` gains `setSinglePropertyRelation()`/`setDualPropertyRelation()` for building relations programmatically, while relations hydrated from API responses keep serializing exactly as before.
+- An empty `initial_data_source.properties` on database creation serializes as `{}` — the API refuses `[]` there.
+
 ## 1.12.1 - 2026-07-15
 
 ### Fixed
