@@ -54,6 +54,14 @@ abstract class AbstractEndpoint
     }
 
     /**
+     * Object-valued nested config keys that Notion rejects when serialized as `[]` instead of `{}`.
+     * Keyed by the parent config key; list-valued siblings such as `options` and `groups` are never touched.
+     */
+    private const NESTED_OBJECT_CONFIG_KEYS = [
+        'relation' => ['single_property', 'dual_property'],
+    ];
+
+    /**
      * @psalm-suppress MixedAssignment
      */
     protected static function normalizeEmptyPropertyConfigurations(array $data): array
@@ -79,13 +87,31 @@ abstract class AbstractEndpoint
                 continue;
             }
 
-            if (($propertyRawData[$propertyConfigKey] ?? null) === []) {
+            $config = $propertyRawData[$propertyConfigKey] ?? null;
+
+            if ($config === []) {
                 $propertyRawData[$propertyConfigKey] = new stdClass();
+            } elseif (is_array($config)) {
+                $propertyRawData[$propertyConfigKey] = self::normalizeNestedEmptyConfig($propertyConfigKey, $config);
             }
 
             $data['properties'][$propertyName] = $propertyRawData;
         }
 
         return $data;
+    }
+
+    /**
+     * @psalm-suppress MixedAssignment
+     */
+    private static function normalizeNestedEmptyConfig(string $configKey, array $config): array
+    {
+        foreach (self::NESTED_OBJECT_CONFIG_KEYS[$configKey] ?? [] as $nestedKey) {
+            if (($config[$nestedKey] ?? null) === []) {
+                $config[$nestedKey] = new stdClass();
+            }
+        }
+
+        return $config;
     }
 }
