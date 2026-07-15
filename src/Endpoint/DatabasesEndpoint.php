@@ -18,6 +18,7 @@ use Brd6\NotionSdkPhp\Resource\Database\DatabaseRequest;
 use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Http\Client\Exception;
+use stdClass;
 
 use function array_merge;
 
@@ -70,8 +71,9 @@ class DatabasesEndpoint extends AbstractEndpoint
         $data = $database->toArray();
 
         if ($this->supportsVersion(ClientOptions::NOTION_VERSION_2025_09_03)) {
+            $properties = (array) ($data['properties'] ?? []);
             $data['initial_data_source'] = [
-                'properties' => (array) ($data['properties'] ?? []),
+                'properties' => $properties === [] ? new stdClass() : $properties,
             ];
             $data['initial_data_source'] = self::normalizeEmptyPropertyConfigurations($data['initial_data_source']);
             unset($data['properties']);

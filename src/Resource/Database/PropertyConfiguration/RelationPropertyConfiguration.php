@@ -6,10 +6,18 @@ namespace Brd6\NotionSdkPhp\Resource\Database\PropertyConfiguration;
 
 use Brd6\NotionSdkPhp\Resource\Property\AbstractProperty;
 
+use function in_array;
+
 class RelationPropertyConfiguration extends AbstractProperty
 {
+    public const TYPE_SINGLE_PROPERTY = 'single_property';
+    public const TYPE_DUAL_PROPERTY = 'dual_property';
+
     protected string $databaseId = '';
     protected string $dataSourceId = '';
+    protected ?string $type = null;
+    protected ?array $singleProperty = null;
+    protected ?array $dualProperty = null;
     protected ?string $syncedPropertyName = null;
     protected ?string $syncedPropertyId = null;
 
@@ -19,6 +27,9 @@ class RelationPropertyConfiguration extends AbstractProperty
 
         $property->databaseId = (string) ($rawData['database_id'] ?? '');
         $property->dataSourceId = (string) ($rawData['data_source_id'] ?? '');
+        $property->singleProperty = ($rawData['single_property'] ?? null) === [] ? [] : null;
+        $property->dualProperty = ($rawData['dual_property'] ?? null) === [] ? [] : null;
+        $property->type = $property->resolveType($rawData);
         $dualProperty = (array) ($rawData['dual_property'] ?? []);
         $property->syncedPropertyName = isset($rawData['synced_property_name']) ?
             (string) $rawData['synced_property_name'] :
@@ -60,6 +71,39 @@ class RelationPropertyConfiguration extends AbstractProperty
         return $this;
     }
 
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function getSingleProperty(): ?array
+    {
+        return $this->singleProperty;
+    }
+
+    public function getDualProperty(): ?array
+    {
+        return $this->dualProperty;
+    }
+
+    public function setSinglePropertyRelation(): self
+    {
+        $this->type = self::TYPE_SINGLE_PROPERTY;
+        $this->singleProperty = [];
+        $this->dualProperty = null;
+
+        return $this;
+    }
+
+    public function setDualPropertyRelation(): self
+    {
+        $this->type = self::TYPE_DUAL_PROPERTY;
+        $this->dualProperty = [];
+        $this->singleProperty = null;
+
+        return $this;
+    }
+
     public function getSyncedPropertyName(): ?string
     {
         return $this->syncedPropertyName;
@@ -82,5 +126,43 @@ class RelationPropertyConfiguration extends AbstractProperty
         $this->syncedPropertyId = $syncedPropertyId;
 
         return $this;
+    }
+
+    private function resolveType(array $rawData): ?string
+    {
+        if (isset($rawData['type'])) {
+            return (string) $rawData['type'];
+        }
+
+        if (isset($rawData['single_property'])) {
+            return self::TYPE_SINGLE_PROPERTY;
+        }
+
+        if (isset($rawData['dual_property'])) {
+            return self::TYPE_DUAL_PROPERTY;
+        }
+
+        return null;
+    }
+
+    private function hasEmptyRelationMarker(): bool
+    {
+        return $this->singleProperty === [] || $this->dualProperty === [];
+    }
+
+    /**
+     * @param mixed $value
+     */
+    protected function canBeSerialized($value, string $key): bool
+    {
+        if (in_array($key, ['singleProperty', 'dualProperty'], true)) {
+            return $value === [];
+        }
+
+        if ($key === 'type') {
+            return $this->hasEmptyRelationMarker();
+        }
+
+        return parent::canBeSerialized($value, $key);
     }
 }
