@@ -18,7 +18,11 @@ use Brd6\NotionSdkPhp\Resource\RichText\AbstractRichText;
 use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
 use DateTimeImmutable;
 
+use function array_diff;
+use function array_keys;
 use function array_map;
+use function array_values;
+use function count;
 use function in_array;
 use function is_array;
 
@@ -228,13 +232,49 @@ class DataSource extends AbstractResource
     }
 
     /**
-     * @param array<string, AbstractPropertyObject> $properties
+     * @param array<string, AbstractPropertyObject|array> $properties
+     *
+     * @throws InvalidPropertyObjectException
+     * @throws UnsupportedPropertyObjectException
      */
     public function setProperties(array $properties): self
     {
-        $this->properties = $properties;
+        $this->properties = array_map(
+            fn ($property) => self::hydrateProperty($property),
+            $properties,
+        );
 
         return $this;
+    }
+
+    /**
+     * @param AbstractPropertyObject|array $property
+     *
+     * @throws InvalidPropertyObjectException
+     * @throws UnsupportedPropertyObjectException
+     */
+    private static function hydrateProperty($property): AbstractPropertyObject
+    {
+        if ($property instanceof AbstractPropertyObject) {
+            return $property;
+        }
+
+        return AbstractPropertyObject::fromRawData(self::withResolvedPropertyType($property));
+    }
+
+    private static function withResolvedPropertyType(array $property): array
+    {
+        if (isset($property['type'])) {
+            return $property;
+        }
+
+        $configKeys = array_diff(array_keys($property), ['id', 'name']);
+
+        if (count($configKeys) === 1) {
+            $property['type'] = array_values($configKeys)[0];
+        }
+
+        return $property;
     }
 
     public function getParent(): ?AbstractParentProperty
