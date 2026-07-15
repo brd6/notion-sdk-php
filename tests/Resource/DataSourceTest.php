@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Brd6\Test\NotionSdkPhp\Resource;
 
+use Brd6\NotionSdkPhp\Exception\InvalidPropertyObjectException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyObjectException;
 use Brd6\NotionSdkPhp\Resource\DataSource;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\RelationPropertyObject;
 use Brd6\NotionSdkPhp\Resource\File\Icon;
@@ -43,6 +45,65 @@ class DataSourceTest extends TestCase
         $this->assertArrayHasKey('Projects', $properties);
         $this->assertArrayNotHasKey('Created time', $properties);
         $this->assertArrayNotHasKey('Last edited by', $properties);
+    }
+
+    public function testUpdateSerializationIsByteIdenticalForTypedAndRawProperties(): void
+    {
+        $rawConfig = [
+            'type' => 'relation',
+            'relation' => [
+                'data_source_id' => 'target-ds',
+                'type' => 'single_property',
+                'single_property' => [],
+            ],
+        ];
+
+        $typed = (new DataSource())
+            ->setId('ds')
+            ->setProperties([
+                'Project' => RelationPropertyObject::fromRawData($rawConfig),
+            ]);
+
+        $raw = (new DataSource())
+            ->setId('ds')
+            ->setProperties(['Project' => $rawConfig]);
+
+        $this->assertSame($typed->toArrayForUpdate(), $raw->toArrayForUpdate());
+    }
+
+    public function testUpdateFiltersReadOnlyConfigurationsSetAsRawArrays(): void
+    {
+        $dataSource = (new DataSource())
+            ->setId('ds')
+            ->setProperties([
+                'Name' => ['type' => 'title', 'title' => []],
+                'Created time' => ['type' => 'created_time', 'created_time' => []],
+                'Last edited by' => ['type' => 'last_edited_by', 'last_edited_by' => []],
+            ]);
+
+        $properties = $dataSource->toArrayForUpdate()['properties'];
+
+        $this->assertArrayHasKey('Name', $properties);
+        $this->assertArrayNotHasKey('Created time', $properties);
+        $this->assertArrayNotHasKey('Last edited by', $properties);
+    }
+
+    public function testSetPropertiesRejectsRawArrayWithUnresolvableType(): void
+    {
+        $this->expectException(InvalidPropertyObjectException::class);
+
+        (new DataSource())->setProperties([
+            'Ambiguous' => ['id' => 'x', 'name' => 'Ambiguous'],
+        ]);
+    }
+
+    public function testSetPropertiesRejectsRawArrayWithUnknownType(): void
+    {
+        $this->expectException(UnsupportedPropertyObjectException::class);
+
+        (new DataSource())->setProperties([
+            'Mystery' => ['type' => 'not_a_real_type', 'not_a_real_type' => []],
+        ]);
     }
 
     public function testDataSourceHydratesInTrashPayloadWithoutArchivedKey(): void
