@@ -355,4 +355,147 @@ class DataSourcesEndpointTest extends TestCase
 
         $client->dataSources()->update($dataSource);
     }
+
+    public function testUpdateAcceptsRawSinglePropertyRelationConfiguration(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $relation = $body['properties']['Project']['relation'];
+            $this->assertSame('single_property', $relation['type']);
+            $this->assertSame([], $relation['single_property']);
+            $this->assertSame('target-ds', $relation['data_source_id']);
+            $this->assertStringContainsString('"single_property":{}', (string) $options['body']);
+            $this->assertStringNotContainsString('"single_property":[]', (string) $options['body']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $dataSource = (new DataSource())
+            ->setId('164b19c5-58e5-4a47-a3a9-c905d9519c65')
+            ->setProperties([
+                'Project' => [
+                    'type' => 'relation',
+                    'relation' => [
+                        'data_source_id' => 'target-ds',
+                        'type' => 'single_property',
+                        'single_property' => [],
+                    ],
+                ],
+            ]);
+
+        $client->dataSources()->update($dataSource);
+    }
+
+    public function testUpdateAcceptsRawDualPropertyRelationConfiguration(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $relation = $body['properties']['Project']['relation'];
+            $this->assertSame('dual_property', $relation['type']);
+            $this->assertSame([], $relation['dual_property']);
+            $this->assertStringContainsString('"dual_property":{}', (string) $options['body']);
+            $this->assertStringNotContainsString('"dual_property":[]', (string) $options['body']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $dataSource = (new DataSource())
+            ->setId('164b19c5-58e5-4a47-a3a9-c905d9519c65')
+            ->setProperties([
+                'Project' => [
+                    'type' => 'relation',
+                    'relation' => [
+                        'data_source_id' => 'target-ds',
+                        'type' => 'dual_property',
+                        'dual_property' => [],
+                    ],
+                ],
+            ]);
+
+        $client->dataSources()->update($dataSource);
+    }
+
+    public function testUpdateAcceptsRawSelectConfigurationKeepingOptionsAsArray(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $select = $body['properties']['Status']['select'];
+            $this->assertSame('Todo', $select['options'][0]['name']);
+            $this->assertStringNotContainsString('"options":{}', (string) $options['body']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $dataSource = (new DataSource())
+            ->setId('164b19c5-58e5-4a47-a3a9-c905d9519c65')
+            ->setProperties([
+                'Status' => [
+                    'type' => 'select',
+                    'select' => [
+                        'options' => [
+                            ['name' => 'Todo', 'color' => 'red'],
+                        ],
+                    ],
+                ],
+            ]);
+
+        $client->dataSources()->update($dataSource);
+    }
+
+    public function testUpdateAcceptsMixedRawAndTypedPropertyConfigurations(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertArrayHasKey('Name', $body['properties']);
+            $this->assertStringContainsString('"title":{}', (string) $options['body']);
+            $this->assertSame('single_property', $body['properties']['Project']['relation']['type']);
+            $this->assertStringContainsString('"single_property":{}', (string) $options['body']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $dataSource = (new DataSource())
+            ->setId('164b19c5-58e5-4a47-a3a9-c905d9519c65')
+            ->setProperties([
+                'Name' => new TitlePropertyObject(),
+                'Project' => [
+                    'type' => 'relation',
+                    'relation' => [
+                        'data_source_id' => 'target-ds',
+                        'type' => 'single_property',
+                        'single_property' => [],
+                    ],
+                ],
+            ]);
+
+        $client->dataSources()->update($dataSource);
+    }
 }
