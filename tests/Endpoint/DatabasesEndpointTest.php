@@ -10,6 +10,7 @@ use Brd6\NotionSdkPhp\Endpoint\DatabasesEndpoint;
 use Brd6\NotionSdkPhp\Resource\Database;
 use Brd6\NotionSdkPhp\Resource\Database\DatabaseRequest;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyConfiguration\NumberPropertyConfiguration;
+use Brd6\NotionSdkPhp\Resource\Database\PropertyConfiguration\RelationPropertyConfiguration;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyConfiguration\SelectPropertyConfiguration;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\CheckboxPropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\DatePropertyObject;
@@ -17,6 +18,7 @@ use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\FilesPropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\MultiSelectPropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\NumberPropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\PeoplePropertyObject;
+use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\RelationPropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\RichTextPropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\SelectPropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\TitlePropertyObject;
@@ -455,5 +457,161 @@ class DatabasesEndpointTest extends TestCase
         $database->setProperties(['in stock' => $inStockSelectObject]);
 
         $client->databases()->update($database);
+    }
+
+    public function testCreateObjectifiesSinglePropertyRelationInInitialDataSource(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $relation = $body['initial_data_source']['properties']['Project']['relation'];
+            $this->assertSame('single_property', $relation['type']);
+            $this->assertSame([], $relation['single_property']);
+            $this->assertStringContainsString('"single_property":{}', (string) $options['body']);
+            $this->assertStringNotContainsString('"single_property":[]', (string) $options['body']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_databases_create_database_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setNotionVersion(ClientOptions::NOTION_VERSION_2025_09_03)
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $relationObject = new RelationPropertyObject();
+        $relationObject->setRelation(
+            (new RelationPropertyConfiguration())
+                ->setDataSourceId('248104cd-477e-80fd-b757-e945d38000bd')
+                ->setSinglePropertyRelation(),
+        );
+
+        $database = new Database();
+        $database->setParent((new PageIdParent())->setPageId('4a808e6e88454d49a447fb2a4c460f6f'));
+        $database->setTitle([Text::fromContent('Tasks')]);
+        $database->setProperties([
+            'name' => new TitlePropertyObject(),
+            'Project' => $relationObject,
+        ]);
+
+        $client->databases()->create($database);
+    }
+
+    public function testCreateObjectifiesDualPropertyRelationInInitialDataSource(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $relation = $body['initial_data_source']['properties']['Project']['relation'];
+            $this->assertSame('dual_property', $relation['type']);
+            $this->assertSame([], $relation['dual_property']);
+            $this->assertStringContainsString('"dual_property":{}', (string) $options['body']);
+            $this->assertStringNotContainsString('"dual_property":[]', (string) $options['body']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_databases_create_database_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setNotionVersion(ClientOptions::NOTION_VERSION_2025_09_03)
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $relationObject = new RelationPropertyObject();
+        $relationObject->setRelation(
+            (new RelationPropertyConfiguration())
+                ->setDataSourceId('248104cd-477e-80fd-b757-e945d38000bd')
+                ->setDualPropertyRelation(),
+        );
+
+        $database = new Database();
+        $database->setParent((new PageIdParent())->setPageId('4a808e6e88454d49a447fb2a4c460f6f'));
+        $database->setTitle([Text::fromContent('Tasks')]);
+        $database->setProperties([
+            'name' => new TitlePropertyObject(),
+            'Project' => $relationObject,
+        ]);
+
+        $client->databases()->create($database);
+    }
+
+    public function testCreateObjectifiesEmptyInitialDataSourceProperties(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertArrayHasKey('initial_data_source', $body);
+            $this->assertSame([], $body['initial_data_source']['properties']);
+            $this->assertStringContainsString('"properties":{}', (string) $options['body']);
+            $this->assertStringNotContainsString('"properties":[]', (string) $options['body']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_databases_create_database_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setNotionVersion(ClientOptions::NOTION_VERSION_2025_09_03)
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $database = new Database();
+        $database->setParent((new PageIdParent())->setPageId('4a808e6e88454d49a447fb2a4c460f6f'));
+        $database->setTitle([Text::fromContent('Tasks')]);
+
+        $client->databases()->create($database);
+    }
+
+    public function testCreateKeepsSelectOptionsAsArray(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertSame(
+                'Yes',
+                $body['initial_data_source']['properties']['in stock']['select']['options'][0]['name'],
+            );
+            $this->assertStringNotContainsString('"options":{}', (string) $options['body']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_databases_create_database_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $options = (new ClientOptions())
+            ->setNotionVersion(ClientOptions::NOTION_VERSION_2025_09_03)
+            ->setHttpClient($httpClient);
+
+        $client = new Client($options);
+
+        $selectObject = new SelectPropertyObject();
+        $selectObject->setSelect(
+            (new SelectPropertyConfiguration())->setOptions([
+                (new SelectProperty())->setName('Yes')->setColor('green'),
+            ]),
+        );
+
+        $database = new Database();
+        $database->setParent((new PageIdParent())->setPageId('4a808e6e88454d49a447fb2a4c460f6f'));
+        $database->setTitle([Text::fromContent('Tasks')]);
+        $database->setProperties([
+            'name' => new TitlePropertyObject(),
+            'in stock' => $selectObject,
+        ]);
+
+        $client->databases()->create($database);
     }
 }

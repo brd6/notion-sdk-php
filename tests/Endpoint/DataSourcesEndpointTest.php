@@ -242,4 +242,117 @@ class DataSourcesEndpointTest extends TestCase
 
         $client->dataSources()->update($dataSource);
     }
+
+    public function testUpdateObjectifiesHydratedSinglePropertyRelation(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $relation = $body['properties']['Project']['relation'];
+            $this->assertSame('single_property', $relation['type']);
+            $this->assertSame([], $relation['single_property']);
+            $this->assertSame('target-ds', $relation['data_source_id']);
+            $this->assertStringContainsString('"single_property":{}', (string) $options['body']);
+            $this->assertStringNotContainsString('"single_property":[]', (string) $options['body']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+            true,
+        );
+        $rawData['properties']['Project'] = [
+            'id' => 'p1',
+            'name' => 'Project',
+            'type' => 'relation',
+            'relation' => [
+                'data_source_id' => 'target-ds',
+                'type' => 'single_property',
+                'single_property' => [],
+            ],
+        ];
+
+        /** @var DataSource $dataSource */
+        $dataSource = DataSource::fromRawData($rawData);
+
+        $client->dataSources()->update($dataSource);
+    }
+
+    public function testUpdateKeepsPopulatedRelationFlatWithoutNestedObject(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $relation = $body['properties']['Projects']['relation'];
+            $this->assertArrayNotHasKey('single_property', $relation);
+            $this->assertArrayNotHasKey('dual_property', $relation);
+            $this->assertArrayNotHasKey('type', $relation);
+            $this->assertSame('Tasks', $relation['synced_property_name']);
+            $this->assertStringNotContainsString('"dual_property":', (string) $options['body']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        /** @var DataSource $dataSource */
+        $dataSource = DataSource::fromRawData((array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+            true,
+        ));
+
+        $client->dataSources()->update($dataSource);
+    }
+
+    public function testUpdateObjectifiesHydratedDualPropertyRelation(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $relation = $body['properties']['Project']['relation'];
+            $this->assertSame('dual_property', $relation['type']);
+            $this->assertSame([], $relation['dual_property']);
+            $this->assertStringContainsString('"dual_property":{}', (string) $options['body']);
+            $this->assertStringNotContainsString('"dual_property":[]', (string) $options['body']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+            true,
+        );
+        $rawData['properties']['Project'] = [
+            'id' => 'p1',
+            'name' => 'Project',
+            'type' => 'relation',
+            'relation' => [
+                'data_source_id' => 'target-ds',
+                'type' => 'dual_property',
+                'dual_property' => [],
+            ],
+        ];
+
+        /** @var DataSource $dataSource */
+        $dataSource = DataSource::fromRawData($rawData);
+
+        $client->dataSources()->update($dataSource);
+    }
 }
