@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 1.12.4 - 2026-07-23
+
+### Fixed
+
+- A rich text's link now serializes as an object instead of an empty array, so creating a block with a linked text no longer fails validation. `Link` was the only property resource that did not extend `AbstractJsonSerializable`, which left its properties invisible to serialization and produced `"link": []` — a shape the API rejects outright. Setting the rich text's `href` was not a workaround: the API accepts it on create, then discards it, returning the text unlinked and merged into its adjacent runs.
+
 ## 1.12.3 - 2026-07-16
 
 ### Fixed
