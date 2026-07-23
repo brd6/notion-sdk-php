@@ -34,7 +34,9 @@ class LinkTest extends TestCase
     public function testALinkedTextSerializesAsAnObjectForCreate(): void
     {
         $text = Text::fromContent('Linked');
-        $text->getText()?->setLink((new Link())->setUrl('https://example.test/a'));
+        $property = $text->getText();
+        $this->assertInstanceOf(TextProperty::class, $property);
+        $property->setLink((new Link())->setUrl('https://example.test/a'));
 
         $block = (new ParagraphBlock())->setParagraph((new ParagraphProperty())->setRichText([$text]));
 
@@ -64,6 +66,8 @@ class LinkTest extends TestCase
             'link' => ['url' => 'https://example.test/a'],
         ]);
 
-        $this->assertSame('https://example.test/a', $property->getLink()?->getUrl());
+        $link = $property->getLink();
+        $this->assertInstanceOf(Link::class, $link);
+        $this->assertSame('https://example.test/a', $link->getUrl());
     }
 }
