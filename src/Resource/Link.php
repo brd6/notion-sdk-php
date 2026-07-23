@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource;
 
-class Link
+class Link extends AbstractJsonSerializable
 {
     protected string $type = '';
     protected string $url = '';
