@@ -7,7 +7,7 @@ namespace Brd6\NotionSdkPhp\Exception;
 use function sprintf;
 use function strlen;
 
-class UnsupportedPropertyItemException extends AbstractNotionException
+class UnsupportedPropertyItemException extends AbstractUnsupportedNotionException
 {
     public const MESSAGE = 'The given property item "%s" is unsupported.';
 

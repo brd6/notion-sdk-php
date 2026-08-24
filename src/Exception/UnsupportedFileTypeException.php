@@ -7,7 +7,7 @@ namespace Brd6\NotionSdkPhp\Exception;
 use function sprintf;
 use function strlen;
 
-class UnsupportedFileTypeException extends AbstractNotionException
+class UnsupportedFileTypeException extends AbstractUnsupportedNotionException
 {
     public const MESSAGE = 'The given file "%s" is unsupported.';
 

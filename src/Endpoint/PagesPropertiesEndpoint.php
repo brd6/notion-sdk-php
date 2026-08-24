@@ -11,7 +11,6 @@ use Brd6\NotionSdkPhp\Exception\InvalidPropertyValueException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\RequestTimeoutException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedPaginationResponseTypeException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyValueException;
 use Brd6\NotionSdkPhp\RequestParameters;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\AbstractPropertyValue;
 use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
@@ -36,7 +35,6 @@ class PagesPropertiesEndpoint extends AbstractEndpoint
      * @throws InvalidResourceException
      * @throws RequestTimeoutException
      * @throws UnsupportedPaginationResponseTypeException
-     * @throws UnsupportedPropertyValueException
      * @throws Exception
      */
     public function retrieve(
@@ -59,7 +57,6 @@ class PagesPropertiesEndpoint extends AbstractEndpoint
     /**
      * @return AbstractPaginationResults|AbstractPropertyValue
      *
-     * @throws UnsupportedPropertyValueException
      * @throws UnsupportedPaginationResponseTypeException
      * @throws InvalidPaginationResponseException
      * @throws InvalidPropertyValueException

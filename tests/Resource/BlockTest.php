@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Brd6\Test\NotionSdkPhp\Resource;
 
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
+use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
 use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Block\AudioBlock;
 use Brd6\NotionSdkPhp\Resource\Block\CalloutBlock;
@@ -101,6 +102,36 @@ class BlockTest extends TestCase
         ]);
 
         $this->assertNull($block->getBlockType());
+    }
+
+    public function testKnownBlockWithUnsupportedNestedFeatureFallsBack(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
+            true,
+        );
+        $rawData['paragraph']['rich_text'][0]['type'] = 'future_rich_text';
+        $rawData['paragraph']['rich_text'][0]['future_rich_text'] = [];
+
+        $block = AbstractBlock::fromRawData($rawData);
+
+        $this->assertInstanceOf(UnsupportedBlock::class, $block);
+        $this->assertSame('paragraph', $block->getType());
+        $this->assertSame($rawData['id'], $block->getId());
+        $this->assertNull($block->getBlockType());
+    }
+
+    public function testKnownBlockWithInvalidNestedFeatureStillThrows(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
+            true,
+        );
+        unset($rawData['paragraph']['rich_text'][0]['type']);
+
+        $this->expectException(InvalidRichTextException::class);
+
+        AbstractBlock::fromRawData($rawData);
     }
 
     public function testBlock(): void

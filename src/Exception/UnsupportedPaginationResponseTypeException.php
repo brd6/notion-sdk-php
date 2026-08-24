@@ -7,7 +7,7 @@ namespace Brd6\NotionSdkPhp\Exception;
 use function sprintf;
 use function strlen;
 
-class UnsupportedPaginationResponseTypeException extends AbstractNotionException
+class UnsupportedPaginationResponseTypeException extends AbstractUnsupportedNotionException
 {
     public const MESSAGE = 'The given pagination response "%s" is unsupported.';
 

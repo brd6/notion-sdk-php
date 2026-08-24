@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Page\PropertyValue;
 
+use Brd6\NotionSdkPhp\Exception\AbstractUnsupportedNotionException;
 use Brd6\NotionSdkPhp\Exception\InvalidPropertyValueException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyValueException;
 use Brd6\NotionSdkPhp\Resource\Property\AbstractProperty;
 use Brd6\NotionSdkPhp\Util\StringHelper;
 
@@ -22,10 +22,7 @@ abstract class AbstractPropertyValue extends AbstractProperty
     /**
      * @param array $rawData
      *
-     * @return static
-     *
      * @throws InvalidPropertyValueException
-     * @throws UnsupportedPropertyValueException
      */
     public static function fromRawData(array $rawData): self
     {
@@ -35,12 +32,19 @@ abstract class AbstractPropertyValue extends AbstractProperty
 
         $class = static::getMapClassFromType((string) $rawData['type']);
 
-        /** @var static $resource */
+        /** @var self $resource */
         $resource = new $class();
 
-        $resource
-            ->setRawData($rawData)
-            ->initialize();
+        try {
+            $resource
+                ->setRawData($rawData)
+                ->initialize();
+        } catch (AbstractUnsupportedNotionException $exception) {
+            $resource = new UnsupportedPropertyValue();
+            $resource
+                ->setRawData($rawData)
+                ->initialize();
+        }
 
         return $resource;
     }
@@ -57,19 +61,12 @@ abstract class AbstractPropertyValue extends AbstractProperty
         return $this;
     }
 
-    /**
-     * @throws UnsupportedPropertyValueException
-     */
     protected static function getMapClassFromType(string $type): string
     {
         $typeFormatted = StringHelper::snakeCaseToCamelCase($type);
         $class = "Brd6\\NotionSdkPhp\\Resource\\Page\\PropertyValue\\{$typeFormatted}PropertyValue";
 
-        if (!class_exists($class)) {
-            throw new UnsupportedPropertyValueException($type);
-        }
-
-        return $class;
+        return class_exists($class) ? $class : UnsupportedPropertyValue::class;
     }
 
     abstract protected function initialize(): void;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Block;
 
+use Brd6\NotionSdkPhp\Exception\AbstractUnsupportedNotionException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
@@ -65,12 +66,19 @@ abstract class AbstractBlock extends AbstractResource
 
         $class = static::getMapClassFromType((string) $rawData['type']);
 
-        /** @var static $resource */
+        /** @var self $resource */
         $resource = new $class();
 
-        $resource
-            ->setRawData($rawData)
-            ->initialize();
+        try {
+            $resource
+                ->setRawData($rawData)
+                ->initialize();
+        } catch (AbstractUnsupportedNotionException $exception) {
+            $resource = new UnsupportedBlock();
+            $resource
+                ->setRawData($rawData)
+                ->initialize();
+        }
 
         return $resource;
     }

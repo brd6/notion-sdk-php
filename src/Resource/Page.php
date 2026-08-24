@@ -9,7 +9,6 @@ use Brd6\NotionSdkPhp\Exception\InvalidParentException;
 use Brd6\NotionSdkPhp\Exception\InvalidPropertyValueException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedParentTypeException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyValueException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\AbstractParentProperty;
@@ -123,7 +122,6 @@ class Page extends AbstractResource
      * @throws UnsupportedFileTypeException
      * @throws UnsupportedParentTypeException
      * @throws UnsupportedUserTypeException
-     * @throws UnsupportedPropertyValueException
      */
     protected function initialize(): void
     {
