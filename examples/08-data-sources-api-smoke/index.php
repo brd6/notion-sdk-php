@@ -128,7 +128,7 @@ function runWriteChecks(Client $notion, string $databaseId): void
     $placeFailure = null;
     try {
         runPlacePageChecks($notion, $created->getId());
-    } catch (Exception $exception) {
+    } catch (Throwable $exception) {
         $placeFailure = $exception;
     }
 
@@ -142,7 +142,7 @@ function runWriteChecks(Client $notion, string $databaseId): void
             throw new RuntimeException('Temporary data source was not moved to trash.');
         }
         echo "Temporary data source moved to trash.\n";
-    } catch (Exception $cleanupFailure) {
+    } catch (Throwable $cleanupFailure) {
         $placeFailureMessage = $placeFailure === null ? '' : $placeFailure->getMessage() . ' ';
         throw new RuntimeException(
             $placeFailureMessage . 'Cleanup failed: ' . $cleanupFailure->getMessage(),
@@ -243,7 +243,7 @@ function main(): void
         echo "\nIntegration checks completed.\n";
     } catch (ApiResponseException $exception) {
         exitWithError('Notion API error: ' . $exception->getMessage());
-    } catch (Exception $exception) {
+    } catch (Throwable $exception) {
         exitWithError($exception->getMessage());
     }
 }
