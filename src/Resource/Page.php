@@ -28,6 +28,7 @@ class Page extends AbstractResource
     private const CREATE_ACCEPTED_KEYS = ['object', 'properties', 'parent', 'icon', 'cover'];
     private const UPDATE_ACCEPTED_KEYS = ['properties', 'archived', 'icon', 'cover', 'is_locked'];
     private const READ_ONLY_PROPERTY_VALUE_TYPES = [
+        'button',
         'created_by',
         'created_time',
         'last_edited_by',
