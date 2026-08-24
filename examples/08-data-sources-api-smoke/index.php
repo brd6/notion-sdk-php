@@ -125,18 +125,34 @@ function runWriteChecks(Client $notion, string $databaseId): void
     );
     echo "Data source created: {$created->getId()}\n";
 
+    $placeFailure = null;
     try {
         runPlacePageChecks($notion, $created->getId());
-    } finally {
-        $dataSourceForUpdate = new DataSource();
-        $dataSourceForUpdate->setId($created->getId());
+    } catch (Exception $exception) {
+        $placeFailure = $exception;
+    }
 
-        $updated = $notion->dataSources()->update(
-            $dataSourceForUpdate
-                ->setTitle([Text::fromContent($baseName . ' Updated')])
-                ->setInTrash(true),
+    try {
+        $dataSourceForCleanup = (new DataSource())
+            ->setId($created->getId())
+            ->setInTrash(true);
+        $trashed = $notion->dataSources()->update($dataSourceForCleanup);
+
+        if (!$trashed->isInTrash()) {
+            throw new RuntimeException('Temporary data source was not moved to trash.');
+        }
+        echo "Temporary data source moved to trash.\n";
+    } catch (Exception $cleanupFailure) {
+        $placeFailureMessage = $placeFailure === null ? '' : $placeFailure->getMessage() . ' ';
+        throw new RuntimeException(
+            $placeFailureMessage . 'Cleanup failed: ' . $cleanupFailure->getMessage(),
+            0,
+            $placeFailure ?? $cleanupFailure,
         );
-        echo 'Data source updated. In trash: ' . ($updated->isInTrash() ? 'yes' : 'no') . "\n";
+    }
+
+    if ($placeFailure !== null) {
+        throw $placeFailure;
     }
 }
 
@@ -172,7 +188,8 @@ function runPlacePageChecks(Client $notion, string $dataSourceId): void
             'Location' => (new PlacePropertyValue())->setPlace($updatedPlace),
         ]);
 
-    $updatedPage = $notion->pages()->update($pageForUpdate);
+    $notion->pages()->update($pageForUpdate);
+    $updatedPage = $notion->pages()->retrieve($createdPage->getId());
     assertPlace($updatedPage, 48.8606, 2.3376, 'Louvre Museum', 'Rue de Rivoli, 75001 Paris');
     echo "Populated Place update check passed.\n";
 }
