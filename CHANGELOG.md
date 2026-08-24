@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 1.12.5 - 2026-08-24
+
+### Fixed
+
+- Pages and data sources containing Notion Place properties now hydrate into typed resources instead of throwing unsupported property exceptions. Populated Place values also serialize for page create and update requests.
+
 ## 1.12.4 - 2026-07-23
 
 ### Fixed
