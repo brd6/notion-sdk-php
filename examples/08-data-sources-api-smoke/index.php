@@ -192,6 +192,22 @@ function runPlacePageChecks(Client $notion, string $dataSourceId): void
     $updatedPage = $notion->pages()->retrieve($createdPage->getId());
     assertPlace($updatedPage, 48.8606, 2.3376, 'Louvre Museum', 'Rue de Rivoli, 75001 Paris');
     echo "Populated Place update check passed.\n";
+
+    $pageForClear = (new Page())
+        ->setId($createdPage->getId())
+        ->setProperties([
+            'Location' => (new PlacePropertyValue())->setPlace(null),
+        ]);
+
+    $notion->pages()->update($pageForClear);
+    $clearedPage = $notion->pages()->retrieve($createdPage->getId());
+    $clearedPropertyValue = $clearedPage->getProperties()['Location'] ?? null;
+
+    if (!$clearedPropertyValue instanceof PlacePropertyValue || $clearedPropertyValue->getPlace() !== null) {
+        throw new RuntimeException('Location was not cleared by an explicit null Place update.');
+    }
+
+    echo "Explicit null Place update check passed.\n";
 }
 
 function assertPlace(Page $page, float $lat, float $lon, string $name, string $address): void

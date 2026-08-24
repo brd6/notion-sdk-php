@@ -15,6 +15,7 @@ use Brd6\NotionSdkPhp\Resource\Block\CalloutBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ChildPageBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ColumnBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ColumnListBlock;
+use Brd6\NotionSdkPhp\Resource\Block\ForwardCompatibleBlockFactory;
 use Brd6\NotionSdkPhp\Resource\Block\Heading1Block;
 use Brd6\NotionSdkPhp\Resource\Block\Heading2Block;
 use Brd6\NotionSdkPhp\Resource\Block\Heading3Block;
@@ -23,6 +24,7 @@ use Brd6\NotionSdkPhp\Resource\Block\Heading5Block;
 use Brd6\NotionSdkPhp\Resource\Block\Heading6Block;
 use Brd6\NotionSdkPhp\Resource\Block\MeetingNotesBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
+use Brd6\NotionSdkPhp\Resource\Block\ReadOnlyUnsupportedBlock;
 use Brd6\NotionSdkPhp\Resource\Block\SyncedBlockBlock;
 use Brd6\NotionSdkPhp\Resource\Block\TabBlock;
 use Brd6\NotionSdkPhp\Resource\Block\TranscriptionBlock;
@@ -134,9 +136,9 @@ class BlockTest extends TestCase
         $rawData['paragraph']['rich_text'][0]['type'] = 'abstract_rich_text';
         $rawData['paragraph']['rich_text'][0]['abstract_rich_text'] = [];
 
-        $block = AbstractBlock::fromRawDataWithUnsupportedContentFallback($rawData);
+        $block = ForwardCompatibleBlockFactory::create($rawData);
 
-        $this->assertInstanceOf(UnsupportedBlock::class, $block);
+        $this->assertInstanceOf(ReadOnlyUnsupportedBlock::class, $block);
         $this->assertSame('paragraph', $block->getType());
         $this->assertSame($rawData['id'], $block->getId());
         $this->assertNull($block->getBlockType());
@@ -160,7 +162,7 @@ class BlockTest extends TestCase
 
         $this->expectException(InvalidRichTextException::class);
 
-        AbstractBlock::fromRawDataWithUnsupportedContentFallback($rawData);
+        ForwardCompatibleBlockFactory::create($rawData);
     }
 
     public function testUnsupportedCreatedByPreservesLastEditedBy(): void
@@ -171,9 +173,9 @@ class BlockTest extends TestCase
         );
         $rawData['created_by']['type'] = 'abstract';
 
-        $block = AbstractBlock::fromRawDataWithUnsupportedContentFallback($rawData);
+        $block = ForwardCompatibleBlockFactory::create($rawData);
 
-        $this->assertInstanceOf(UnsupportedBlock::class, $block);
+        $this->assertInstanceOf(ReadOnlyUnsupportedBlock::class, $block);
         $this->assertNull($block->getCreatedBy());
         $this->assertNotNull($block->getLastEditedBy());
     }
@@ -186,9 +188,9 @@ class BlockTest extends TestCase
         );
         $rawData['last_edited_by']['type'] = 'future_user';
 
-        $block = AbstractBlock::fromRawDataWithUnsupportedContentFallback($rawData);
+        $block = ForwardCompatibleBlockFactory::create($rawData);
 
-        $this->assertInstanceOf(UnsupportedBlock::class, $block);
+        $this->assertInstanceOf(ReadOnlyUnsupportedBlock::class, $block);
         $this->assertNotNull($block->getCreatedBy());
         $this->assertNull($block->getLastEditedBy());
     }
@@ -229,9 +231,9 @@ class BlockTest extends TestCase
         $rawData[$type]['title'][0]['type'] = 'future_rich_text';
         $rawData[$type]['title'][0]['future_rich_text'] = [];
 
-        $block = AbstractBlock::fromRawDataWithUnsupportedContentFallback($rawData);
+        $block = ForwardCompatibleBlockFactory::create($rawData);
 
-        $this->assertInstanceOf(UnsupportedBlock::class, $block);
+        $this->assertInstanceOf(ReadOnlyUnsupportedBlock::class, $block);
         $this->assertSame($type, $block->getType());
         $this->assertSame([], $block->getChildren());
         $this->assertSame($rawData, $block->getRawData());
@@ -251,9 +253,9 @@ class BlockTest extends TestCase
         ];
     }
 
-    public function testUnsupportedBlockCannotSerializePropertyForWrite(): void
+    public function testForwardCompatibleBlockCannotSerializePropertyForWrite(): void
     {
-        $block = AbstractBlock::fromRawData([
+        $block = ForwardCompatibleBlockFactory::create([
             'object' => 'block',
             'type' => 'future_block',
             'future_block' => ['value' => 'future'],
@@ -264,9 +266,9 @@ class BlockTest extends TestCase
         $block->propertyToArray();
     }
 
-    public function testUnsupportedBlockCannotSerializeForCreate(): void
+    public function testForwardCompatibleBlockCannotSerializeForCreate(): void
     {
-        $block = AbstractBlock::fromRawData([
+        $block = ForwardCompatibleBlockFactory::create([
             'object' => 'block',
             'type' => 'future_block',
             'future_block' => ['value' => 'future'],
@@ -275,6 +277,20 @@ class BlockTest extends TestCase
         $this->expectException(UnsupportedPropertyTypeException::class);
 
         $block->toArrayForCreate();
+    }
+
+    public function testStrictUnsupportedBlockKeepsCreateSerializationContract(): void
+    {
+        $block = AbstractBlock::fromRawData([
+            'object' => 'block',
+            'type' => 'future_block',
+            'future_block' => ['value' => 'future'],
+        ]);
+
+        $this->assertEquals(
+            ['object' => 'block', 'type' => 'future_block'],
+            $block->toArrayForCreate(),
+        );
     }
 
     public function testBlock(): void

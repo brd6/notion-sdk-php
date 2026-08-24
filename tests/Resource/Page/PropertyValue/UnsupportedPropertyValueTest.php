@@ -10,8 +10,10 @@ use Brd6\NotionSdkPhp\Exception\InvalidPropertyValueException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedNotionExceptionInterface;
 use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyValueException;
+use Brd6\NotionSdkPhp\Resource\ForwardCompatiblePage;
 use Brd6\NotionSdkPhp\Resource\Page;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\AbstractPropertyValue;
+use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\ForwardCompatiblePropertyValueFactory;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\UnsupportedPropertyValue;
 use PHPUnit\Framework\TestCase;
 
@@ -30,7 +32,7 @@ class UnsupportedPropertyValueTest extends TestCase
             'future_property' => ['value' => 'future-value'],
         ];
 
-        $property = AbstractPropertyValue::fromRawDataWithUnsupportedContentFallback($rawData);
+        $property = ForwardCompatiblePropertyValueFactory::create($rawData);
 
         $this->assertInstanceOf(UnsupportedPropertyValue::class, $property);
         $this->assertSame('future_property', $property->getType());
@@ -42,13 +44,15 @@ class UnsupportedPropertyValueTest extends TestCase
     {
         $rawData = $this->getPageRawData();
         $rawData['properties']['Future'] = [
+            'object' => 'property_item',
             'id' => 'future-id',
             'type' => 'future_property',
+            'next_url' => 'https://api.notion.com/future',
             'future_property' => ['value' => 'future-value'],
         ];
 
         /** @var Page $page */
-        $page = Page::fromRawDataWithUnsupportedContentFallback($rawData);
+        $page = ForwardCompatiblePage::fromRawData($rawData);
 
         $this->assertInstanceOf(
             UnsupportedPropertyValue::class,
@@ -61,12 +65,14 @@ class UnsupportedPropertyValueTest extends TestCase
     {
         $rawData = $this->getPageRawData();
         $rawData['properties']['Future'] = [
+            'object' => 'property_item',
             'id' => 'future-id',
             'type' => 'future_property',
+            'next_url' => 'https://api.notion.com/future',
             'future_property' => ['value' => 'future-value'],
         ];
 
-        $page = Page::fromRawDataWithUnsupportedContentFallback($rawData);
+        $page = ForwardCompatiblePage::fromRawData($rawData);
 
         $this->assertArrayNotHasKey('Future', $page->toArrayForCreate()['properties']);
         $this->assertArrayNotHasKey('Future', $page->toArrayForUpdate()['properties']);
@@ -85,7 +91,7 @@ class UnsupportedPropertyValueTest extends TestCase
             'future_parent' => 'future-id',
         ];
 
-        $page = Page::fromRawDataWithUnsupportedContentFallback($rawData);
+        $page = ForwardCompatiblePage::fromRawData($rawData);
 
         $this->assertNull($page->getCreatedBy());
         $this->assertNotNull($page->getLastEditedBy());
@@ -96,7 +102,7 @@ class UnsupportedPropertyValueTest extends TestCase
 
     public function testUnknownPropertyValueCollidingWithAbstractClassFallsBack(): void
     {
-        $property = AbstractPropertyValue::fromRawDataWithUnsupportedContentFallback([
+        $property = ForwardCompatiblePropertyValueFactory::create([
             'id' => 'abstract-id',
             'type' => 'abstract',
             'abstract' => [],
@@ -119,7 +125,7 @@ class UnsupportedPropertyValueTest extends TestCase
             ],
         ];
 
-        $property = AbstractPropertyValue::fromRawDataWithUnsupportedContentFallback($rawData);
+        $property = ForwardCompatiblePropertyValueFactory::create($rawData);
 
         $this->assertInstanceOf(UnsupportedPropertyValue::class, $property);
         $this->assertSame('files', $property->getType());
@@ -128,7 +134,7 @@ class UnsupportedPropertyValueTest extends TestCase
 
     public function testKnownPropertyWithNestedAbstractClassCollisionFallsBack(): void
     {
-        $property = AbstractPropertyValue::fromRawDataWithUnsupportedContentFallback([
+        $property = ForwardCompatiblePropertyValueFactory::create([
             'id' => 'files-id',
             'type' => 'files',
             'files' => [
@@ -203,7 +209,7 @@ class UnsupportedPropertyValueTest extends TestCase
     {
         $this->expectException(InvalidFileException::class);
 
-        AbstractPropertyValue::fromRawDataWithUnsupportedContentFallback([
+        ForwardCompatiblePropertyValueFactory::create([
             'id' => 'files-id',
             'type' => 'files',
             'files' => [

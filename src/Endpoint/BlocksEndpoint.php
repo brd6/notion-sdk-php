@@ -41,25 +41,13 @@ class BlocksEndpoint extends AbstractEndpoint
      */
     public function retrieve(string $blockId): AbstractBlock
     {
-        return $this->retrieveBlock($blockId, false);
-    }
-
-    public function retrieveWithUnsupportedContentFallback(string $blockId): AbstractBlock
-    {
-        return $this->retrieveBlock($blockId, true);
-    }
-
-    private function retrieveBlock(string $blockId, bool $fallbackOnUnsupportedContent): AbstractBlock
-    {
         $requestParameters = (new RequestParameters())
             ->setPath("blocks/$blockId")
             ->setMethod('GET');
 
         $rawData = $this->getClient()->request($requestParameters);
 
-        return $fallbackOnUnsupportedContent ?
-            AbstractBlock::fromRawDataWithUnsupportedContentFallback($rawData) :
-            AbstractBlock::fromRawData($rawData);
+        return AbstractBlock::fromRawData($rawData);
     }
 
     /**

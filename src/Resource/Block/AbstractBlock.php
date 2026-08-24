@@ -6,7 +6,6 @@ namespace Brd6\NotionSdkPhp\Resource\Block;
 
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedNotionExceptionInterface;
 use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\AbstractResource;
 use Brd6\NotionSdkPhp\Resource\Property\AbstractProperty;
@@ -19,7 +18,6 @@ use ReflectionClass;
 use function array_map;
 use function class_exists;
 use function count;
-use function is_array;
 use function is_subclass_of;
 use function preg_replace;
 
@@ -34,7 +32,6 @@ abstract class AbstractBlock extends AbstractResource
     protected ?UserInterface $lastEditedBy = null;
     protected bool $archived = false;
     protected bool $hasChildren = false;
-    private bool $fallbackOnUnsupportedContent = false;
 
     /**
      * @var array|AbstractBlock[]
@@ -56,16 +53,6 @@ abstract class AbstractBlock extends AbstractResource
      */
     public static function fromRawData(array $rawData): self
     {
-        return self::hydrateRawData($rawData, false);
-    }
-
-    public static function fromRawDataWithUnsupportedContentFallback(array $rawData): self
-    {
-        return self::hydrateRawData($rawData, true);
-    }
-
-    private static function hydrateRawData(array $rawData, bool $fallbackOnUnsupportedContent): self
-    {
         if (
             !isset($rawData['object']) ||
             !isset($rawData['type'])
@@ -79,28 +66,12 @@ abstract class AbstractBlock extends AbstractResource
 
         $class = static::getMapClassFromType((string) $rawData['type']);
 
-        /** @var self $resource */
+        /** @var static $resource */
         $resource = new $class();
-        $resource->fallbackOnUnsupportedContent = $fallbackOnUnsupportedContent;
 
-        try {
-            $resource
-                ->setRawData($rawData)
-                ->initialize();
-        } catch (UnsupportedNotionExceptionInterface $exception) {
-            if (!$fallbackOnUnsupportedContent) {
-                throw $exception;
-            }
-
-            $resource = new UnsupportedBlock();
-            $resource
-                ->setRawData($rawData)
-                ->initialize();
-        }
-
-        if ($fallbackOnUnsupportedContent && $resource instanceof UnsupportedBlock) {
-            self::initializeFallbackData($resource);
-        }
+        $resource
+            ->setRawData($rawData)
+            ->initialize();
 
         return $resource;
     }
@@ -117,13 +88,6 @@ abstract class AbstractBlock extends AbstractResource
         $this->lastEditedBy = AbstractUser::fromRawData((array) $this->getRawData()['last_edited_by']);
         $this->archived = (bool) ($this->getRawData()['archived'] ?? $this->getRawData()['in_trash'] ?? false);
         $this->hasChildren = (bool) ($this->getRawData()['has_children'] ?? false);
-
-        if ($this->fallbackOnUnsupportedContent) {
-            $this->initializeBlockProperty();
-            $this->initializeChildren();
-
-            return;
-        }
 
         $this->initializeChildren();
         $this->initializeBlockProperty();
@@ -146,17 +110,9 @@ abstract class AbstractBlock extends AbstractResource
             return;
         }
 
-        $children = (array) $blockData['children'];
-
-        if ($this->fallbackOnUnsupportedContent && !$this->hasOnlyInlineChildren($children)) {
-            return;
-        }
-
         $this->children = array_map(
-            fn (array $childRawData) => $this->fallbackOnUnsupportedContent ?
-                self::fromRawDataWithUnsupportedContentFallback($childRawData) :
-                self::fromRawData($childRawData),
-            $children,
+            fn (array $childRawData) => self::fromRawData($childRawData),
+            (array) $blockData['children'],
         );
     }
 
@@ -317,52 +273,6 @@ abstract class AbstractBlock extends AbstractResource
         }
 
         return $data;
-    }
-
-    private function hasOnlyInlineChildren(array $children): bool
-    {
-        $position = 0;
-        foreach ($children as $key => $child) {
-            if ($key !== $position || !is_array($child)) {
-                return false;
-            }
-
-            ++$position;
-        }
-
-        return true;
-    }
-
-    private static function initializeFallbackData(self $resource): void
-    {
-        $resource->fallbackOnUnsupportedContent = true;
-        $rawData = $resource->getRawData();
-        $resource->archived = (bool) ($rawData['archived'] ?? $rawData['in_trash'] ?? false);
-        $resource->hasChildren = (bool) ($rawData['has_children'] ?? false);
-        $resource->createdTime = isset($rawData['created_time']) ?
-            new DateTimeImmutable((string) $rawData['created_time']) :
-            null;
-        $resource->lastEditedTime = isset($rawData['last_edited_time']) ?
-            new DateTimeImmutable((string) $rawData['last_edited_time']) :
-            null;
-
-        if (isset($rawData['created_by'])) {
-            try {
-                $resource->createdBy = AbstractUser::fromRawData((array) $rawData['created_by']);
-            } catch (UnsupportedNotionExceptionInterface $exception) {
-                $resource->createdBy = null;
-            }
-        }
-
-        if (isset($rawData['last_edited_by'])) {
-            try {
-                $resource->lastEditedBy = AbstractUser::fromRawData((array) $rawData['last_edited_by']);
-            } catch (UnsupportedNotionExceptionInterface $exception) {
-                $resource->lastEditedBy = null;
-            }
-        }
-
-        $resource->initializeChildren();
     }
 
     /**

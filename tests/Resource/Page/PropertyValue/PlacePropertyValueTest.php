@@ -13,6 +13,9 @@ use PHPUnit\Framework\TestCase;
 use function file_get_contents;
 use function json_decode;
 
+use const INF;
+use const NAN;
+
 class PlacePropertyValueTest extends TestCase
 {
     public function testNullPlaceProperty(): void
@@ -144,6 +147,8 @@ class PlacePropertyValueTest extends TestCase
             'missing longitude' => [['lat' => 48.8566]],
             'invalid latitude' => [['lat' => 'north', 'lon' => 2.3522]],
             'invalid longitude' => [['lat' => 48.8566, 'lon' => 'east']],
+            'not a number latitude' => [['lat' => NAN, 'lon' => 2.3522]],
+            'infinite longitude' => [['lat' => 48.8566, 'lon' => INF]],
         ];
     }
 

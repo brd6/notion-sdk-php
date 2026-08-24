@@ -9,15 +9,17 @@ use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Endpoint\BlocksEndpoint;
 use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
+use Brd6\NotionSdkPhp\ForwardCompatibleReader;
 use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ChildPageBlock;
+use Brd6\NotionSdkPhp\Resource\Block\ForwardCompatibleBlockFactory;
 use Brd6\NotionSdkPhp\Resource\Block\Heading3Block;
 use Brd6\NotionSdkPhp\Resource\Block\MeetingNotesBlock;
 use Brd6\NotionSdkPhp\Resource\Block\MeetingNotesQueryRequest;
 use Brd6\NotionSdkPhp\Resource\Block\MeetingNotesQueryResults;
 use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
+use Brd6\NotionSdkPhp\Resource\Block\ReadOnlyUnsupportedBlock;
 use Brd6\NotionSdkPhp\Resource\Block\TableRowBlock;
-use Brd6\NotionSdkPhp\Resource\Block\UnsupportedBlock;
 use Brd6\NotionSdkPhp\Resource\Pagination\BlockResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
@@ -79,7 +81,15 @@ class BlocksEndpointTest extends TestCase
         );
         $rawData['paragraph']['rich_text'][0]['type'] = 'future_rich_text';
         $rawData['paragraph']['rich_text'][0]['future_rich_text'] = [];
-        $httpClient = new MockHttpClient(new MockResponseFactory((string) json_encode($rawData), ['http_code' => 200]));
+        $httpClient = new MockHttpClient(function ($method, $url) use ($rawData) {
+            $this->assertSame('GET', $method);
+            $this->assertStringContainsString(
+                'blocks/0c940186-ab70-4351-bb34-2d16f0635d49',
+                $url,
+            );
+
+            return new MockResponseFactory((string) json_encode($rawData), ['http_code' => 200]);
+        });
         $client = new Client((new ClientOptions())->setHttpClient($httpClient));
 
         $this->expectException(UnsupportedRichTextTypeException::class);
@@ -95,14 +105,21 @@ class BlocksEndpointTest extends TestCase
         );
         $rawData['paragraph']['rich_text'][0]['type'] = 'future_rich_text';
         $rawData['paragraph']['rich_text'][0]['future_rich_text'] = [];
-        $httpClient = new MockHttpClient(new MockResponseFactory((string) json_encode($rawData), ['http_code' => 200]));
+        $httpClient = new MockHttpClient(function ($method, $url) use ($rawData) {
+            $this->assertSame('GET', $method);
+            $this->assertStringContainsString(
+                'blocks/0c940186-ab70-4351-bb34-2d16f0635d49',
+                $url,
+            );
+
+            return new MockResponseFactory((string) json_encode($rawData), ['http_code' => 200]);
+        });
         $client = new Client((new ClientOptions())->setHttpClient($httpClient));
 
-        $block = $client
-            ->blocks()
-            ->retrieveWithUnsupportedContentFallback('0c940186-ab70-4351-bb34-2d16f0635d49');
+        $block = (new ForwardCompatibleReader($client))
+            ->retrieveBlock('0c940186-ab70-4351-bb34-2d16f0635d49');
 
-        $this->assertInstanceOf(UnsupportedBlock::class, $block);
+        $this->assertInstanceOf(ReadOnlyUnsupportedBlock::class, $block);
         $this->assertSame('paragraph', $block->getType());
     }
 
@@ -112,7 +129,7 @@ class BlocksEndpointTest extends TestCase
             $this->fail('The HTTP request must not be dispatched.');
         });
         $client = new Client((new ClientOptions())->setHttpClient($httpClient));
-        $block = AbstractBlock::fromRawData([
+        $block = ForwardCompatibleBlockFactory::create([
             'object' => 'block',
             'id' => 'future-id',
             'type' => 'future_block',
@@ -254,16 +271,23 @@ class BlocksEndpointTest extends TestCase
         );
         $rawData['results'][0]['paragraph']['rich_text'][0]['type'] = 'future_rich_text';
         $rawData['results'][0]['paragraph']['rich_text'][0]['future_rich_text'] = [];
-        $httpClient = new MockHttpClient(new MockResponseFactory((string) json_encode($rawData), ['http_code' => 200]));
+        $httpClient = new MockHttpClient(function ($method, $url, $options) use ($rawData) {
+            $this->assertSame('GET', $method);
+            $this->assertStringContainsString(
+                'blocks/03cd5dca-84f7-456f-b7e6-aad92d5f69fd/children',
+                $url,
+            );
+            $this->assertSame((string) PaginationRequest::DEFAULT_PAGE_SIZE, $options['query']['page_size']);
+
+            return new MockResponseFactory((string) json_encode($rawData), ['http_code' => 200]);
+        });
         $client = new Client((new ClientOptions())->setHttpClient($httpClient));
 
         /** @var BlockResults $paginationResponse */
-        $paginationResponse = $client
-            ->blocks()
-            ->children()
-            ->listWithUnsupportedContentFallback('03cd5dca-84f7-456f-b7e6-aad92d5f69fd');
+        $paginationResponse = (new ForwardCompatibleReader($client))
+            ->listBlockChildren('03cd5dca-84f7-456f-b7e6-aad92d5f69fd');
 
-        $this->assertInstanceOf(UnsupportedBlock::class, $paginationResponse->getResults()[0]);
+        $this->assertInstanceOf(ReadOnlyUnsupportedBlock::class, $paginationResponse->getResults()[0]);
         $this->assertGreaterThan(1, count($paginationResponse->getResults()));
     }
 
@@ -670,16 +694,16 @@ class BlocksEndpointTest extends TestCase
         );
         $rawData['results'][0]['meeting_notes']['title'][0]['type'] = 'future_rich_text';
         $rawData['results'][0]['meeting_notes']['title'][0]['future_rich_text'] = [];
-        $httpClient = new MockHttpClient(
-            new MockResponseFactory((string) json_encode($rawData), ['http_code' => 200]),
-        );
+        $httpClient = new MockHttpClient(function ($method, $url) use ($rawData) {
+            $this->assertSame('POST', $method);
+            $this->assertStringContainsString('blocks/meeting_notes/query', $url);
+
+            return new MockResponseFactory((string) json_encode($rawData), ['http_code' => 200]);
+        });
         $client = new Client((new ClientOptions())->setHttpClient($httpClient));
 
-        $results = $client
-            ->blocks()
-            ->meetingNotes()
-            ->queryWithUnsupportedContentFallback();
+        $results = (new ForwardCompatibleReader($client))->queryMeetingNotes();
 
-        $this->assertInstanceOf(UnsupportedBlock::class, $results->getResults()[0]);
+        $this->assertInstanceOf(ReadOnlyUnsupportedBlock::class, $results->getResults()[0]);
     }
 }

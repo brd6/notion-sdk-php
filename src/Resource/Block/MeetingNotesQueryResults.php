@@ -25,22 +25,10 @@ class MeetingNotesQueryResults
      */
     public static function fromRawData(array $rawData): self
     {
-        return self::hydrateRawData($rawData, false);
-    }
-
-    public static function fromRawDataWithUnsupportedContentFallback(array $rawData): self
-    {
-        return self::hydrateRawData($rawData, true);
-    }
-
-    private static function hydrateRawData(array $rawData, bool $fallbackOnUnsupportedContent): self
-    {
         $queryResults = new self();
 
         $queryResults->results = isset($rawData['results']) ? array_map(
-            fn (array $resultRawData) => $fallbackOnUnsupportedContent ?
-                AbstractBlock::fromRawDataWithUnsupportedContentFallback($resultRawData) :
-                AbstractBlock::fromRawData($resultRawData),
+            fn (array $resultRawData) => AbstractBlock::fromRawData($resultRawData),
             (array) $rawData['results'],
         ) : [];
         $queryResults->hasMore = (bool) ($rawData['has_more'] ?? false);

@@ -47,25 +47,11 @@ class PagesEndpoint extends AbstractEndpoint
      */
     public function retrieve(string $pageId): Page
     {
-        return $this->retrievePage($pageId, false);
-    }
-
-    public function retrieveWithUnsupportedContentFallback(string $pageId): Page
-    {
-        return $this->retrievePage($pageId, true);
-    }
-
-    private function retrievePage(string $pageId, bool $fallbackOnUnsupportedContent): Page
-    {
         $requestParameters = (new RequestParameters())
             ->setPath("pages/$pageId")
             ->setMethod('GET');
 
         $rawData = $this->getClient()->request($requestParameters);
-
-        if ($fallbackOnUnsupportedContent) {
-            return Page::fromRawDataWithUnsupportedContentFallback($rawData);
-        }
 
         /** @var Page $page */
         $page = Page::fromRawData($rawData);

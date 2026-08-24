@@ -44,29 +44,6 @@ class PagesPropertiesEndpoint extends AbstractEndpoint
         string $propertyId,
         ?PaginationRequest $paginationRequest = null
     ) {
-        return $this->retrieveProperty($pageId, $propertyId, $paginationRequest, false);
-    }
-
-    /**
-     * @return AbstractPropertyValue|AbstractPaginationResults
-     */
-    public function retrieveWithUnsupportedContentFallback(
-        string $pageId,
-        string $propertyId,
-        ?PaginationRequest $paginationRequest = null
-    ) {
-        return $this->retrieveProperty($pageId, $propertyId, $paginationRequest, true);
-    }
-
-    /**
-     * @return AbstractPropertyValue|AbstractPaginationResults
-     */
-    private function retrieveProperty(
-        string $pageId,
-        string $propertyId,
-        ?PaginationRequest $paginationRequest,
-        bool $fallbackOnUnsupportedContent
-    ) {
         $paginationRequest = $paginationRequest ?? new PaginationRequest();
 
         $requestParameters = (new RequestParameters())
@@ -76,7 +53,7 @@ class PagesPropertiesEndpoint extends AbstractEndpoint
 
         $rawData = $this->getClient()->request($requestParameters);
 
-        return $this->transformRawData($rawData, $fallbackOnUnsupportedContent);
+        return $this->transformRawData($rawData);
     }
 
     /**
@@ -88,7 +65,7 @@ class PagesPropertiesEndpoint extends AbstractEndpoint
      * @throws InvalidPropertyValueException
      * @throws InvalidResourceException
      */
-    private function transformRawData(array $rawData, bool $fallbackOnUnsupportedContent)
+    private function transformRawData(array $rawData)
     {
         if (!isset($rawData['type'])) {
             throw new InvalidResourceException();
@@ -96,8 +73,6 @@ class PagesPropertiesEndpoint extends AbstractEndpoint
 
         return $rawData['type'] === self::PROPERTY_ITEM_TYPE ?
             AbstractPaginationResults::fromRawData($rawData) :
-            ($fallbackOnUnsupportedContent ?
-                AbstractPropertyValue::fromRawDataWithUnsupportedContentFallback($rawData) :
-                AbstractPropertyValue::fromRawData($rawData));
+            AbstractPropertyValue::fromRawData($rawData);
     }
 }

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Brd6\NotionSdkPhp\Resource\Page\PropertyValue;
 
 use Brd6\NotionSdkPhp\Exception\InvalidPropertyValueException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedNotionExceptionInterface;
 use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyValueException;
 use Brd6\NotionSdkPhp\Resource\Property\AbstractProperty;
 use Brd6\NotionSdkPhp\Util\StringHelper;
@@ -32,42 +31,18 @@ abstract class AbstractPropertyValue extends AbstractProperty
      */
     public static function fromRawData(array $rawData): self
     {
-        /** @var static $resource */
-        $resource = self::hydrateRawData($rawData, false);
-
-        return $resource;
-    }
-
-    public static function fromRawDataWithUnsupportedContentFallback(array $rawData): self
-    {
-        return self::hydrateRawData($rawData, true);
-    }
-
-    private static function hydrateRawData(array $rawData, bool $fallbackOnUnsupportedContent): self
-    {
         if (!isset($rawData['type'])) {
             throw new InvalidPropertyValueException();
         }
 
-        try {
-            $class = static::getMapClassFromType((string) $rawData['type']);
+        $class = static::getMapClassFromType((string) $rawData['type']);
 
-            /** @var self $resource */
-            $resource = new $class();
+        /** @var static $resource */
+        $resource = new $class();
 
-            $resource
-                ->setRawData($rawData)
-                ->initialize();
-        } catch (UnsupportedNotionExceptionInterface $exception) {
-            if (!$fallbackOnUnsupportedContent) {
-                throw $exception;
-            }
-
-            $resource = new UnsupportedPropertyValue();
-            $resource
-                ->setRawData($rawData)
-                ->initialize();
-        }
+        $resource
+            ->setRawData($rawData)
+            ->initialize();
 
         return $resource;
     }

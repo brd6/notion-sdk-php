@@ -136,12 +136,15 @@ The error contains properties from the response, and the most helpful is `code`.
 The standard read methods keep their existing strict behavior and throw when a response contains an unsupported nested type. Sync processes can opt into fallback resources without changing the behavior of other calls:
 
 ```php
-$page = $notion->pages()->retrieveWithUnsupportedContentFallback($pageId);
-$block = $notion->blocks()->retrieveWithUnsupportedContentFallback($blockId);
-$children = $notion->blocks()->children()->listWithUnsupportedContentFallback($blockId);
+use Brd6\NotionSdkPhp\ForwardCompatibleReader;
+
+$reader = new ForwardCompatibleReader($notion);
+$page = $reader->retrievePage($pageId);
+$block = $reader->retrieveBlock($blockId);
+$children = $reader->listBlockChildren($blockId);
 ```
 
-Unsupported page properties hydrate as `UnsupportedPropertyValue`, and blocks with unsupported nested content hydrate as `UnsupportedBlock`. Both retain the raw response for inspection. They cannot be written back to Notion.
+Unsupported page properties and paginated property items hydrate as `UnsupportedPropertyValue` and `UnsupportedPropertyItem`. Blocks with unsupported nested content hydrate as `ReadOnlyUnsupportedBlock`. Each fallback retains the raw response for inspection. Page serialization omits unsupported property values, and read-only unsupported blocks reject write serialization.
 
 ### Client options
 
@@ -184,4 +187,3 @@ Contributions are welcome! To contribute, please familiarize yourself with
 ## License
 
 The MIT License (MIT). Please see [LICENSE](LICENSE) for more information.
-

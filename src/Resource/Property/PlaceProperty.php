@@ -6,6 +6,7 @@ namespace Brd6\NotionSdkPhp\Resource\Property;
 
 use Brd6\NotionSdkPhp\Exception\InvalidPropertyValueException;
 
+use function is_finite;
 use function is_numeric;
 
 class PlaceProperty extends AbstractProperty
@@ -46,7 +47,12 @@ class PlaceProperty extends AbstractProperty
      */
     private static function validateCoordinates($lat, $lon): void
     {
-        if (!is_numeric($lat) || !is_numeric($lon)) {
+        if (
+            !is_numeric($lat) ||
+            !is_numeric($lon) ||
+            !is_finite((float) $lat) ||
+            !is_finite((float) $lon)
+        ) {
             throw new InvalidPropertyValueException();
         }
     }

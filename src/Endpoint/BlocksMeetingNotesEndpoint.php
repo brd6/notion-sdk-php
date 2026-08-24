@@ -30,19 +30,6 @@ class BlocksMeetingNotesEndpoint extends AbstractEndpoint
      */
     public function query(?MeetingNotesQueryRequest $queryRequest = null): MeetingNotesQueryResults
     {
-        return $this->queryMeetingNotes($queryRequest, false);
-    }
-
-    public function queryWithUnsupportedContentFallback(
-        ?MeetingNotesQueryRequest $queryRequest = null
-    ): MeetingNotesQueryResults {
-        return $this->queryMeetingNotes($queryRequest, true);
-    }
-
-    private function queryMeetingNotes(
-        ?MeetingNotesQueryRequest $queryRequest,
-        bool $fallbackOnUnsupportedContent
-    ): MeetingNotesQueryResults {
         $requestParameters = (new RequestParameters())
             ->setPath('blocks/meeting_notes/query')
             ->setMethod('POST')
@@ -50,8 +37,6 @@ class BlocksMeetingNotesEndpoint extends AbstractEndpoint
 
         $rawData = $this->getClient()->request($requestParameters);
 
-        return $fallbackOnUnsupportedContent ?
-            MeetingNotesQueryResults::fromRawDataWithUnsupportedContentFallback($rawData) :
-            MeetingNotesQueryResults::fromRawData($rawData);
+        return MeetingNotesQueryResults::fromRawData($rawData);
     }
 }

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Block;
 
-use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyTypeException;
-
 class UnsupportedBlock extends AbstractBlock
 {
     protected ?string $blockType = null;
@@ -13,6 +11,7 @@ class UnsupportedBlock extends AbstractBlock
     protected function initialize(): void
     {
         $this->type = (string) $this->getRawData()['type'];
+
         $this->initializeBlockProperty();
     }
 
@@ -32,15 +31,5 @@ class UnsupportedBlock extends AbstractBlock
         $this->blockType = $blockType;
 
         return $this;
-    }
-
-    public function propertyToArray(): array
-    {
-        throw new UnsupportedPropertyTypeException($this->getType(), self::RESOURCE_TYPE);
-    }
-
-    public function toArrayForCreate(): array
-    {
-        throw new UnsupportedPropertyTypeException($this->getType(), self::RESOURCE_TYPE);
     }
 }
