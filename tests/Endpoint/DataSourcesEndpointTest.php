@@ -243,6 +243,40 @@ class DataSourcesEndpointTest extends TestCase
         $client->dataSources()->update($dataSource);
     }
 
+    public function testUpdateSerializesHydratedPlacePropertyConfigurationAsObject(): void
+    {
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {
+            /** @var array $body */
+            $body = json_decode($options['body'], true);
+
+            $this->assertSame([], $body['properties']['Location']['place']);
+            $this->assertStringContainsString('"place":{}', $options['body']);
+
+            return new MockResponseFactory(
+                (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+                ['http_code' => 200],
+            );
+        });
+
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+            true,
+        );
+        $rawData['properties']['Location'] = [
+            'id' => 'place-id',
+            'name' => 'Location',
+            'type' => 'place',
+            'place' => [],
+        ];
+
+        /** @var DataSource $dataSource */
+        $dataSource = DataSource::fromRawData($rawData);
+
+        $client->dataSources()->update($dataSource);
+    }
+
     public function testUpdateObjectifiesHydratedSinglePropertyRelation(): void
     {
         $httpClient = new MockHttpClient(function (string $method, string $url, array $options) {

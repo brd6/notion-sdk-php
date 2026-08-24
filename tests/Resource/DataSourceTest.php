@@ -8,6 +8,7 @@ use Brd6\NotionSdkPhp\Exception\InvalidPropertyObjectException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyObjectException;
 use Brd6\NotionSdkPhp\Resource\DataSource;
+use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\PlacePropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\RelationPropertyObject;
 use Brd6\NotionSdkPhp\Resource\File\Icon;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\DatabaseIdParent;
@@ -165,6 +166,28 @@ class DataSourceTest extends TestCase
             $projectsProperty->getRelation()->getDataSourceId(),
         );
         $this->assertNotEmpty($dataSource->toArray());
+    }
+
+    public function testDataSourceHydratesPlacePropertyConfiguration(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+            true,
+        );
+        $rawData['properties']['Location'] = [
+            'id' => 'place-id',
+            'name' => 'Location',
+            'type' => 'place',
+            'place' => [],
+        ];
+
+        /** @var DataSource $dataSource */
+        $dataSource = DataSource::fromRawData($rawData);
+
+        $property = $dataSource->getProperties()['Location'];
+
+        $this->assertInstanceOf(PlacePropertyObject::class, $property);
+        $this->assertNotNull($property->getPlace());
     }
 
     public function testDataSourceWithIconObject(): void
