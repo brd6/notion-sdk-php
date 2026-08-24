@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Brd6\Test\NotionSdkPhp\Resource\Page\PropertyValue;
 
+use Brd6\NotionSdkPhp\Exception\InvalidFileException;
 use Brd6\NotionSdkPhp\Exception\InvalidPropertyValueException;
 use Brd6\NotionSdkPhp\Resource\Page;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\AbstractPropertyValue;
@@ -51,6 +52,18 @@ class UnsupportedPropertyValueTest extends TestCase
         $this->assertGreaterThan(1, count($page->getProperties()));
     }
 
+    public function testUnknownPropertyValueCollidingWithAbstractClassFallsBack(): void
+    {
+        $property = AbstractPropertyValue::fromRawData([
+            'id' => 'abstract-id',
+            'type' => 'abstract',
+            'abstract' => [],
+        ]);
+
+        $this->assertInstanceOf(UnsupportedPropertyValue::class, $property);
+        $this->assertSame('abstract', $property->getType());
+    }
+
     public function testKnownPropertyWithUnsupportedNestedFeatureFallsBack(): void
     {
         $rawData = [
@@ -76,6 +89,19 @@ class UnsupportedPropertyValueTest extends TestCase
         $this->expectException(InvalidPropertyValueException::class);
 
         AbstractPropertyValue::fromRawData(['id' => 'missing-type']);
+    }
+
+    public function testKnownPropertyWithInvalidNestedFeatureStillThrows(): void
+    {
+        $this->expectException(InvalidFileException::class);
+
+        AbstractPropertyValue::fromRawData([
+            'id' => 'files-id',
+            'type' => 'files',
+            'files' => [
+                ['name' => 'missing-type'],
+            ],
+        ]);
     }
 
     private function getPageRawData(): array

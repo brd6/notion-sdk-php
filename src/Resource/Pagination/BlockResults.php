@@ -6,7 +6,6 @@ namespace Brd6\NotionSdkPhp\Resource\Pagination;
 
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 
 use function array_map;
@@ -16,7 +15,6 @@ class BlockResults extends AbstractPaginationResults
     /**
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
-     * @throws UnsupportedUserTypeException
      */
     protected function initialize(): void
     {

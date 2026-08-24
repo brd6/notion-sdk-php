@@ -104,12 +104,30 @@ class BlockTest extends TestCase
         $this->assertNull($block->getBlockType());
     }
 
+    public function testUnknownBlockTypeCollidingWithAbstractClassFallsBack(): void
+    {
+        $block = AbstractBlock::fromRawData([
+            'object' => 'block',
+            'type' => 'abstract_heading',
+        ]);
+
+        $this->assertInstanceOf(UnsupportedBlock::class, $block);
+        $this->assertSame('abstract_heading', $block->getType());
+    }
+
     public function testKnownBlockWithUnsupportedNestedFeatureFallsBack(): void
     {
         $rawData = (array) json_decode(
             (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
             true,
         );
+        $childRawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_child_page_200.json'),
+            true,
+        );
+        $rawData['archived'] = true;
+        $rawData['has_children'] = true;
+        $rawData['paragraph']['children'] = [$childRawData];
         $rawData['paragraph']['rich_text'][0]['type'] = 'future_rich_text';
         $rawData['paragraph']['rich_text'][0]['future_rich_text'] = [];
 
@@ -119,6 +137,15 @@ class BlockTest extends TestCase
         $this->assertSame('paragraph', $block->getType());
         $this->assertSame($rawData['id'], $block->getId());
         $this->assertNull($block->getBlockType());
+        $this->assertNotNull($block->getCreatedTime());
+        $this->assertNotNull($block->getCreatedBy());
+        $this->assertNotNull($block->getLastEditedTime());
+        $this->assertNotNull($block->getLastEditedBy());
+        $this->assertTrue($block->isArchived());
+        $this->assertTrue($block->isHasChildren());
+        $this->assertCount(1, $block->getChildren());
+        $this->assertSame($rawData['paragraph'], $block->propertyToArray());
+        $this->assertArrayHasKey('paragraph', $block->toArrayForCreate());
     }
 
     public function testKnownBlockWithInvalidNestedFeatureStillThrows(): void

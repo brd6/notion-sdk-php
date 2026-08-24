@@ -19,6 +19,7 @@ use ReflectionClass;
 use function array_map;
 use function class_exists;
 use function count;
+use function is_subclass_of;
 use function preg_replace;
 
 abstract class AbstractBlock extends AbstractResource
@@ -49,7 +50,6 @@ abstract class AbstractBlock extends AbstractResource
     /**
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
-     * @throws UnsupportedUserTypeException
      */
     public static function fromRawData(array $rawData): self
     {
@@ -88,22 +88,39 @@ abstract class AbstractBlock extends AbstractResource
      */
     protected function initialize(): void
     {
-        $this->type = (string) $this->getRawData()['type'];
-        $this->createdTime = new DateTimeImmutable((string) $this->getRawData()['created_time']);
-        $this->createdBy = AbstractUser::fromRawData((array) $this->getRawData()['created_by']);
-        $this->lastEditedTime = new DateTimeImmutable((string) $this->getRawData()['last_edited_time']);
-        $this->lastEditedBy = AbstractUser::fromRawData((array) $this->getRawData()['last_edited_by']);
-        $this->archived = (bool) ($this->getRawData()['archived'] ?? $this->getRawData()['in_trash'] ?? false);
-        $this->hasChildren = (bool) ($this->getRawData()['has_children'] ?? false);
+        $this->initializeBlockState();
+        $this->initializeBlockTimes();
+        $this->initializeBlockUsers();
 
         $this->initializeChildren();
         $this->initializeBlockProperty();
     }
 
+    protected function initializeBlockState(): void
+    {
+        $this->type = (string) $this->getRawData()['type'];
+        $this->archived = (bool) ($this->getRawData()['archived'] ?? $this->getRawData()['in_trash'] ?? false);
+        $this->hasChildren = (bool) ($this->getRawData()['has_children'] ?? false);
+    }
+
+    protected function initializeBlockTimes(): void
+    {
+        $this->createdTime = new DateTimeImmutable((string) $this->getRawData()['created_time']);
+        $this->lastEditedTime = new DateTimeImmutable((string) $this->getRawData()['last_edited_time']);
+    }
+
+    /**
+     * @throws UnsupportedUserTypeException
+     */
+    protected function initializeBlockUsers(): void
+    {
+        $this->createdBy = AbstractUser::fromRawData((array) $this->getRawData()['created_by']);
+        $this->lastEditedBy = AbstractUser::fromRawData((array) $this->getRawData()['last_edited_by']);
+    }
+
     /**
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
-     * @throws UnsupportedUserTypeException
      */
     protected function initializeChildren(): void
     {
@@ -130,7 +147,11 @@ abstract class AbstractBlock extends AbstractResource
         $typeFormatted = StringHelper::snakeCaseToCamelCase($type);
         $class = "Brd6\\NotionSdkPhp\\Resource\\Block\\{$typeFormatted}Block";
 
-        return class_exists($class) ? $class : UnsupportedBlock::class;
+        if (!class_exists($class) || !is_subclass_of($class, self::class)) {
+            return UnsupportedBlock::class;
+        }
+
+        return (new ReflectionClass($class))->isInstantiable() ? $class : UnsupportedBlock::class;
     }
 
     private static function resolveType(): string
@@ -264,8 +285,13 @@ abstract class AbstractBlock extends AbstractResource
 
     public function toArrayForCreate(): array
     {
-        $data = $this->toArrayStrict(['object', 'type', $this->getType()]);
+        return $this->addChildrenToCreateData(
+            $this->toArrayStrict(['object', 'type', $this->getType()]),
+        );
+    }
 
+    protected function addChildrenToCreateData(array $data): array
+    {
         if (count($this->children) > 0) {
             $property = (array) ($data[$this->getType()] ?? []);
             $property['children'] = array_map(

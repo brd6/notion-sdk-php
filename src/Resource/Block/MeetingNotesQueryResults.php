@@ -6,7 +6,6 @@ namespace Brd6\NotionSdkPhp\Resource\Block;
 
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 
 use function array_map;
 
@@ -21,7 +20,6 @@ class MeetingNotesQueryResults
     /**
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
-     * @throws UnsupportedUserTypeException
      */
     public static function fromRawData(array $rawData): self
     {
