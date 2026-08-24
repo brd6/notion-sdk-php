@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Block;
 
-use Brd6\NotionSdkPhp\Exception\AbstractUnsupportedNotionException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyTypeException;
 
 class UnsupportedBlock extends AbstractBlock
 {
@@ -12,29 +12,7 @@ class UnsupportedBlock extends AbstractBlock
 
     protected function initialize(): void
     {
-        $this->initializeBlockState();
-
-        if (isset($this->getRawData()['created_time'], $this->getRawData()['last_edited_time'])) {
-            $this->initializeBlockTimes();
-        }
-
-        if (isset($this->getRawData()['created_by'])) {
-            try {
-                $this->initializeCreatedBy();
-            } catch (AbstractUnsupportedNotionException $exception) {
-                $this->createdBy = null;
-            }
-        }
-
-        if (isset($this->getRawData()['last_edited_by'])) {
-            try {
-                $this->initializeLastEditedBy();
-            } catch (AbstractUnsupportedNotionException $exception) {
-                $this->lastEditedBy = null;
-            }
-        }
-
-        $this->initializeChildren();
+        $this->type = (string) $this->getRawData()['type'];
         $this->initializeBlockProperty();
     }
 
@@ -58,17 +36,11 @@ class UnsupportedBlock extends AbstractBlock
 
     public function propertyToArray(): array
     {
-        $property = (array) ($this->getRawData()[$this->getType()] ?? []);
-        unset($property['children']);
-
-        return $property;
+        throw new UnsupportedPropertyTypeException($this->getType(), self::RESOURCE_TYPE);
     }
 
     public function toArrayForCreate(): array
     {
-        $data = $this->toArrayStrict(['object', 'type']);
-        $data[$this->getType()] = $this->propertyToArray();
-
-        return $this->addChildrenToCreateData($data);
+        throw new UnsupportedPropertyTypeException($this->getType(), self::RESOURCE_TYPE);
     }
 }

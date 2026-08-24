@@ -6,6 +6,7 @@ namespace Brd6\NotionSdkPhp\Resource\Block;
 
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\Property\TableProperty;
 
 class TableBlock extends AbstractBlock
@@ -15,6 +16,7 @@ class TableBlock extends AbstractBlock
     /**
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
+     * @throws UnsupportedUserTypeException
      */
     protected function initializeBlockProperty(): void
     {

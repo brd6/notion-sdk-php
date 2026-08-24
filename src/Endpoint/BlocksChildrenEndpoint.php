@@ -13,6 +13,7 @@ use Brd6\NotionSdkPhp\Exception\UnsupportedPaginationResponseTypeException;
 use Brd6\NotionSdkPhp\RequestParameters;
 use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
+use Brd6\NotionSdkPhp\Resource\Pagination\BlockResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Http\Client\Exception;
 
@@ -33,6 +34,21 @@ class BlocksChildrenEndpoint extends AbstractEndpoint
      */
     public function list(string $blockId, ?PaginationRequest $paginationRequest = null): AbstractPaginationResults
     {
+        return $this->listBlockChildren($blockId, $paginationRequest, false);
+    }
+
+    public function listWithUnsupportedContentFallback(
+        string $blockId,
+        ?PaginationRequest $paginationRequest = null
+    ): AbstractPaginationResults {
+        return $this->listBlockChildren($blockId, $paginationRequest, true);
+    }
+
+    private function listBlockChildren(
+        string $blockId,
+        ?PaginationRequest $paginationRequest,
+        bool $fallbackOnUnsupportedContent
+    ): AbstractPaginationResults {
         $paginationRequest = $paginationRequest ?? new PaginationRequest();
 
         $requestParameters = (new RequestParameters())
@@ -42,7 +58,9 @@ class BlocksChildrenEndpoint extends AbstractEndpoint
 
         $rawData = $this->getClient()->request($requestParameters);
 
-        return AbstractPaginationResults::fromRawData($rawData);
+        return $fallbackOnUnsupportedContent ?
+            BlockResults::fromRawDataWithUnsupportedContentFallback($rawData) :
+            AbstractPaginationResults::fromRawData($rawData);
     }
 
     /**

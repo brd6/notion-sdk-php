@@ -7,6 +7,8 @@ namespace Brd6\Test\NotionSdkPhp\Endpoint;
 use Brd6\NotionSdkPhp\Client;
 use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Endpoint\BlocksEndpoint;
+use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyTypeException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
 use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ChildPageBlock;
 use Brd6\NotionSdkPhp\Resource\Block\Heading3Block;
@@ -15,6 +17,7 @@ use Brd6\NotionSdkPhp\Resource\Block\MeetingNotesQueryRequest;
 use Brd6\NotionSdkPhp\Resource\Block\MeetingNotesQueryResults;
 use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
 use Brd6\NotionSdkPhp\Resource\Block\TableRowBlock;
+use Brd6\NotionSdkPhp\Resource\Block\UnsupportedBlock;
 use Brd6\NotionSdkPhp\Resource\Pagination\BlockResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Brd6\NotionSdkPhp\Resource\Property\ChildPageProperty;
@@ -31,6 +34,7 @@ use function array_keys;
 use function count;
 use function file_get_contents;
 use function json_decode;
+use function json_encode;
 
 class BlocksEndpointTest extends TestCase
 {
@@ -65,6 +69,59 @@ class BlocksEndpointTest extends TestCase
         $this->assertEquals('block', $block::getResourceType());
         $this->assertNotEmpty($block->getType());
         $this->assertNotEmpty($block->jsonSerialize());
+    }
+
+    public function testRetrieveThrowsForUnsupportedNestedContentByDefault(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
+            true,
+        );
+        $rawData['paragraph']['rich_text'][0]['type'] = 'future_rich_text';
+        $rawData['paragraph']['rich_text'][0]['future_rich_text'] = [];
+        $httpClient = new MockHttpClient(new MockResponseFactory((string) json_encode($rawData), ['http_code' => 200]));
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $this->expectException(UnsupportedRichTextTypeException::class);
+
+        $client->blocks()->retrieve('0c940186-ab70-4351-bb34-2d16f0635d49');
+    }
+
+    public function testRetrieveCanFallbackForUnsupportedNestedContent(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
+            true,
+        );
+        $rawData['paragraph']['rich_text'][0]['type'] = 'future_rich_text';
+        $rawData['paragraph']['rich_text'][0]['future_rich_text'] = [];
+        $httpClient = new MockHttpClient(new MockResponseFactory((string) json_encode($rawData), ['http_code' => 200]));
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $block = $client
+            ->blocks()
+            ->retrieveWithUnsupportedContentFallback('0c940186-ab70-4351-bb34-2d16f0635d49');
+
+        $this->assertInstanceOf(UnsupportedBlock::class, $block);
+        $this->assertSame('paragraph', $block->getType());
+    }
+
+    public function testUpdateRejectsUnsupportedBlockBeforeRequest(): void
+    {
+        $httpClient = new MockHttpClient(function () {
+            $this->fail('The HTTP request must not be dispatched.');
+        });
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+        $block = AbstractBlock::fromRawData([
+            'object' => 'block',
+            'id' => 'future-id',
+            'type' => 'future_block',
+            'future_block' => ['value' => 'future'],
+        ]);
+
+        $this->expectException(UnsupportedPropertyTypeException::class);
+
+        $client->blocks()->update($block);
     }
 
     public function testRetrieveChildPage(): void
@@ -187,6 +244,27 @@ class BlocksEndpointTest extends TestCase
 
         $this->assertEquals('block', $resultBlock->getObject());
         $this->assertNotEmpty($resultBlock->getId());
+    }
+
+    public function testRetrieveBlockChildrenCanFallbackForUnsupportedNestedContent(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_children_default_200.json'),
+            true,
+        );
+        $rawData['results'][0]['paragraph']['rich_text'][0]['type'] = 'future_rich_text';
+        $rawData['results'][0]['paragraph']['rich_text'][0]['future_rich_text'] = [];
+        $httpClient = new MockHttpClient(new MockResponseFactory((string) json_encode($rawData), ['http_code' => 200]));
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        /** @var BlockResults $paginationResponse */
+        $paginationResponse = $client
+            ->blocks()
+            ->children()
+            ->listWithUnsupportedContentFallback('03cd5dca-84f7-456f-b7e6-aad92d5f69fd');
+
+        $this->assertInstanceOf(UnsupportedBlock::class, $paginationResponse->getResults()[0]);
+        $this->assertGreaterThan(1, count($paginationResponse->getResults()));
     }
 
     public function testRetrieveBlockChildrenWithPagination(): void
@@ -582,5 +660,26 @@ class BlocksEndpointTest extends TestCase
         $results = $client->blocks()->meetingNotes()->query();
 
         $this->assertCount(1, $results->getResults());
+    }
+
+    public function testQueryMeetingNotesCanFallbackForUnsupportedContent(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_blocks_meeting_notes_query_200.json'),
+            true,
+        );
+        $rawData['results'][0]['meeting_notes']['title'][0]['type'] = 'future_rich_text';
+        $rawData['results'][0]['meeting_notes']['title'][0]['future_rich_text'] = [];
+        $httpClient = new MockHttpClient(
+            new MockResponseFactory((string) json_encode($rawData), ['http_code' => 200]),
+        );
+        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
+
+        $results = $client
+            ->blocks()
+            ->meetingNotes()
+            ->queryWithUnsupportedContentFallback();
+
+        $this->assertInstanceOf(UnsupportedBlock::class, $results->getResults()[0]);
     }
 }

@@ -10,6 +10,7 @@ use Brd6\NotionSdkPhp\Exception\HttpResponseException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\RequestTimeoutException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\RequestParameters;
 use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Http\Client\Exception;
@@ -35,9 +36,20 @@ class BlocksEndpoint extends AbstractEndpoint
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
      * @throws RequestTimeoutException
+     * @throws UnsupportedUserTypeException
      * @throws Exception
      */
     public function retrieve(string $blockId): AbstractBlock
+    {
+        return $this->retrieveBlock($blockId, false);
+    }
+
+    public function retrieveWithUnsupportedContentFallback(string $blockId): AbstractBlock
+    {
+        return $this->retrieveBlock($blockId, true);
+    }
+
+    private function retrieveBlock(string $blockId, bool $fallbackOnUnsupportedContent): AbstractBlock
     {
         $requestParameters = (new RequestParameters())
             ->setPath("blocks/$blockId")
@@ -45,7 +57,9 @@ class BlocksEndpoint extends AbstractEndpoint
 
         $rawData = $this->getClient()->request($requestParameters);
 
-        return AbstractBlock::fromRawData($rawData);
+        return $fallbackOnUnsupportedContent ?
+            AbstractBlock::fromRawDataWithUnsupportedContentFallback($rawData) :
+            AbstractBlock::fromRawData($rawData);
     }
 
     /**
@@ -57,6 +71,7 @@ class BlocksEndpoint extends AbstractEndpoint
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
      * @throws RequestTimeoutException
+     * @throws UnsupportedUserTypeException
      */
     public function update(AbstractBlock $block): AbstractBlock
     {
@@ -94,6 +109,7 @@ class BlocksEndpoint extends AbstractEndpoint
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
      * @throws RequestTimeoutException
+     * @throws UnsupportedUserTypeException
      */
     public function delete(string $blockId): AbstractBlock
     {

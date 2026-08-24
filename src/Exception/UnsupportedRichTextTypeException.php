@@ -7,7 +7,7 @@ namespace Brd6\NotionSdkPhp\Exception;
 use function sprintf;
 use function strlen;
 
-class UnsupportedRichTextTypeException extends AbstractUnsupportedNotionException
+class UnsupportedRichTextTypeException extends AbstractNotionException implements UnsupportedNotionExceptionInterface
 {
     public const MESSAGE = 'The given rich text "%s" is unsupported.';
 

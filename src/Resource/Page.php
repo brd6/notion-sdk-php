@@ -7,12 +7,17 @@ namespace Brd6\NotionSdkPhp\Resource;
 use Brd6\NotionSdkPhp\Exception\InvalidFileException;
 use Brd6\NotionSdkPhp\Exception\InvalidParentException;
 use Brd6\NotionSdkPhp\Exception\InvalidPropertyValueException;
+use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
+use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedNotionExceptionInterface;
 use Brd6\NotionSdkPhp\Exception\UnsupportedParentTypeException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyValueException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\AbstractParentProperty;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\AbstractPropertyValue;
+use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\PlacePropertyValue;
 use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
 use DateTimeImmutable;
 
@@ -52,6 +57,7 @@ class Page extends AbstractResource
 
     protected ?AbstractParentProperty $parent = null;
     protected string $url = '';
+    private bool $fallbackOnUnsupportedContent = false;
 
     public function __construct()
     {
@@ -76,6 +82,25 @@ class Page extends AbstractResource
         return $this->removeReadOnlyPropertyValues($this->toArrayStrict(self::UPDATE_ACCEPTED_KEYS));
     }
 
+    public static function fromRawDataWithUnsupportedContentFallback(array $rawData): self
+    {
+        $resource = new static();
+        $resource->fallbackOnUnsupportedContent = true;
+        $resource->setRawData($rawData);
+
+        if (!isset($rawData['object'])) {
+            throw new InvalidResourceException();
+        }
+
+        if ($rawData['object'] !== $resource->getResourceType()) {
+            throw new InvalidResourceTypeException((string) $rawData['object']);
+        }
+
+        $resource->initialize();
+
+        return $resource;
+    }
+
     /**
      * @psalm-suppress MixedAssignment
      */
@@ -95,6 +120,10 @@ class Page extends AbstractResource
             $serialized = $data['properties'][$name] ?? null;
 
             if (!is_array($serialized)) {
+                continue;
+            }
+
+            if ($propertyValue instanceof PlacePropertyValue && array_key_exists('place', $serialized)) {
                 continue;
             }
 
@@ -122,13 +151,18 @@ class Page extends AbstractResource
      * @throws UnsupportedFileTypeException
      * @throws UnsupportedParentTypeException
      * @throws UnsupportedUserTypeException
+     * @throws UnsupportedPropertyValueException
      */
     protected function initialize(): void
     {
-        $this->createdBy = AbstractUser::fromRawData((array) $this->getRawData()['created_by']);
+        $this->createdBy = $this->hydrateSupportedContent(
+            fn () => AbstractUser::fromRawData((array) $this->getRawData()['created_by']),
+        );
         $this->createdTime = new DateTimeImmutable((string) $this->getRawData()['created_time']);
         $this->lastEditedTime = new DateTimeImmutable((string) $this->getRawData()['last_edited_time']);
-        $this->lastEditedBy = AbstractUser::fromRawData((array) $this->getRawData()['last_edited_by']);
+        $this->lastEditedBy = $this->hydrateSupportedContent(
+            fn () => AbstractUser::fromRawData((array) $this->getRawData()['last_edited_by']),
+        );
         $this->archived = array_key_exists('archived', $this->getRawData())
             ? (bool) $this->getRawData()['archived']
             : (array_key_exists('in_trash', $this->getRawData())
@@ -138,18 +172,44 @@ class Page extends AbstractResource
             ? (bool) $this->getRawData()['is_locked']
             : null;
         $this->icon = isset($this->getRawData()['icon']) ?
-            AbstractFile::fromRawData((array) $this->getRawData()['icon']) :
-            null;
+            $this->hydrateSupportedContent(
+                fn () => AbstractFile::fromRawData((array) $this->getRawData()['icon']),
+            ) : null;
         $this->cover = isset($this->getRawData()['cover']) ?
-            AbstractFile::fromRawData((array) $this->getRawData()['cover']) :
-            null;
-        $this->parent = AbstractParentProperty::fromRawData((array) $this->getRawData()['parent']);
+            $this->hydrateSupportedContent(
+                fn () => AbstractFile::fromRawData((array) $this->getRawData()['cover']),
+            ) : null;
+        $this->parent = $this->hydrateSupportedContent(
+            fn () => AbstractParentProperty::fromRawData((array) $this->getRawData()['parent']),
+        );
         $this->url = (string) $this->getRawData()['url'];
 
         /** @var array<string, array> $properties */
         $properties = (array) $this->getRawData()['properties'];
         foreach ($properties as $key => $property) {
-            $this->properties[$key] = AbstractPropertyValue::fromRawData($property);
+            $this->properties[$key] = $this->fallbackOnUnsupportedContent ?
+                AbstractPropertyValue::fromRawDataWithUnsupportedContentFallback($property) :
+                AbstractPropertyValue::fromRawData($property);
+        }
+    }
+
+    /**
+     * @param callable(): T $hydrate
+     *
+     * @return T|null
+     *
+     * @template T
+     */
+    private function hydrateSupportedContent(callable $hydrate)
+    {
+        if (!$this->fallbackOnUnsupportedContent) {
+            return $hydrate();
+        }
+
+        try {
+            return $hydrate();
+        } catch (UnsupportedNotionExceptionInterface $exception) {
+            return null;
         }
     }
 

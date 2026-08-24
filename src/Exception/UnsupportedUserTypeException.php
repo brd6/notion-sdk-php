@@ -7,7 +7,7 @@ namespace Brd6\NotionSdkPhp\Exception;
 use function sprintf;
 use function strlen;
 
-class UnsupportedUserTypeException extends AbstractUnsupportedNotionException
+class UnsupportedUserTypeException extends AbstractNotionException implements UnsupportedNotionExceptionInterface
 {
     public const MESSAGE = 'The given user "%s" is unsupported.';
 

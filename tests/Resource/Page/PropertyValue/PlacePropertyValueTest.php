@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Brd6\Test\NotionSdkPhp\Resource\Page\PropertyValue;
 
+use Brd6\NotionSdkPhp\Exception\InvalidPropertyValueException;
 use Brd6\NotionSdkPhp\Resource\Page;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\PlacePropertyValue;
 use Brd6\NotionSdkPhp\Resource\Property\PlaceProperty;
@@ -88,6 +89,75 @@ class PlacePropertyValueTest extends TestCase
 
         $this->assertSame($expected, $page->toArrayForCreate()['properties']['Location']['place']);
         $this->assertSame($expected, $page->toArrayForUpdate()['properties']['Location']['place']);
+    }
+
+    public function testExplicitNullPlaceSerialization(): void
+    {
+        $page = (new Page())->setProperties([
+            'Location' => (new PlacePropertyValue())->setPlace(null),
+        ]);
+
+        $expected = ['place' => null];
+
+        $this->assertSame($expected, $page->toArrayForCreate()['properties']['Location']);
+        $this->assertSame($expected, $page->toArrayForUpdate()['properties']['Location']);
+    }
+
+    public function testHydratedNullPlaceIsOmittedFromUpdateUntilExplicitlySet(): void
+    {
+        $rawData = $this->getPageRawData();
+        $rawData['properties']['Location'] = [
+            'id' => 'place-id',
+            'type' => 'place',
+            'place' => null,
+        ];
+
+        /** @var Page $page */
+        $page = Page::fromRawData($rawData);
+
+        $this->assertArrayNotHasKey('Location', $page->toArrayForUpdate()['properties']);
+
+        /** @var PlacePropertyValue $placeValue */
+        $placeValue = $page->getProperties()['Location'];
+        $placeValue->setPlace(null);
+
+        $this->assertSame(
+            ['type' => 'place', 'id' => 'place-id', 'place' => null],
+            $page->toArrayForUpdate()['properties']['Location'],
+        );
+    }
+
+    /**
+     * @dataProvider invalidPlaceDataProvider
+     */
+    public function testInvalidPopulatedPlaceResponse(array $rawPlace): void
+    {
+        $this->expectException(InvalidPropertyValueException::class);
+
+        PlaceProperty::fromRawData($rawPlace);
+    }
+
+    public function invalidPlaceDataProvider(): array
+    {
+        return [
+            'missing latitude' => [['lon' => 2.3522]],
+            'missing longitude' => [['lat' => 48.8566]],
+            'invalid latitude' => [['lat' => 'north', 'lon' => 2.3522]],
+            'invalid longitude' => [['lat' => 48.8566, 'lon' => 'east']],
+        ];
+    }
+
+    public function testIncompletePopulatedPlaceWrite(): void
+    {
+        $page = (new Page())->setProperties([
+            'Location' => (new PlacePropertyValue())->setPlace(
+                (new PlaceProperty())->setName('Missing coordinates'),
+            ),
+        ]);
+
+        $this->expectException(InvalidPropertyValueException::class);
+
+        $page->toArrayForUpdate();
     }
 
     private function getPageRawData(): array

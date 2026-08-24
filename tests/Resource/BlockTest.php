@@ -6,6 +6,9 @@ namespace Brd6\Test\NotionSdkPhp\Resource;
 
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyTypeException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\Block\AbstractBlock;
 use Brd6\NotionSdkPhp\Resource\Block\AudioBlock;
 use Brd6\NotionSdkPhp\Resource\Block\CalloutBlock;
@@ -131,7 +134,7 @@ class BlockTest extends TestCase
         $rawData['paragraph']['rich_text'][0]['type'] = 'abstract_rich_text';
         $rawData['paragraph']['rich_text'][0]['abstract_rich_text'] = [];
 
-        $block = AbstractBlock::fromRawData($rawData);
+        $block = AbstractBlock::fromRawDataWithUnsupportedContentFallback($rawData);
 
         $this->assertInstanceOf(UnsupportedBlock::class, $block);
         $this->assertSame('paragraph', $block->getType());
@@ -144,11 +147,7 @@ class BlockTest extends TestCase
         $this->assertTrue($block->isArchived());
         $this->assertTrue($block->isHasChildren());
         $this->assertCount(1, $block->getChildren());
-        $property = $rawData['paragraph'];
-        unset($property['children']);
-
-        $this->assertSame($property, $block->propertyToArray());
-        $this->assertCount(1, $block->toArrayForCreate()['paragraph']['children']);
+        $this->assertSame($rawData, $block->getRawData());
     }
 
     public function testKnownBlockWithInvalidNestedFeatureStillThrows(): void
@@ -161,7 +160,7 @@ class BlockTest extends TestCase
 
         $this->expectException(InvalidRichTextException::class);
 
-        AbstractBlock::fromRawData($rawData);
+        AbstractBlock::fromRawDataWithUnsupportedContentFallback($rawData);
     }
 
     public function testUnsupportedCreatedByPreservesLastEditedBy(): void
@@ -172,7 +171,7 @@ class BlockTest extends TestCase
         );
         $rawData['created_by']['type'] = 'abstract';
 
-        $block = AbstractBlock::fromRawData($rawData);
+        $block = AbstractBlock::fromRawDataWithUnsupportedContentFallback($rawData);
 
         $this->assertInstanceOf(UnsupportedBlock::class, $block);
         $this->assertNull($block->getCreatedBy());
@@ -187,11 +186,95 @@ class BlockTest extends TestCase
         );
         $rawData['last_edited_by']['type'] = 'future_user';
 
-        $block = AbstractBlock::fromRawData($rawData);
+        $block = AbstractBlock::fromRawDataWithUnsupportedContentFallback($rawData);
 
         $this->assertInstanceOf(UnsupportedBlock::class, $block);
         $this->assertNotNull($block->getCreatedBy());
         $this->assertNull($block->getLastEditedBy());
+    }
+
+    public function testKnownBlockWithUnsupportedNestedFeatureThrowsByDefault(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
+            true,
+        );
+        $rawData['paragraph']['rich_text'][0]['type'] = 'future_rich_text';
+        $rawData['paragraph']['rich_text'][0]['future_rich_text'] = [];
+
+        $this->expectException(UnsupportedRichTextTypeException::class);
+
+        AbstractBlock::fromRawData($rawData);
+    }
+
+    public function testUnsupportedUserThrowsByDefault(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
+            true,
+        );
+        $rawData['created_by']['type'] = 'future_user';
+
+        $this->expectException(UnsupportedUserTypeException::class);
+
+        AbstractBlock::fromRawData($rawData);
+    }
+
+    /**
+     * @dataProvider blockReferenceChildrenDataProvider
+     */
+    public function testTolerantFallbackPreservesBlockReferenceChildren(string $fixture, string $type): void
+    {
+        $rawData = (array) json_decode((string) file_get_contents($fixture), true);
+        $rawData[$type]['title'][0]['type'] = 'future_rich_text';
+        $rawData[$type]['title'][0]['future_rich_text'] = [];
+
+        $block = AbstractBlock::fromRawDataWithUnsupportedContentFallback($rawData);
+
+        $this->assertInstanceOf(UnsupportedBlock::class, $block);
+        $this->assertSame($type, $block->getType());
+        $this->assertSame([], $block->getChildren());
+        $this->assertSame($rawData, $block->getRawData());
+    }
+
+    public function blockReferenceChildrenDataProvider(): array
+    {
+        return [
+            'meeting notes' => [
+                'tests/Fixtures/client_blocks_retrieve_block_meeting_notes_200.json',
+                'meeting_notes',
+            ],
+            'transcription' => [
+                'tests/Fixtures/client_blocks_retrieve_block_transcription_200.json',
+                'transcription',
+            ],
+        ];
+    }
+
+    public function testUnsupportedBlockCannotSerializePropertyForWrite(): void
+    {
+        $block = AbstractBlock::fromRawData([
+            'object' => 'block',
+            'type' => 'future_block',
+            'future_block' => ['value' => 'future'],
+        ]);
+
+        $this->expectException(UnsupportedPropertyTypeException::class);
+
+        $block->propertyToArray();
+    }
+
+    public function testUnsupportedBlockCannotSerializeForCreate(): void
+    {
+        $block = AbstractBlock::fromRawData([
+            'object' => 'block',
+            'type' => 'future_block',
+            'future_block' => ['value' => 'future'],
+        ]);
+
+        $this->expectException(UnsupportedPropertyTypeException::class);
+
+        $block->toArrayForCreate();
     }
 
     public function testBlock(): void

@@ -7,7 +7,7 @@ namespace Brd6\NotionSdkPhp\Exception;
 use function sprintf;
 use function strlen;
 
-class UnsupportedMentionTypeException extends AbstractUnsupportedNotionException
+class UnsupportedMentionTypeException extends AbstractNotionException implements UnsupportedNotionExceptionInterface
 {
     public const MESSAGE = 'The given mention "%s" is unsupported.';
 

@@ -9,6 +9,7 @@ use Brd6\NotionSdkPhp\Exception\HttpResponseException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\RequestTimeoutException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\RequestParameters;
 use Brd6\NotionSdkPhp\Resource\Block\MeetingNotesQueryRequest;
 use Brd6\NotionSdkPhp\Resource\Block\MeetingNotesQueryResults;
@@ -25,9 +26,23 @@ class BlocksMeetingNotesEndpoint extends AbstractEndpoint
      * @throws InvalidResourceException
      * @throws InvalidResourceTypeException
      * @throws RequestTimeoutException
+     * @throws UnsupportedUserTypeException
      */
     public function query(?MeetingNotesQueryRequest $queryRequest = null): MeetingNotesQueryResults
     {
+        return $this->queryMeetingNotes($queryRequest, false);
+    }
+
+    public function queryWithUnsupportedContentFallback(
+        ?MeetingNotesQueryRequest $queryRequest = null
+    ): MeetingNotesQueryResults {
+        return $this->queryMeetingNotes($queryRequest, true);
+    }
+
+    private function queryMeetingNotes(
+        ?MeetingNotesQueryRequest $queryRequest,
+        bool $fallbackOnUnsupportedContent
+    ): MeetingNotesQueryResults {
         $requestParameters = (new RequestParameters())
             ->setPath('blocks/meeting_notes/query')
             ->setMethod('POST')
@@ -35,6 +50,8 @@ class BlocksMeetingNotesEndpoint extends AbstractEndpoint
 
         $rawData = $this->getClient()->request($requestParameters);
 
-        return MeetingNotesQueryResults::fromRawData($rawData);
+        return $fallbackOnUnsupportedContent ?
+            MeetingNotesQueryResults::fromRawDataWithUnsupportedContentFallback($rawData) :
+            MeetingNotesQueryResults::fromRawData($rawData);
     }
 }

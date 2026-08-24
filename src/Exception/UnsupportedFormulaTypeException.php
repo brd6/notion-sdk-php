@@ -7,7 +7,7 @@ namespace Brd6\NotionSdkPhp\Exception;
 use function sprintf;
 use function strlen;
 
-class UnsupportedFormulaTypeException extends AbstractUnsupportedNotionException
+class UnsupportedFormulaTypeException extends AbstractNotionException implements UnsupportedNotionExceptionInterface
 {
     public const MESSAGE = 'The given formula "%s" is unsupported.';
 
