@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Brd6\NotionSdkPhp\Resource\Page\PropertyValue;
 
 use Brd6\NotionSdkPhp\Exception\UnsupportedNotionExceptionInterface;
+use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\Fallback\UnsupportedPropertyValue;
 
-final class ForwardCompatiblePropertyValueFactory extends AbstractPropertyValue
+abstract class ForwardCompatiblePropertyValueFactory extends AbstractPropertyValue
 {
     public static function create(array $rawData): AbstractPropertyValue
     {
@@ -20,9 +21,5 @@ final class ForwardCompatiblePropertyValueFactory extends AbstractPropertyValue
 
             return $propertyValue;
         }
-    }
-
-    protected function initialize(): void
-    {
     }
 }

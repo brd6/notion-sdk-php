@@ -14,8 +14,8 @@ use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\AbstractParentProperty;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\AbstractPropertyValue;
+use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\Fallback\UnsupportedPropertyValue;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\PlacePropertyValue;
-use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\UnsupportedPropertyValue;
 use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
 use DateTimeImmutable;
 

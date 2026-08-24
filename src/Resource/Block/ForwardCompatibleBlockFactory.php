@@ -7,13 +7,19 @@ namespace Brd6\NotionSdkPhp\Resource\Block;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedNotionExceptionInterface;
+use Brd6\NotionSdkPhp\Resource\Block\Fallback\ReadOnlyUnsupportedBlock;
+use Brd6\NotionSdkPhp\Resource\Property\AbstractParagraphProperty;
+use Brd6\NotionSdkPhp\Resource\Property\SyncedBlockProperty;
+use Brd6\NotionSdkPhp\Resource\Property\TableProperty;
 use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
+use Brd6\NotionSdkPhp\Util\StringHelper;
 use DateTimeImmutable;
 
+use function array_keys;
 use function array_map;
-use function is_array;
+use function method_exists;
 
-final class ForwardCompatibleBlockFactory extends AbstractBlock
+abstract class ForwardCompatibleBlockFactory extends AbstractBlock
 {
     public static function create(array $rawData): AbstractBlock
     {
@@ -54,8 +60,15 @@ final class ForwardCompatibleBlockFactory extends AbstractBlock
         $block->lastEditedBy = AbstractUser::fromRawData((array) $rawData['last_edited_by']);
         $block->archived = (bool) ($rawData['archived'] ?? $rawData['in_trash'] ?? false);
         $block->hasChildren = (bool) ($rawData['has_children'] ?? false);
+        $inlineChildrenRawData = self::getInlineChildrenRawData($block);
+
+        if ($inlineChildrenRawData !== null) {
+            $block->setRawData(self::withoutInlineChildren($rawData, $block->getType()));
+        }
+
         $block->initializeBlockProperty();
-        $block->children = self::createChildren($block);
+        $block->setRawData($rawData);
+        self::initializeInlineChildren($block, $inlineChildrenRawData);
     }
 
     private static function createUnsupportedBlock(array $rawData): ReadOnlyUnsupportedBlock
@@ -78,7 +91,7 @@ final class ForwardCompatibleBlockFactory extends AbstractBlock
             self::createUser((array) $rawData['last_edited_by']) :
             null;
         $block->initializeBlockProperty();
-        $block->children = self::createChildren($block);
+        self::initializeInlineChildren($block, self::getInlineChildrenRawData($block));
 
         return $block;
     }
@@ -92,36 +105,33 @@ final class ForwardCompatibleBlockFactory extends AbstractBlock
         }
     }
 
-    /**
-     * @return AbstractBlock[]
-     */
-    private static function createChildren(AbstractBlock $block): array
+    private static function getInlineChildrenRawData(AbstractBlock $block): ?array
     {
         if (!$block->hasChildren) {
-            return [];
+            return null;
         }
 
         $rawData = $block->getRawData();
         $blockData = (array) ($rawData[$block->getType()] ?? []);
 
         if (!isset($blockData['children'])) {
-            return [];
+            return null;
         }
 
         $children = (array) $blockData['children'];
 
-        if (!self::containsOnlyInlineChildren($children)) {
-            return [];
+        if (!self::hasSequentialKeys($children)) {
+            return null;
         }
 
-        return array_map(fn (array $child) => self::create($child), $children);
+        return $children;
     }
 
-    private static function containsOnlyInlineChildren(array $children): bool
+    private static function hasSequentialKeys(array $children): bool
     {
         $position = 0;
-        foreach ($children as $key => $child) {
-            if ($key !== $position || !is_array($child)) {
+        foreach (array_keys($children) as $key) {
+            if ($key !== $position) {
                 return false;
             }
 
@@ -131,7 +141,48 @@ final class ForwardCompatibleBlockFactory extends AbstractBlock
         return true;
     }
 
-    protected function initializeBlockProperty(): void
+    private static function withoutInlineChildren(array $rawData, string $type): array
     {
+        $blockData = (array) ($rawData[$type] ?? []);
+        unset($blockData['children']);
+        $rawData[$type] = $blockData;
+
+        return $rawData;
+    }
+
+    private static function initializeInlineChildren(AbstractBlock $block, ?array $rawData): void
+    {
+        if ($rawData === null) {
+            return;
+        }
+
+        $children = array_map(fn (array $child) => self::create($child), $rawData);
+        $block->children = $children;
+        self::setPropertyChildren($block, $children);
+    }
+
+    /**
+     * @param AbstractBlock[] $children
+     */
+    private static function setPropertyChildren(AbstractBlock $block, array $children): void
+    {
+        $typeFormatted = StringHelper::snakeCaseToCamelCase($block->getType());
+        $getterMethodName = "get$typeFormatted";
+
+        if (!method_exists($block, $getterMethodName)) {
+            return;
+        }
+
+        $property = $block->getProperty();
+
+        if (
+            !$property instanceof AbstractParagraphProperty &&
+            !$property instanceof TableProperty &&
+            !$property instanceof SyncedBlockProperty
+        ) {
+            return;
+        }
+
+        $property->setChildren($children);
     }
 }

@@ -27,14 +27,14 @@ use Brd6\NotionSdkPhp\Resource\Page\PageTemplate;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\DataSourceIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\PageIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyItem\AbstractPropertyItem;
+use Brd6\NotionSdkPhp\Resource\Page\PropertyItem\Fallback\UnsupportedPropertyItem;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyItem\TitlePropertyItem;
-use Brd6\NotionSdkPhp\Resource\Page\PropertyItem\UnsupportedPropertyItem;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\AbstractPropertyValue;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\DatePropertyValue;
+use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\Fallback\UnsupportedPropertyValue;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\FilesPropertyValue;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\RichTextPropertyValue;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\TitlePropertyValue;
-use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\UnsupportedPropertyValue;
 use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Brd6\NotionSdkPhp\Resource\Pagination\PropertyItemResults;
@@ -700,8 +700,8 @@ class PagesEndpointTest extends TestCase
                 [
                     'object' => 'property_item',
                     'id' => 'future-id',
-                    'type' => 'future_property',
-                    'future_property' => ['value' => 'future-value'],
+                    'type' => 'unsupported',
+                    'unsupported' => ['value' => 'future-value'],
                 ],
             ],
         ];

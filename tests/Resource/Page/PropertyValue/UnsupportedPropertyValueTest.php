@@ -13,8 +13,8 @@ use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyValueException;
 use Brd6\NotionSdkPhp\Resource\ForwardCompatiblePage;
 use Brd6\NotionSdkPhp\Resource\Page;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\AbstractPropertyValue;
+use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\Fallback\UnsupportedPropertyValue;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\ForwardCompatiblePropertyValueFactory;
-use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\UnsupportedPropertyValue;
 use PHPUnit\Framework\TestCase;
 
 use function count;
@@ -164,6 +164,17 @@ class UnsupportedPropertyValueTest extends TestCase
             'id' => 'future-id',
             'type' => 'future_property',
             'future_property' => [],
+        ]);
+    }
+
+    public function testFallbackClassNameDoesNotChangeStrictUnsupportedType(): void
+    {
+        $this->expectException(UnsupportedPropertyValueException::class);
+
+        AbstractPropertyValue::fromRawData([
+            'id' => 'unsupported-id',
+            'type' => 'unsupported',
+            'unsupported' => [],
         ]);
     }
 

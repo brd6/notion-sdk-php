@@ -15,6 +15,7 @@ use Brd6\NotionSdkPhp\Resource\Block\CalloutBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ChildPageBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ColumnBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ColumnListBlock;
+use Brd6\NotionSdkPhp\Resource\Block\Fallback\ReadOnlyUnsupportedBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ForwardCompatibleBlockFactory;
 use Brd6\NotionSdkPhp\Resource\Block\Heading1Block;
 use Brd6\NotionSdkPhp\Resource\Block\Heading2Block;
@@ -24,7 +25,6 @@ use Brd6\NotionSdkPhp\Resource\Block\Heading5Block;
 use Brd6\NotionSdkPhp\Resource\Block\Heading6Block;
 use Brd6\NotionSdkPhp\Resource\Block\MeetingNotesBlock;
 use Brd6\NotionSdkPhp\Resource\Block\ParagraphBlock;
-use Brd6\NotionSdkPhp\Resource\Block\ReadOnlyUnsupportedBlock;
 use Brd6\NotionSdkPhp\Resource\Block\SyncedBlockBlock;
 use Brd6\NotionSdkPhp\Resource\Block\TabBlock;
 use Brd6\NotionSdkPhp\Resource\Block\TranscriptionBlock;
@@ -46,6 +46,7 @@ use Brd6\NotionSdkPhp\Resource\RichText\MentionInterface;
 use Brd6\NotionSdkPhp\Resource\RichText\Text;
 use Brd6\NotionSdkPhp\Util\StringHelper;
 use PHPUnit\Framework\TestCase;
+use TypeError;
 
 use function count;
 use function file_get_contents;
@@ -161,6 +162,69 @@ class BlockTest extends TestCase
         unset($rawData['paragraph']['rich_text'][0]['type']);
 
         $this->expectException(InvalidRichTextException::class);
+
+        ForwardCompatibleBlockFactory::create($rawData);
+    }
+
+    public function testForwardCompatibleInlineChildrenUseTheSameReadOnlyFallback(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
+            true,
+        );
+        $childRawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_child_page_200.json'),
+            true,
+        );
+        $childRawData['type'] = 'future_block';
+        $childRawData['future_block'] = ['value' => 'future'];
+        unset($childRawData['child_page']);
+        $rawData['has_children'] = true;
+        $rawData['paragraph']['children'] = [$childRawData];
+
+        $block = ForwardCompatibleBlockFactory::create($rawData);
+
+        $this->assertInstanceOf(ParagraphBlock::class, $block);
+        $this->assertInstanceOf(ReadOnlyUnsupportedBlock::class, $block->getChildren()[0]);
+        $this->assertSame($block->getChildren(), $block->getParagraph()->getChildren());
+
+        $this->expectException(UnsupportedPropertyTypeException::class);
+
+        $block->propertyToArray();
+    }
+
+    public function testForwardCompatibleInlineChildrenIsolateUnsupportedNestedContent(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
+            true,
+        );
+        $childRawData = $rawData;
+        $childRawData['id'] = 'future-child';
+        $childRawData['paragraph']['rich_text'][0]['type'] = 'future_rich_text';
+        $childRawData['paragraph']['rich_text'][0]['future_rich_text'] = [];
+        $rawData['has_children'] = true;
+        $rawData['paragraph']['children'] = [$childRawData];
+
+        $block = ForwardCompatibleBlockFactory::create($rawData);
+
+        $this->assertInstanceOf(ParagraphBlock::class, $block);
+        $this->assertInstanceOf(ReadOnlyUnsupportedBlock::class, $block->getChildren()[0]);
+        $this->assertSame($block->getChildren(), $block->getParagraph()->getChildren());
+    }
+
+    public function testForwardCompatibleInlineChildrenRejectMalformedListItems(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
+            true,
+        );
+        $rawData['type'] = 'column';
+        $rawData['column'] = ['children' => ['invalid']];
+        $rawData['has_children'] = true;
+        unset($rawData['paragraph']);
+
+        $this->expectException(TypeError::class);
 
         ForwardCompatibleBlockFactory::create($rawData);
     }
@@ -291,6 +355,17 @@ class BlockTest extends TestCase
             ['object' => 'block', 'type' => 'future_block'],
             $block->toArrayForCreate(),
         );
+    }
+
+    public function testFallbackClassNameDoesNotChangeStrictUnsupportedBlockMapping(): void
+    {
+        $block = AbstractBlock::fromRawData([
+            'object' => 'block',
+            'type' => 'read_only_unsupported',
+        ]);
+
+        $this->assertInstanceOf(UnsupportedBlock::class, $block);
+        $this->assertNotInstanceOf(ReadOnlyUnsupportedBlock::class, $block);
     }
 
     public function testBlock(): void
