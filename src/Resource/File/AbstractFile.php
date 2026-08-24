@@ -9,11 +9,9 @@ use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
 use Brd6\NotionSdkPhp\Resource\AbstractJsonSerializable;
 use Brd6\NotionSdkPhp\Resource\RichText\AbstractRichText;
 use Brd6\NotionSdkPhp\Util\StringHelper;
-use ReflectionClass;
 
 use function array_map;
 use function class_exists;
-use function is_subclass_of;
 
 abstract class AbstractFile extends AbstractJsonSerializable
 {
@@ -73,11 +71,7 @@ abstract class AbstractFile extends AbstractJsonSerializable
         $typeFormatted = StringHelper::snakeCaseToCamelCase($type);
         $class = "Brd6\\NotionSdkPhp\\Resource\\File\\$typeFormatted";
 
-        if (
-            !class_exists($class) ||
-            !is_subclass_of($class, self::class) ||
-            !(new ReflectionClass($class))->isInstantiable()
-        ) {
+        if (!class_exists($class)) {
             throw new UnsupportedFileTypeException($type);
         }
 

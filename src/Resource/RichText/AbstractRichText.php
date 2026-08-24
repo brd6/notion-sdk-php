@@ -9,10 +9,8 @@ use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
 use Brd6\NotionSdkPhp\Resource\AbstractJsonSerializable;
 use Brd6\NotionSdkPhp\Resource\Annotations;
 use Brd6\NotionSdkPhp\Util\StringHelper;
-use ReflectionClass;
 
 use function class_exists;
-use function is_subclass_of;
 
 abstract class AbstractRichText extends AbstractJsonSerializable
 {
@@ -64,11 +62,7 @@ abstract class AbstractRichText extends AbstractJsonSerializable
         $typeFormatted = StringHelper::snakeCaseToCamelCase($type);
         $class = "Brd6\\NotionSdkPhp\\Resource\RichText\\$typeFormatted";
 
-        if (
-            !class_exists($class) ||
-            !is_subclass_of($class, self::class) ||
-            !(new ReflectionClass($class))->isInstantiable()
-        ) {
+        if (!class_exists($class)) {
             throw new UnsupportedRichTextTypeException($type);
         }
 

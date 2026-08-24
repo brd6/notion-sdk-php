@@ -14,8 +14,6 @@ use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\AbstractParentProperty;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\AbstractPropertyValue;
-use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\Fallback\UnsupportedPropertyValue;
-use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\PlacePropertyValue;
 use Brd6\NotionSdkPhp\Resource\User\AbstractUser;
 use DateTimeImmutable;
 
@@ -89,10 +87,7 @@ class Page extends AbstractResource
         }
 
         foreach ($this->properties as $name => $propertyValue) {
-            if (
-                $propertyValue instanceof UnsupportedPropertyValue ||
-                in_array($propertyValue->getType(), self::READ_ONLY_PROPERTY_VALUE_TYPES, true)
-            ) {
+            if (in_array($propertyValue->getType(), self::READ_ONLY_PROPERTY_VALUE_TYPES, true)) {
                 unset($data['properties'][$name]);
 
                 continue;
@@ -101,10 +96,6 @@ class Page extends AbstractResource
             $serialized = $data['properties'][$name] ?? null;
 
             if (!is_array($serialized)) {
-                continue;
-            }
-
-            if ($propertyValue instanceof PlacePropertyValue && array_key_exists('place', $serialized)) {
                 continue;
             }
 

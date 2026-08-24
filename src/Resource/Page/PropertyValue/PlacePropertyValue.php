@@ -9,7 +9,6 @@ use Brd6\NotionSdkPhp\Resource\Property\PlaceProperty;
 class PlacePropertyValue extends AbstractPropertyValue
 {
     protected ?PlaceProperty $place = null;
-    private bool $placeWasSet = false;
 
     protected function initialize(): void
     {
@@ -26,19 +25,7 @@ class PlacePropertyValue extends AbstractPropertyValue
     public function setPlace(?PlaceProperty $place): self
     {
         $this->place = $place;
-        $this->placeWasSet = true;
 
         return $this;
-    }
-
-    public function jsonSerialize(): array
-    {
-        $data = parent::jsonSerialize();
-
-        if ($this->placeWasSet) {
-            $data['place'] = $this->place;
-        }
-
-        return $data;
     }
 }

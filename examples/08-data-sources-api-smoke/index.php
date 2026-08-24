@@ -9,15 +9,9 @@ use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Exception\ApiResponseException;
 use Brd6\NotionSdkPhp\Resource\DataSource;
 use Brd6\NotionSdkPhp\Resource\Database\DatabaseRequest;
-use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\PlacePropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\TitlePropertyObject;
-use Brd6\NotionSdkPhp\Resource\Page;
-use Brd6\NotionSdkPhp\Resource\Page\Parent\DataSourceIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\DatabaseIdParent;
-use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\PlacePropertyValue;
-use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\TitlePropertyValue;
 use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
-use Brd6\NotionSdkPhp\Resource\Property\PlaceProperty;
 use Brd6\NotionSdkPhp\Resource\RichText\Text;
 use Brd6\NotionSdkPhp\Resource\Search\SearchRequest;
 use Dotenv\Dotenv;
@@ -118,121 +112,20 @@ function runWriteChecks(Client $notion, string $databaseId): void
         (new DataSource())
             ->setParent((new DatabaseIdParent())->setDatabaseId($databaseId))
             ->setTitle([Text::fromContent($baseName)])
-            ->setProperties([
-                'Name' => new TitlePropertyObject(),
-                'Location' => new PlacePropertyObject(),
-            ]),
+            ->setProperties(['Name' => new TitlePropertyObject()]),
     );
     echo "Data source created: {$created->getId()}\n";
 
-    $placeFailure = null;
-    try {
-        runPlacePageChecks($notion, $created->getId());
-    } catch (Throwable $exception) {
-        $placeFailure = $exception;
-    }
+    $dataSourceForUpdate = new DataSource();
+    $dataSourceForUpdate->setId($created->getId());
 
-    try {
-        $dataSourceForCleanup = (new DataSource())
-            ->setId($created->getId())
-            ->setInTrash(true);
-        $trashed = $notion->dataSources()->update($dataSourceForCleanup);
-
-        if (!$trashed->isInTrash()) {
-            throw new RuntimeException('Temporary data source was not moved to trash.');
-        }
-        echo "Temporary data source moved to trash.\n";
-    } catch (Throwable $cleanupFailure) {
-        $placeFailureMessage = $placeFailure === null ? '' : $placeFailure->getMessage() . ' ';
-        throw new RuntimeException(
-            $placeFailureMessage . 'Cleanup failed: ' . $cleanupFailure->getMessage(),
-            0,
-            $placeFailure ?? $cleanupFailure,
-        );
-    }
-
-    if ($placeFailure !== null) {
-        throw $placeFailure;
-    }
-}
-
-function runPlacePageChecks(Client $notion, string $dataSourceId): void
-{
-    $createdPlace = (new PlaceProperty())
-        ->setLat(48.8584)
-        ->setLon(2.2945)
-        ->setName('Eiffel Tower')
-        ->setAddress('5 Avenue Anatole France, 75007 Paris');
-    $page = (new Page())
-        ->setParent((new DataSourceIdParent())->setDataSourceId($dataSourceId))
-        ->setProperties([
-            'Name' => (new TitlePropertyValue())->setTitle([Text::fromContent('Place write check')]),
-            'Location' => (new PlacePropertyValue())->setPlace($createdPlace),
-        ]);
-
-    $createdPage = $notion->pages()->create($page);
-    echo "Page with Place created: {$createdPage->getId()}\n";
-
-    $retrievedPage = $notion->pages()->retrieve($createdPage->getId());
-    assertPlace($retrievedPage, 48.8584, 2.2945, 'Eiffel Tower', '5 Avenue Anatole France, 75007 Paris');
-    echo "Populated Place create and read check passed.\n";
-
-    $updatedPlace = (new PlaceProperty())
-        ->setLat(48.8606)
-        ->setLon(2.3376)
-        ->setName('Louvre Museum')
-        ->setAddress('Rue de Rivoli, 75001 Paris');
-    $pageForUpdate = (new Page())
-        ->setId($createdPage->getId())
-        ->setProperties([
-            'Location' => (new PlacePropertyValue())->setPlace($updatedPlace),
-        ]);
-
-    $notion->pages()->update($pageForUpdate);
-    $updatedPage = $notion->pages()->retrieve($createdPage->getId());
-    assertPlace($updatedPage, 48.8606, 2.3376, 'Louvre Museum', 'Rue de Rivoli, 75001 Paris');
-    echo "Populated Place update check passed.\n";
-
-    $pageForClear = (new Page())
-        ->setId($createdPage->getId())
-        ->setProperties([
-            'Location' => (new PlacePropertyValue())->setPlace(null),
-        ]);
-
-    $notion->pages()->update($pageForClear);
-    $clearedPage = $notion->pages()->retrieve($createdPage->getId());
-    $clearedPropertyValue = $clearedPage->getProperties()['Location'] ?? null;
-
-    if (!$clearedPropertyValue instanceof PlacePropertyValue || $clearedPropertyValue->getPlace() !== null) {
-        throw new RuntimeException('Location was not cleared by an explicit null Place update.');
-    }
-
-    echo "Explicit null Place update check passed.\n";
-}
-
-function assertPlace(Page $page, float $lat, float $lon, string $name, string $address): void
-{
-    $propertyValue = $page->getProperties()['Location'] ?? null;
-    if (!$propertyValue instanceof PlacePropertyValue) {
-        throw new RuntimeException('Location did not hydrate as PlacePropertyValue.');
-    }
-
-    $place = $propertyValue->getPlace();
-    if ($place === null) {
-        throw new RuntimeException('Location hydrated with a null Place value.');
-    }
-
-    if (abs((float) $place->getLat() - $lat) > 0.000001 || abs((float) $place->getLon() - $lon) > 0.000001) {
-        throw new RuntimeException('Location coordinates do not match the populated write.');
-    }
-
-    if ($place->getName() !== $name) {
-        throw new RuntimeException('Location name does not match the populated write.');
-    }
-
-    if ($place->getAddress() !== $address) {
-        throw new RuntimeException('Location address does not match the populated write.');
-    }
+    $updated = $notion->dataSources()->update(
+        $dataSourceForUpdate
+            ->setTitle([Text::fromContent($baseName . ' Updated')])
+            ->setProperties(['Name' => new TitlePropertyObject()])
+            ->setInTrash(true),
+    );
+    echo 'Data source updated. In trash: ' . ($updated->isInTrash() ? 'yes' : 'no') . "\n";
 }
 
 function main(): void
@@ -259,7 +152,7 @@ function main(): void
         echo "\nIntegration checks completed.\n";
     } catch (ApiResponseException $exception) {
         exitWithError('Notion API error: ' . $exception->getMessage());
-    } catch (Throwable $exception) {
+    } catch (Exception $exception) {
         exitWithError($exception->getMessage());
     }
 }

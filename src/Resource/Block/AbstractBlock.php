@@ -18,7 +18,6 @@ use ReflectionClass;
 use function array_map;
 use function class_exists;
 use function count;
-use function is_subclass_of;
 use function preg_replace;
 
 abstract class AbstractBlock extends AbstractResource
@@ -123,11 +122,7 @@ abstract class AbstractBlock extends AbstractResource
         $typeFormatted = StringHelper::snakeCaseToCamelCase($type);
         $class = "Brd6\\NotionSdkPhp\\Resource\\Block\\{$typeFormatted}Block";
 
-        if (!class_exists($class) || !is_subclass_of($class, self::class)) {
-            return UnsupportedBlock::class;
-        }
-
-        return (new ReflectionClass($class))->isInstantiable() ? $class : UnsupportedBlock::class;
+        return class_exists($class) ? $class : UnsupportedBlock::class;
     }
 
     private static function resolveType(): string

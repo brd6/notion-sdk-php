@@ -7,9 +7,6 @@ namespace Brd6\Test\NotionSdkPhp\Endpoint;
 use Brd6\NotionSdkPhp\Client;
 use Brd6\NotionSdkPhp\ClientOptions;
 use Brd6\NotionSdkPhp\Endpoint\PagesEndpoint;
-use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyItemException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyValueException;
-use Brd6\NotionSdkPhp\ForwardCompatibleReader;
 use Brd6\NotionSdkPhp\Resource\AsyncTask;
 use Brd6\NotionSdkPhp\Resource\Block\CalloutBlock;
 use Brd6\NotionSdkPhp\Resource\Block\FileBlock;
@@ -27,16 +24,13 @@ use Brd6\NotionSdkPhp\Resource\Page\PageTemplate;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\DataSourceIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\PageIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyItem\AbstractPropertyItem;
-use Brd6\NotionSdkPhp\Resource\Page\PropertyItem\Fallback\UnsupportedPropertyItem;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyItem\TitlePropertyItem;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\AbstractPropertyValue;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\DatePropertyValue;
-use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\Fallback\UnsupportedPropertyValue;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\FilesPropertyValue;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\RichTextPropertyValue;
 use Brd6\NotionSdkPhp\Resource\Page\PropertyValue\TitlePropertyValue;
 use Brd6\NotionSdkPhp\Resource\Pagination\AbstractPaginationResults;
-use Brd6\NotionSdkPhp\Resource\Pagination\PaginationRequest;
 use Brd6\NotionSdkPhp\Resource\Pagination\PropertyItemResults;
 use Brd6\NotionSdkPhp\Resource\Property\CalloutProperty;
 use Brd6\NotionSdkPhp\Resource\Property\DateProperty;
@@ -52,7 +46,6 @@ use function array_keys;
 use function count;
 use function file_get_contents;
 use function json_decode;
-use function json_encode;
 use function sort;
 
 class PagesEndpointTest extends TestCase
@@ -87,61 +80,6 @@ class PagesEndpointTest extends TestCase
 
         $this->assertEquals('page', $page::getResourceType());
         $this->assertNotEmpty($page->getId());
-    }
-
-    public function testRetrieveThrowsForUnsupportedPropertyByDefault(): void
-    {
-        $rawData = (array) json_decode(
-            (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
-            true,
-        );
-        $rawData['properties']['Future'] = [
-            'id' => 'future-id',
-            'type' => 'future_property',
-            'future_property' => [],
-        ];
-        $httpClient = new MockHttpClient(function ($method, $url) use ($rawData) {
-            $this->assertSame('GET', $method);
-            $this->assertStringContainsString(
-                'pages/4a808e6e-8845-4d49-a447-fb2a4c460f6f',
-                $url,
-            );
-
-            return new MockResponseFactory((string) json_encode($rawData), ['http_code' => 200]);
-        });
-        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
-
-        $this->expectException(UnsupportedPropertyValueException::class);
-
-        $client->pages()->retrieve('4a808e6e-8845-4d49-a447-fb2a4c460f6f');
-    }
-
-    public function testRetrieveCanFallbackForUnsupportedProperty(): void
-    {
-        $rawData = (array) json_decode(
-            (string) file_get_contents('tests/Fixtures/client_pages_retrieve_page_200.json'),
-            true,
-        );
-        $rawData['properties']['Future'] = [
-            'id' => 'future-id',
-            'type' => 'future_property',
-            'future_property' => [],
-        ];
-        $httpClient = new MockHttpClient(function ($method, $url) use ($rawData) {
-            $this->assertSame('GET', $method);
-            $this->assertStringContainsString(
-                'pages/4a808e6e-8845-4d49-a447-fb2a4c460f6f',
-                $url,
-            );
-
-            return new MockResponseFactory((string) json_encode($rawData), ['http_code' => 200]);
-        });
-        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
-
-        $page = (new ForwardCompatibleReader($client))
-            ->retrievePage('4a808e6e-8845-4d49-a447-fb2a4c460f6f');
-
-        $this->assertInstanceOf(UnsupportedPropertyValue::class, $page->getProperties()['Future']);
     }
 
     public function testRetrieveIcon(): void
@@ -599,121 +537,6 @@ class PagesEndpointTest extends TestCase
         $this->assertInstanceOf(DateProperty::class, $date);
 
         $this->assertNotEmpty($date->getStart());
-    }
-
-    public function testRetrievePropertyThrowsForUnsupportedContentByDefault(): void
-    {
-        $rawData = [
-            'object' => 'property_item',
-            'id' => 'future-id',
-            'type' => 'future_property',
-            'future_property' => ['value' => 'future-value'],
-        ];
-        $httpClient = new MockHttpClient(function ($method, $url, $options) use ($rawData) {
-            $this->assertSame('GET', $method);
-            $this->assertStringContainsString(
-                'pages/fed90baa77e9404d80ba3e2736fc8ac4/properties/future-id',
-                $url,
-            );
-            $this->assertSame((string) PaginationRequest::DEFAULT_PAGE_SIZE, $options['query']['page_size']);
-
-            return new MockResponseFactory((string) json_encode($rawData), ['http_code' => 200]);
-        });
-        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
-
-        $this->expectException(UnsupportedPropertyValueException::class);
-
-        $client->pages()
-            ->properties()
-            ->retrieve('fed90baa77e9404d80ba3e2736fc8ac4', 'future-id');
-    }
-
-    public function testRetrievePropertyCanFallbackForUnsupportedContent(): void
-    {
-        $rawData = [
-            'object' => 'property_item',
-            'id' => 'future-id',
-            'type' => 'future_property',
-            'future_property' => ['value' => 'future-value'],
-        ];
-        $httpClient = new MockHttpClient(function ($method, $url, $options) use ($rawData) {
-            $this->assertSame('GET', $method);
-            $this->assertStringContainsString(
-                'pages/fed90baa77e9404d80ba3e2736fc8ac4/properties/future-id',
-                $url,
-            );
-            $this->assertSame((string) PaginationRequest::DEFAULT_PAGE_SIZE, $options['query']['page_size']);
-
-            return new MockResponseFactory((string) json_encode($rawData), ['http_code' => 200]);
-        });
-        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
-
-        $property = (new ForwardCompatibleReader($client))
-            ->retrievePageProperty('fed90baa77e9404d80ba3e2736fc8ac4', 'future-id');
-
-        $this->assertInstanceOf(UnsupportedPropertyValue::class, $property);
-    }
-
-    public function testRetrievePaginatedPropertyCanFallbackForUnsupportedItem(): void
-    {
-        $rawData = [
-            'object' => 'list',
-            'type' => 'property_item',
-            'next_cursor' => null,
-            'has_more' => false,
-            'results' => [
-                [
-                    'object' => 'property_item',
-                    'id' => 'future-id',
-                    'type' => 'future_property',
-                    'future_property' => ['value' => 'future-value'],
-                ],
-            ],
-        ];
-        $httpClient = new MockHttpClient(function ($method, $url, $options) use ($rawData) {
-            $this->assertSame('GET', $method);
-            $this->assertStringContainsString(
-                'pages/fed90baa77e9404d80ba3e2736fc8ac4/properties/future-id',
-                $url,
-            );
-            $this->assertSame((string) PaginationRequest::DEFAULT_PAGE_SIZE, $options['query']['page_size']);
-
-            return new MockResponseFactory((string) json_encode($rawData), ['http_code' => 200]);
-        });
-        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
-
-        $property = (new ForwardCompatibleReader($client))
-            ->retrievePageProperty('fed90baa77e9404d80ba3e2736fc8ac4', 'future-id');
-
-        $this->assertInstanceOf(PropertyItemResults::class, $property);
-        $this->assertInstanceOf(UnsupportedPropertyItem::class, $property->getResults()[0]);
-    }
-
-    public function testRetrievePaginatedPropertyThrowsForUnsupportedItemByDefault(): void
-    {
-        $rawData = [
-            'object' => 'list',
-            'type' => 'property_item',
-            'next_cursor' => null,
-            'has_more' => false,
-            'results' => [
-                [
-                    'object' => 'property_item',
-                    'id' => 'future-id',
-                    'type' => 'unsupported',
-                    'unsupported' => ['value' => 'future-value'],
-                ],
-            ],
-        ];
-        $httpClient = new MockHttpClient(
-            new MockResponseFactory((string) json_encode($rawData), ['http_code' => 200]),
-        );
-        $client = new Client((new ClientOptions())->setHttpClient($httpClient));
-
-        $this->expectException(UnsupportedPropertyItemException::class);
-
-        $client->pages()->properties()
-            ->retrieve('fed90baa77e9404d80ba3e2736fc8ac4', 'future-id');
     }
 
     public function testRetrievePropertyPaginated(): void

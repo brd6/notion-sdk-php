@@ -4,11 +4,6 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Property;
 
-use Brd6\NotionSdkPhp\Exception\InvalidPropertyValueException;
-
-use function is_finite;
-use function is_numeric;
-
 class PlaceProperty extends AbstractProperty
 {
     protected ?float $lat = null;
@@ -20,8 +15,6 @@ class PlaceProperty extends AbstractProperty
 
     public static function fromRawData(array $rawData): self
     {
-        self::validateCoordinates($rawData['lat'] ?? null, $rawData['lon'] ?? null);
-
         $property = new self();
 
         $property->lat = isset($rawData['lat']) ? (float) $rawData['lat'] : null;
@@ -32,29 +25,6 @@ class PlaceProperty extends AbstractProperty
         $property->googlePlaceId = isset($rawData['google_place_id']) ? (string) $rawData['google_place_id'] : null;
 
         return $property;
-    }
-
-    public function jsonSerialize(): array
-    {
-        self::validateCoordinates($this->lat, $this->lon);
-
-        return parent::jsonSerialize();
-    }
-
-    /**
-     * @param mixed $lat
-     * @param mixed $lon
-     */
-    private static function validateCoordinates($lat, $lon): void
-    {
-        if (
-            !is_numeric($lat) ||
-            !is_numeric($lon) ||
-            !is_finite((float) $lat) ||
-            !is_finite((float) $lon)
-        ) {
-            throw new InvalidPropertyValueException();
-        }
     }
 
     public function getLat(): ?float

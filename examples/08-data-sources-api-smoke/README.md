@@ -7,7 +7,6 @@ This example runs Notion API integration checks for the `2025-09-03` API version
 - query data source
 - search data sources
 - optional create + update data source (write mode)
-- populated and explicit-null Place page-property writes and reads (write mode)
 
 It is intended for live API validation and fixture discovery without touching the test fixtures in this repository.
 
@@ -54,4 +53,4 @@ With write checks enabled:
 NOTION_RUN_WRITES=1 php index.php
 ```
 
-Write mode creates a temporary data source with a Place property, validates populated create/update behavior and explicit null clearing, and then updates the data source with `in_trash=true` to keep cleanup simple.
+Write mode creates a temporary data source and then updates it (`in_trash=true`) to keep cleanup simple.

@@ -7,7 +7,7 @@ namespace Brd6\NotionSdkPhp\Exception;
 use function sprintf;
 use function strlen;
 
-class UnsupportedParentTypeException extends AbstractNotionException implements UnsupportedNotionExceptionInterface
+class UnsupportedParentTypeException extends AbstractNotionException
 {
     public const MESSAGE = 'The given parent "%s" is unsupported.';
 

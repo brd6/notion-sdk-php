@@ -131,21 +131,6 @@ If the API returns an unsuccessful response, an `ApiResponseException` will be t
 
 The error contains properties from the response, and the most helpful is `code`. You can compare `code` to the values in the `NotionErrorCodeConstant` object to avoid misspelling error codes.
 
-### Forward-compatible reads
-
-The standard read methods keep their existing strict behavior and throw when a response contains an unsupported nested type. Sync processes can opt into fallback resources without changing the behavior of other calls:
-
-```php
-use Brd6\NotionSdkPhp\ForwardCompatibleReader;
-
-$reader = new ForwardCompatibleReader($notion);
-$page = $reader->retrievePage($pageId);
-$block = $reader->retrieveBlock($blockId);
-$children = $reader->listBlockChildren($blockId);
-```
-
-Unsupported page properties and paginated property items hydrate as `UnsupportedPropertyValue` and `UnsupportedPropertyItem`. Blocks with unsupported nested content hydrate as `ReadOnlyUnsupportedBlock`. Each fallback retains the raw response for inspection. Page serialization omits unsupported property values, and read-only unsupported blocks reject write serialization.
-
 ### Client options
 
 The `Client` supports the following options on initialization. These options can be set on the `ClientOptions` instance.
@@ -187,3 +172,5 @@ Contributions are welcome! To contribute, please familiarize yourself with
 ## License
 
 The MIT License (MIT). Please see [LICENSE](LICENSE) for more information.
+
+
