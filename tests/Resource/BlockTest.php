@@ -128,8 +128,8 @@ class BlockTest extends TestCase
         $rawData['archived'] = true;
         $rawData['has_children'] = true;
         $rawData['paragraph']['children'] = [$childRawData];
-        $rawData['paragraph']['rich_text'][0]['type'] = 'future_rich_text';
-        $rawData['paragraph']['rich_text'][0]['future_rich_text'] = [];
+        $rawData['paragraph']['rich_text'][0]['type'] = 'abstract_rich_text';
+        $rawData['paragraph']['rich_text'][0]['abstract_rich_text'] = [];
 
         $block = AbstractBlock::fromRawData($rawData);
 
@@ -144,8 +144,11 @@ class BlockTest extends TestCase
         $this->assertTrue($block->isArchived());
         $this->assertTrue($block->isHasChildren());
         $this->assertCount(1, $block->getChildren());
-        $this->assertSame($rawData['paragraph'], $block->propertyToArray());
-        $this->assertArrayHasKey('paragraph', $block->toArrayForCreate());
+        $property = $rawData['paragraph'];
+        unset($property['children']);
+
+        $this->assertSame($property, $block->propertyToArray());
+        $this->assertCount(1, $block->toArrayForCreate()['paragraph']['children']);
     }
 
     public function testKnownBlockWithInvalidNestedFeatureStillThrows(): void
@@ -159,6 +162,36 @@ class BlockTest extends TestCase
         $this->expectException(InvalidRichTextException::class);
 
         AbstractBlock::fromRawData($rawData);
+    }
+
+    public function testUnsupportedCreatedByPreservesLastEditedBy(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
+            true,
+        );
+        $rawData['created_by']['type'] = 'abstract';
+
+        $block = AbstractBlock::fromRawData($rawData);
+
+        $this->assertInstanceOf(UnsupportedBlock::class, $block);
+        $this->assertNull($block->getCreatedBy());
+        $this->assertNotNull($block->getLastEditedBy());
+    }
+
+    public function testUnsupportedLastEditedByPreservesCreatedBy(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
+            true,
+        );
+        $rawData['last_edited_by']['type'] = 'future_user';
+
+        $block = AbstractBlock::fromRawData($rawData);
+
+        $this->assertInstanceOf(UnsupportedBlock::class, $block);
+        $this->assertNotNull($block->getCreatedBy());
+        $this->assertNull($block->getLastEditedBy());
     }
 
     public function testBlock(): void

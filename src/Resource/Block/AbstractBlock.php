@@ -114,7 +114,17 @@ abstract class AbstractBlock extends AbstractResource
      */
     protected function initializeBlockUsers(): void
     {
+        $this->initializeCreatedBy();
+        $this->initializeLastEditedBy();
+    }
+
+    protected function initializeCreatedBy(): void
+    {
         $this->createdBy = AbstractUser::fromRawData((array) $this->getRawData()['created_by']);
+    }
+
+    protected function initializeLastEditedBy(): void
+    {
         $this->lastEditedBy = AbstractUser::fromRawData((array) $this->getRawData()['last_edited_by']);
     }
 

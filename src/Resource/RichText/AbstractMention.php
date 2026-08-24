@@ -8,8 +8,10 @@ use Brd6\NotionSdkPhp\Exception\InvalidMentionException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedMentionTypeException;
 use Brd6\NotionSdkPhp\Resource\AbstractJsonSerializable;
 use Brd6\NotionSdkPhp\Util\StringHelper;
+use ReflectionClass;
 
 use function class_exists;
+use function is_subclass_of;
 
 abstract class AbstractMention extends AbstractJsonSerializable implements MentionInterface
 {
@@ -55,7 +57,11 @@ abstract class AbstractMention extends AbstractJsonSerializable implements Menti
         $typeFormatted = StringHelper::snakeCaseToCamelCase($type);
         $class = "Brd6\\NotionSdkPhp\\Resource\\RichText\\Mention\\{$typeFormatted}Mention";
 
-        if (!class_exists($class)) {
+        if (
+            !class_exists($class) ||
+            !is_subclass_of($class, self::class) ||
+            !(new ReflectionClass($class))->isInstantiable()
+        ) {
             throw new UnsupportedMentionTypeException($type);
         }
 

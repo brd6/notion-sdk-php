@@ -84,6 +84,23 @@ class UnsupportedPropertyValueTest extends TestCase
         $this->assertSame($rawData, $property->getRawData());
     }
 
+    public function testKnownPropertyWithNestedAbstractClassCollisionFallsBack(): void
+    {
+        $property = AbstractPropertyValue::fromRawData([
+            'id' => 'files-id',
+            'type' => 'files',
+            'files' => [
+                [
+                    'type' => 'abstract_file',
+                    'abstract_file' => [],
+                ],
+            ],
+        ]);
+
+        $this->assertInstanceOf(UnsupportedPropertyValue::class, $property);
+        $this->assertSame('files', $property->getType());
+    }
+
     public function testInvalidPropertyValueStillThrows(): void
     {
         $this->expectException(InvalidPropertyValueException::class);

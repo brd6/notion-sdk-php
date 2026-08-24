@@ -8,8 +8,10 @@ use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\AbstractResource;
 use Brd6\NotionSdkPhp\Resource\UserInterface;
 use Brd6\NotionSdkPhp\Util\StringHelper;
+use ReflectionClass;
 
 use function class_exists;
+use function is_subclass_of;
 
 abstract class AbstractUser extends AbstractResource implements UserInterface
 {
@@ -60,7 +62,11 @@ abstract class AbstractUser extends AbstractResource implements UserInterface
         $typeFormatted = StringHelper::snakeCaseToCamelCase($type);
         $class = "Brd6\\NotionSdkPhp\\Resource\\User\\{$typeFormatted}User";
 
-        if (!class_exists($class)) {
+        if (
+            !class_exists($class) ||
+            !is_subclass_of($class, self::class) ||
+            !(new ReflectionClass($class))->isInstantiable()
+        ) {
             throw new UnsupportedUserTypeException($type);
         }
 

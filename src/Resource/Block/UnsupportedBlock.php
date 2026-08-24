@@ -18,11 +18,18 @@ class UnsupportedBlock extends AbstractBlock
             $this->initializeBlockTimes();
         }
 
-        if (isset($this->getRawData()['created_by'], $this->getRawData()['last_edited_by'])) {
+        if (isset($this->getRawData()['created_by'])) {
             try {
-                $this->initializeBlockUsers();
+                $this->initializeCreatedBy();
             } catch (AbstractUnsupportedNotionException $exception) {
                 $this->createdBy = null;
+            }
+        }
+
+        if (isset($this->getRawData()['last_edited_by'])) {
+            try {
+                $this->initializeLastEditedBy();
+            } catch (AbstractUnsupportedNotionException $exception) {
                 $this->lastEditedBy = null;
             }
         }
@@ -51,7 +58,10 @@ class UnsupportedBlock extends AbstractBlock
 
     public function propertyToArray(): array
     {
-        return (array) ($this->getRawData()[$this->getType()] ?? []);
+        $property = (array) ($this->getRawData()[$this->getType()] ?? []);
+        unset($property['children']);
+
+        return $property;
     }
 
     public function toArrayForCreate(): array

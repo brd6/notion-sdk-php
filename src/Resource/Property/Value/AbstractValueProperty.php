@@ -8,8 +8,10 @@ use Brd6\NotionSdkPhp\Exception\InvalidPropertyException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyTypeException;
 use Brd6\NotionSdkPhp\Resource\Property\AbstractProperty;
 use Brd6\NotionSdkPhp\Util\StringHelper;
+use ReflectionClass;
 
 use function class_exists;
+use function is_subclass_of;
 
 abstract class AbstractValueProperty extends AbstractProperty
 {
@@ -64,7 +66,11 @@ abstract class AbstractValueProperty extends AbstractProperty
         $typeFormatted = StringHelper::snakeCaseToCamelCase($type);
         $class = "Brd6\\NotionSdkPhp\\Resource\\Property\\Value\\{$typeFormatted}ValueProperty";
 
-        if (!class_exists($class)) {
+        if (
+            !class_exists($class) ||
+            !is_subclass_of($class, self::class) ||
+            !(new ReflectionClass($class))->isInstantiable()
+        ) {
             throw new UnsupportedPropertyTypeException($type, self::PROPERTY_BASE_TYPE);
         }
 
