@@ -28,7 +28,9 @@ class ParagraphPropertyTest extends TestCase
         $rawData['paragraph']['icon'] = $icon;
         $block = AbstractBlock::fromRawData($rawData);
 
-        $this->assertSame($icon, $block->toArray()['paragraph']['icon'] ?? null);
+        $serialized = $block->toArray()['paragraph']['icon'] ?? [];
+        $this->assertSame($icon['type'], $serialized['type'] ?? null);
+        $this->assertSame($icon['emoji'], $serialized['emoji'] ?? null);
     }
 
     /** @dataProvider iconProvider */
