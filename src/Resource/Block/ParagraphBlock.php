@@ -26,7 +26,6 @@ class ParagraphBlock extends AbstractBlock
     {
         $data = (array) $this->getRawData()[$this->getType()];
 
-        /** @var ParagraphProperty $property */
         $property = ParagraphProperty::fromRawData($data);
 
         $this->paragraph = $property;
