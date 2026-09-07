@@ -209,6 +209,100 @@ class BlockTest extends TestCase
         }
     }
 
+    /**
+     * @dataProvider headingToggleStateProvider
+     */
+    public function testHeadingToggleStateSurvivesSerialization(string $heading, array $state, bool $hasChildren): void
+    {
+        $rawContent = (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_heading1_200.json');
+        $rawData = (array) json_decode(str_replace('heading_1', $heading, $rawContent), true);
+        $rawData[$heading] += $state;
+        $rawData['has_children'] = $hasChildren;
+        $rawData[$heading]['children'] = $hasChildren ? [
+            (array) json_decode(
+                (string) file_get_contents('tests/Fixtures/client_blocks_retrieve_block_200.json'),
+                true,
+            ),
+        ] : [];
+
+        $block = AbstractBlock::fromRawData($rawData);
+        $getterMethodName = 'get' . StringHelper::snakeCaseToCamelCase($heading);
+        $property = $block->$getterMethodName();
+
+        $this->assertInstanceOf(HeadingProperty::class, $property);
+        $this->assertSame($hasChildren, $block->isHasChildren());
+        $this->assertCount($hasChildren ? 1 : 0, $block->getChildren());
+        $this->assertCount($hasChildren ? 1 : 0, $property->getChildren());
+
+        foreach ([$block->propertyToArray(), $block->toArray()[$heading], $block->toArrayForCreate()[$heading]] as $data) {
+            if (isset($state['is_toggleable'])) {
+                $this->assertArrayHasKey('is_toggleable', $data);
+                $this->assertSame($state['is_toggleable'], $data['is_toggleable']);
+            } else {
+                $this->assertArrayNotHasKey('is_toggleable', $data);
+            }
+
+            $this->assertSame($rawData[$heading]['color'], $data['color']);
+            $this->assertSame($rawData[$heading]['rich_text'][0]['text']['content'], $data['rich_text'][0]['text']['content']);
+            $this->assertSame($rawData[$heading]['rich_text'][0]['annotations'], $data['rich_text'][0]['annotations']);
+            $this->assertCount($hasChildren ? 1 : 0, $data['children'] ?? []);
+            if ($hasChildren) {
+                $this->assertSame('paragraph', $data['children'][0]['type']);
+                $this->assertSame(
+                    $rawData[$heading]['children'][0]['paragraph']['rich_text'][0]['text']['content'],
+                    $data['children'][0]['paragraph']['rich_text'][0]['text']['content'],
+                );
+            }
+        }
+
+        $this->assertSame($state['is_toggleable'] ?? false, $property->isToggleable());
+        $includingNull = $property->toArray(false);
+        $this->assertArrayHasKey('is_toggleable', $includingNull);
+        $this->assertSame($state['is_toggleable'] ?? null, $includingNull['is_toggleable']);
+    }
+
+    public function testConstructedHeadingPreservesExplicitToggleState(): void
+    {
+        $property = new HeadingProperty();
+        $block = (new Heading4Block())->setHeading4($property);
+
+        $this->assertFalse($property->isToggleable());
+        $this->assertArrayNotHasKey('is_toggleable', $block->propertyToArray());
+        $this->assertArrayNotHasKey('is_toggleable', $block->toArray()['heading_4']);
+        $this->assertArrayNotHasKey('is_toggleable', $block->toArrayForCreate()['heading_4']);
+
+        foreach ([false, true, false] as $state) {
+            $this->assertSame($property, $property->setToggleable($state));
+            $this->assertSame($state, $property->isToggleable());
+            $this->assertFalse($block->isHasChildren());
+            $this->assertSame([], $block->getChildren());
+            $this->assertSame([], $property->getChildren());
+            $this->assertSame($state, $block->propertyToArray()['is_toggleable']);
+            $this->assertSame($state, $block->toArray()['heading_4']['is_toggleable']);
+            $this->assertSame($state, $block->toArrayForCreate()['heading_4']['is_toggleable']);
+        }
+    }
+
+    public function headingToggleStateProvider(): array
+    {
+        $cases = [];
+        $states = [
+            'toggle' => ['is_toggleable' => true],
+            'static' => ['is_toggleable' => false],
+            'absent' => [],
+            'null' => ['is_toggleable' => null],
+        ];
+
+        for ($level = 1; $level <= 6; $level++) {
+            foreach ($states as $name => $state) {
+                $cases["heading_$level $name empty"] = ["heading_$level", $state, false];
+                $cases["heading_$level $name populated"] = ["heading_$level", $state, true];
+            }
+        }
+
+        return $cases;
+    }
+
     public function testCalloutBlock(): void
     {
         $block = AbstractBlock::fromRawData(
