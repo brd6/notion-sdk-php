@@ -4,9 +4,20 @@ declare(strict_types=1);
 
 namespace Brd6\NotionSdkPhp\Resource\Property;
 
+use Brd6\NotionSdkPhp\Exception\InvalidRichTextException;
+use Brd6\NotionSdkPhp\Exception\UnsupportedRichTextTypeException;
+use Brd6\NotionSdkPhp\Resource\RichText\AbstractRichText;
+
+use function array_map;
+
 class EmbedProperty extends AbstractProperty
 {
     public const TYPE_FILE_UPLOAD = 'file_upload';
+
+    /**
+     * @var array|AbstractRichText[]
+     */
+    protected array $caption = [];
 
     protected string $url = '';
     protected ?string $type = null;
@@ -27,10 +38,18 @@ class EmbedProperty extends AbstractProperty
         return $property;
     }
 
+    /**
+     * @throws InvalidRichTextException
+     * @throws UnsupportedRichTextTypeException
+     */
     public static function fromRawData(array $rawData): self
     {
         $property = new self();
 
+        $property->caption = isset($rawData['caption']) ? array_map(
+            fn (array $richTextRawData) => AbstractRichText::fromRawData($richTextRawData),
+            (array) $rawData['caption'],
+        ) : [];
         $property->url = (string) ($rawData['url'] ?? '');
         $property->type = isset($rawData['type']) ? (string) $rawData['type'] : null;
         $property->fileUpload = isset($rawData['file_upload']) ?
@@ -38,6 +57,24 @@ class EmbedProperty extends AbstractProperty
             null;
 
         return $property;
+    }
+
+    /**
+     * @return array|AbstractRichText[]
+     */
+    public function getCaption(): array
+    {
+        return $this->caption;
+    }
+
+    /**
+     * @param array|AbstractRichText[] $caption
+     */
+    public function setCaption(array $caption): self
+    {
+        $this->caption = $caption;
+
+        return $this;
     }
 
     public function getUrl(): string
