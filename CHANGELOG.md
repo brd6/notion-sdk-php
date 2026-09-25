@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 1.12.8 - 2026-09-25
+
+### Fixed
+
+- Embed blocks now preserve their `caption` during hydration and serialization, including on create.
+
 ## 1.12.7 - 2026-09-07
 
 ### Fixed
