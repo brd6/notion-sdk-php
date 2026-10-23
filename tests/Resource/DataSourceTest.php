@@ -8,13 +8,17 @@ use Brd6\NotionSdkPhp\Exception\InvalidPropertyObjectException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyObjectException;
 use Brd6\NotionSdkPhp\Resource\DataSource;
+use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\ButtonPropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\PlacePropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\RelationPropertyObject;
+use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\UniqueIdPropertyObject;
+use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\VerificationPropertyObject;
 use Brd6\NotionSdkPhp\Resource\File\Icon;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\DatabaseIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\PageIdParent;
 use PHPUnit\Framework\TestCase;
 
+use function array_intersect_key;
 use function count;
 use function file_get_contents;
 use function json_decode;
@@ -188,6 +192,51 @@ class DataSourceTest extends TestCase
 
         $this->assertInstanceOf(PlacePropertyObject::class, $property);
         $this->assertNotNull($property->getPlace());
+    }
+
+    public function testDataSourceHydratesVerificationUniqueIdAndButtonPropertyConfigurations(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+            true,
+        );
+        $schemaProperties = [
+            'Verification' => [
+                'id' => 'verification-id',
+                'name' => 'Verification',
+                'type' => 'verification',
+                'verification' => [],
+            ],
+            'Task ID' => [
+                'id' => 'unique-id',
+                'name' => 'Task ID',
+                'type' => 'unique_id',
+                'unique_id' => ['prefix' => 'TASK'],
+            ],
+            'Approve' => [
+                'id' => 'button-id',
+                'name' => 'Approve',
+                'type' => 'button',
+                'button' => [],
+            ],
+        ];
+        $rawData['properties'] = (array) $rawData['properties'] + $schemaProperties;
+
+        /** @var DataSource $dataSource */
+        $dataSource = DataSource::fromRawData($rawData);
+
+        $properties = $dataSource->getProperties();
+        $uniqueId = $properties['Task ID'];
+
+        $this->assertInstanceOf(VerificationPropertyObject::class, $properties['Verification']);
+        $this->assertInstanceOf(ButtonPropertyObject::class, $properties['Approve']);
+        $this->assertInstanceOf(UniqueIdPropertyObject::class, $uniqueId);
+        $this->assertNotNull($uniqueId->getUniqueId());
+        $this->assertSame('TASK', $uniqueId->getUniqueId()->getPrefix());
+        $this->assertEquals(
+            $schemaProperties,
+            array_intersect_key($dataSource->toArray()['properties'], $schemaProperties),
+        );
     }
 
     public function testDataSourceWithIconObject(): void
