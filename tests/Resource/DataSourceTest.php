@@ -40,6 +40,8 @@ class DataSourceTest extends TestCase
         );
         $rawData['properties']['Created time'] = ['id' => 'a1', 'name' => 'Created time', 'type' => 'created_time', 'created_time' => []];
         $rawData['properties']['Last edited by'] = ['id' => 'b2', 'name' => 'Last edited by', 'type' => 'last_edited_by', 'last_edited_by' => []];
+        $rawData['properties']['Verification'] = ['id' => 'c3', 'name' => 'Verification', 'type' => 'verification', 'verification' => []];
+        $rawData['properties']['Approve'] = ['id' => 'd4', 'name' => 'Approve', 'type' => 'button', 'button' => []];
 
         /** @var DataSource $dataSource */
         $dataSource = DataSource::fromRawData($rawData);
@@ -50,6 +52,8 @@ class DataSourceTest extends TestCase
         $this->assertArrayHasKey('Projects', $properties);
         $this->assertArrayNotHasKey('Created time', $properties);
         $this->assertArrayNotHasKey('Last edited by', $properties);
+        $this->assertArrayNotHasKey('Verification', $properties);
+        $this->assertArrayNotHasKey('Approve', $properties);
     }
 
     public function testUpdateSerializationIsByteIdenticalForTypedAndRawProperties(): void

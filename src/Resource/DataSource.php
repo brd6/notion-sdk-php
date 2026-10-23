@@ -30,10 +30,12 @@ class DataSource extends AbstractResource
     public const RESOURCE_TYPE = 'data_source';
     private const UPDATE_ACCEPTED_KEYS = ['title', 'properties', 'in_trash'];
     private const READ_ONLY_PROPERTY_CONFIGURATION_TYPES = [
+        'button',
         'created_by',
         'created_time',
         'last_edited_by',
         'last_edited_time',
+        'verification',
     ];
 
     protected ?DateTimeImmutable $createdTime = null;
