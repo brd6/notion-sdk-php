@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 1.12.9 - 2026-10-23
+
+### Fixed
+
+- Database and data source schemas with `verification`, `unique_id` or `button` properties now parse.
+- Unknown schema property types hydrate as `UnsupportedPropertyObject` instead of throwing, and data source updates skip them.
+- Data source updates no longer send the response-only `verification` and `button` configurations.
+
 ## 1.12.8 - 2026-09-25
 
 ### Fixed
