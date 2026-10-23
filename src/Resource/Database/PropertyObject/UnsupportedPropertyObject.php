@@ -9,9 +9,4 @@ class UnsupportedPropertyObject extends AbstractPropertyObject
     protected function initialize(): void
     {
     }
-
-    public function isWritable(): bool
-    {
-        return false;
-    }
 }

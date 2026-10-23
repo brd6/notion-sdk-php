@@ -14,14 +14,6 @@ use function in_array;
 abstract class AbstractPropertyObject extends AbstractProperty
 {
     private const SERIALIZER_KEYS_IGNORED = ['ignoreEmptyValue', 'rawData', 'type', 'id', 'name', 'onlyKeys'];
-    private const READ_ONLY_TYPES = [
-        'button',
-        'created_by',
-        'created_time',
-        'last_edited_by',
-        'last_edited_time',
-        'verification',
-    ];
 
     private array $rawData = [];
     protected string $type = '';
@@ -73,11 +65,6 @@ abstract class AbstractPropertyObject extends AbstractProperty
     }
 
     abstract protected function initialize(): void;
-
-    public function isWritable(): bool
-    {
-        return !in_array($this->type, self::READ_ONLY_TYPES, true);
-    }
 
     public function getRawData(): array
     {

@@ -20,7 +20,6 @@ use DateTimeImmutable;
 
 use function array_key_exists;
 use function array_map;
-use function is_array;
 
 class Database extends AbstractResource
 {
@@ -64,19 +63,7 @@ class Database extends AbstractResource
 
     public function toArrayForUpdate(): array
     {
-        $data = $this->toArrayStrict(self::UPDATE_ACCEPTED_KEYS);
-
-        if (!isset($data['properties']) || !is_array($data['properties'])) {
-            return $data;
-        }
-
-        foreach ($this->properties as $name => $propertyObject) {
-            if (!$propertyObject->isWritable()) {
-                unset($data['properties'][$name]);
-            }
-        }
-
-        return $data;
+        return $this->toArrayStrict(self::UPDATE_ACCEPTED_KEYS);
     }
 
     /**
