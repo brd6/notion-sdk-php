@@ -9,7 +9,6 @@ use Brd6\NotionSdkPhp\Exception\InvalidParentException;
 use Brd6\NotionSdkPhp\Exception\InvalidPropertyObjectException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedParentTypeException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyObjectException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\AbstractPropertyObject;
 use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
@@ -94,7 +93,6 @@ class DataSource extends AbstractResource
      * @throws InvalidPropertyObjectException
      * @throws UnsupportedFileTypeException
      * @throws UnsupportedParentTypeException
-     * @throws UnsupportedPropertyObjectException
      * @throws UnsupportedUserTypeException
      */
     protected function initialize(): void
@@ -235,7 +233,6 @@ class DataSource extends AbstractResource
      * @param array<string, AbstractPropertyObject|array> $properties
      *
      * @throws InvalidPropertyObjectException
-     * @throws UnsupportedPropertyObjectException
      */
     public function setProperties(array $properties): self
     {
@@ -251,7 +248,6 @@ class DataSource extends AbstractResource
      * @param AbstractPropertyObject|array $property
      *
      * @throws InvalidPropertyObjectException
-     * @throws UnsupportedPropertyObjectException
      */
     private static function hydrateProperty($property): AbstractPropertyObject
     {

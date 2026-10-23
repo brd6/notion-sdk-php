@@ -9,7 +9,6 @@ use Brd6\NotionSdkPhp\Exception\InvalidParentException;
 use Brd6\NotionSdkPhp\Exception\InvalidPropertyObjectException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedParentTypeException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyObjectException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\Database\PartialDataSource;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\AbstractPropertyObject;
@@ -74,7 +73,6 @@ class Database extends AbstractResource
      * @throws UnsupportedFileTypeException
      * @throws UnsupportedParentTypeException
      * @throws UnsupportedUserTypeException
-     * @throws UnsupportedPropertyObjectException
      */
     protected function initialize(): void
     {

@@ -6,12 +6,12 @@ namespace Brd6\Test\NotionSdkPhp\Resource;
 
 use Brd6\NotionSdkPhp\Exception\InvalidPropertyObjectException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyObjectException;
 use Brd6\NotionSdkPhp\Resource\DataSource;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\ButtonPropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\PlacePropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\RelationPropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\UniqueIdPropertyObject;
+use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\UnsupportedPropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\VerificationPropertyObject;
 use Brd6\NotionSdkPhp\Resource\File\Icon;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\DatabaseIdParent;
@@ -102,13 +102,16 @@ class DataSourceTest extends TestCase
         ]);
     }
 
-    public function testSetPropertiesRejectsRawArrayWithUnknownType(): void
+    public function testSetPropertiesFallsBackToUnsupportedPropertyObjectForUnknownType(): void
     {
-        $this->expectException(UnsupportedPropertyObjectException::class);
-
-        (new DataSource())->setProperties([
+        $dataSource = (new DataSource())->setProperties([
             'Mystery' => ['type' => 'not_a_real_type', 'not_a_real_type' => []],
         ]);
+
+        $property = $dataSource->getProperties()['Mystery'];
+
+        $this->assertInstanceOf(UnsupportedPropertyObject::class, $property);
+        $this->assertSame('not_a_real_type', $property->getType());
     }
 
     public function testDataSourceHydratesInTrashPayloadWithoutArchivedKey(): void
@@ -237,6 +240,33 @@ class DataSourceTest extends TestCase
             $schemaProperties,
             array_intersect_key($dataSource->toArray()['properties'], $schemaProperties),
         );
+    }
+
+    public function testDataSourceHydratesUnknownPropertyTypeAsUnsupportedPropertyObject(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+            true,
+        );
+        $rawData['properties']['Future'] = [
+            'id' => 'future-id',
+            'name' => 'Future',
+            'type' => 'future_type',
+            'future_type' => ['setting' => 'value'],
+        ];
+
+        /** @var DataSource $dataSource */
+        $dataSource = DataSource::fromRawData($rawData);
+
+        $properties = $dataSource->getProperties();
+        $future = $properties['Future'];
+
+        $this->assertInstanceOf(UnsupportedPropertyObject::class, $future);
+        $this->assertSame('future_type', $future->getType());
+        $this->assertSame('Future', $future->getName());
+        $this->assertSame('future-id', $future->getId());
+        $this->assertSame($rawData['properties']['Future'], $future->getRawData());
+        $this->assertInstanceOf(RelationPropertyObject::class, $properties['Projects']);
     }
 
     public function testDataSourceWithIconObject(): void

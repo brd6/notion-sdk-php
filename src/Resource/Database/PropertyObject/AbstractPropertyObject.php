@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Brd6\NotionSdkPhp\Resource\Database\PropertyObject;
 
 use Brd6\NotionSdkPhp\Exception\InvalidPropertyObjectException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyObjectException;
 use Brd6\NotionSdkPhp\Resource\Property\AbstractProperty;
 use Brd6\NotionSdkPhp\Util\StringHelper;
 
@@ -27,7 +26,6 @@ abstract class AbstractPropertyObject extends AbstractProperty
      * @return static
      *
      * @throws InvalidPropertyObjectException
-     * @throws UnsupportedPropertyObjectException
      */
     public static function fromRawData(array $rawData): self
     {
@@ -58,19 +56,12 @@ abstract class AbstractPropertyObject extends AbstractProperty
         return $this;
     }
 
-    /**
-     * @throws UnsupportedPropertyObjectException
-     */
     protected static function getMapClassFromType(string $type): string
     {
         $typeFormatted = StringHelper::snakeCaseToCamelCase($type);
         $class = "Brd6\\NotionSdkPhp\\Resource\\Database\\PropertyObject\\{$typeFormatted}PropertyObject";
 
-        if (!class_exists($class)) {
-            throw new UnsupportedPropertyObjectException($type);
-        }
-
-        return $class;
+        return class_exists($class) ? $class : UnsupportedPropertyObject::class;
     }
 
     abstract protected function initialize(): void;
