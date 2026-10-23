@@ -11,7 +11,6 @@ use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedParentTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\AbstractPropertyObject;
-use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\UnsupportedPropertyObject;
 use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\AbstractParentProperty;
 use Brd6\NotionSdkPhp\Resource\RichText\AbstractRichText;
@@ -23,21 +22,12 @@ use function array_keys;
 use function array_map;
 use function array_values;
 use function count;
-use function in_array;
 use function is_array;
 
 class DataSource extends AbstractResource
 {
     public const RESOURCE_TYPE = 'data_source';
     private const UPDATE_ACCEPTED_KEYS = ['title', 'properties', 'in_trash'];
-    private const READ_ONLY_PROPERTY_CONFIGURATION_TYPES = [
-        'button',
-        'created_by',
-        'created_time',
-        'last_edited_by',
-        'last_edited_time',
-        'verification',
-    ];
 
     protected ?DateTimeImmutable $createdTime = null;
     protected ?UserInterface $createdBy = null;
@@ -82,10 +72,7 @@ class DataSource extends AbstractResource
         }
 
         foreach ($this->properties as $name => $propertyObject) {
-            if (
-                $propertyObject instanceof UnsupportedPropertyObject ||
-                in_array($propertyObject->getType(), self::READ_ONLY_PROPERTY_CONFIGURATION_TYPES, true)
-            ) {
+            if (!$propertyObject->isWritable()) {
                 unset($data['properties'][$name]);
             }
         }

@@ -132,6 +132,30 @@ class DatabaseTest extends TestCase
         }
     }
 
+    public function testUpdateSerializationOmitsUnwritablePropertyConfigurations(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_databases_retrieve_database_200.json'),
+            true,
+        );
+        $rawData['properties']['Created time'] = ['id' => 'a1', 'name' => 'Created time', 'type' => 'created_time', 'created_time' => []];
+        $rawData['properties']['Verification'] = ['id' => 'c3', 'name' => 'Verification', 'type' => 'verification', 'verification' => []];
+        $rawData['properties']['Approve'] = ['id' => 'd4', 'name' => 'Approve', 'type' => 'button', 'button' => []];
+        $rawData['properties']['Future'] = ['id' => 'e5', 'name' => 'Future', 'type' => 'future_type', 'future_type' => []];
+
+        /** @var Database $database */
+        $database = Database::fromRawData($rawData);
+
+        $properties = $database->toArrayForUpdate()['properties'];
+
+        $this->assertArrayHasKey('Name', $properties);
+        $this->assertArrayHasKey('Tags', $properties);
+        $this->assertArrayNotHasKey('Created time', $properties);
+        $this->assertArrayNotHasKey('Verification', $properties);
+        $this->assertArrayNotHasKey('Approve', $properties);
+        $this->assertArrayNotHasKey('Future', $properties);
+    }
+
     public function testDatabaseWithStatusProperties(): void
     {
         /** @var Database $database */
