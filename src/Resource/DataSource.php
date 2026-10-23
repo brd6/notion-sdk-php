@@ -11,6 +11,7 @@ use Brd6\NotionSdkPhp\Exception\UnsupportedFileTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedParentTypeException;
 use Brd6\NotionSdkPhp\Exception\UnsupportedUserTypeException;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\AbstractPropertyObject;
+use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\UnsupportedPropertyObject;
 use Brd6\NotionSdkPhp\Resource\File\AbstractFile;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\AbstractParentProperty;
 use Brd6\NotionSdkPhp\Resource\RichText\AbstractRichText;
@@ -81,7 +82,10 @@ class DataSource extends AbstractResource
         }
 
         foreach ($this->properties as $name => $propertyObject) {
-            if (in_array($propertyObject->getType(), self::READ_ONLY_PROPERTY_CONFIGURATION_TYPES, true)) {
+            if (
+                $propertyObject instanceof UnsupportedPropertyObject ||
+                in_array($propertyObject->getType(), self::READ_ONLY_PROPERTY_CONFIGURATION_TYPES, true)
+            ) {
                 unset($data['properties'][$name]);
             }
         }

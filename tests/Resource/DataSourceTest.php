@@ -271,6 +271,7 @@ class DataSourceTest extends TestCase
         $this->assertSame('future-id', $future->getId());
         $this->assertSame($rawData['properties']['Future'], $future->getRawData());
         $this->assertInstanceOf(RelationPropertyObject::class, $properties['Projects']);
+        $this->assertArrayNotHasKey('Future', $dataSource->toArrayForUpdate()['properties']);
     }
 
     public function testDataSourceWithIconObject(): void
