@@ -6,15 +6,19 @@ namespace Brd6\Test\NotionSdkPhp\Resource;
 
 use Brd6\NotionSdkPhp\Exception\InvalidPropertyObjectException;
 use Brd6\NotionSdkPhp\Exception\InvalidResourceException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyObjectException;
 use Brd6\NotionSdkPhp\Resource\DataSource;
+use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\ButtonPropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\PlacePropertyObject;
 use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\RelationPropertyObject;
+use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\UniqueIdPropertyObject;
+use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\UnsupportedPropertyObject;
+use Brd6\NotionSdkPhp\Resource\Database\PropertyObject\VerificationPropertyObject;
 use Brd6\NotionSdkPhp\Resource\File\Icon;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\DatabaseIdParent;
 use Brd6\NotionSdkPhp\Resource\Page\Parent\PageIdParent;
 use PHPUnit\Framework\TestCase;
 
+use function array_intersect_key;
 use function count;
 use function file_get_contents;
 use function json_decode;
@@ -36,6 +40,8 @@ class DataSourceTest extends TestCase
         );
         $rawData['properties']['Created time'] = ['id' => 'a1', 'name' => 'Created time', 'type' => 'created_time', 'created_time' => []];
         $rawData['properties']['Last edited by'] = ['id' => 'b2', 'name' => 'Last edited by', 'type' => 'last_edited_by', 'last_edited_by' => []];
+        $rawData['properties']['Verification'] = ['id' => 'c3', 'name' => 'Verification', 'type' => 'verification', 'verification' => []];
+        $rawData['properties']['Approve'] = ['id' => 'd4', 'name' => 'Approve', 'type' => 'button', 'button' => []];
 
         /** @var DataSource $dataSource */
         $dataSource = DataSource::fromRawData($rawData);
@@ -46,6 +52,8 @@ class DataSourceTest extends TestCase
         $this->assertArrayHasKey('Projects', $properties);
         $this->assertArrayNotHasKey('Created time', $properties);
         $this->assertArrayNotHasKey('Last edited by', $properties);
+        $this->assertArrayNotHasKey('Verification', $properties);
+        $this->assertArrayNotHasKey('Approve', $properties);
     }
 
     public function testUpdateSerializationIsByteIdenticalForTypedAndRawProperties(): void
@@ -98,13 +106,16 @@ class DataSourceTest extends TestCase
         ]);
     }
 
-    public function testSetPropertiesRejectsRawArrayWithUnknownType(): void
+    public function testSetPropertiesFallsBackToUnsupportedPropertyObjectForUnknownType(): void
     {
-        $this->expectException(UnsupportedPropertyObjectException::class);
-
-        (new DataSource())->setProperties([
+        $dataSource = (new DataSource())->setProperties([
             'Mystery' => ['type' => 'not_a_real_type', 'not_a_real_type' => []],
         ]);
+
+        $property = $dataSource->getProperties()['Mystery'];
+
+        $this->assertInstanceOf(UnsupportedPropertyObject::class, $property);
+        $this->assertSame('not_a_real_type', $property->getType());
     }
 
     public function testDataSourceHydratesInTrashPayloadWithoutArchivedKey(): void
@@ -188,6 +199,79 @@ class DataSourceTest extends TestCase
 
         $this->assertInstanceOf(PlacePropertyObject::class, $property);
         $this->assertNotNull($property->getPlace());
+    }
+
+    public function testDataSourceHydratesVerificationUniqueIdAndButtonPropertyConfigurations(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+            true,
+        );
+        $schemaProperties = [
+            'Verification' => [
+                'id' => 'verification-id',
+                'name' => 'Verification',
+                'type' => 'verification',
+                'verification' => [],
+            ],
+            'Task ID' => [
+                'id' => 'unique-id',
+                'name' => 'Task ID',
+                'type' => 'unique_id',
+                'unique_id' => ['prefix' => 'TASK'],
+            ],
+            'Approve' => [
+                'id' => 'button-id',
+                'name' => 'Approve',
+                'type' => 'button',
+                'button' => [],
+            ],
+        ];
+        $rawData['properties'] = (array) $rawData['properties'] + $schemaProperties;
+
+        /** @var DataSource $dataSource */
+        $dataSource = DataSource::fromRawData($rawData);
+
+        $properties = $dataSource->getProperties();
+        $uniqueId = $properties['Task ID'];
+
+        $this->assertInstanceOf(VerificationPropertyObject::class, $properties['Verification']);
+        $this->assertInstanceOf(ButtonPropertyObject::class, $properties['Approve']);
+        $this->assertInstanceOf(UniqueIdPropertyObject::class, $uniqueId);
+        $this->assertNotNull($uniqueId->getUniqueId());
+        $this->assertSame('TASK', $uniqueId->getUniqueId()->getPrefix());
+        $this->assertEquals(
+            $schemaProperties,
+            array_intersect_key($dataSource->toArray()['properties'], $schemaProperties),
+        );
+    }
+
+    public function testDataSourceHydratesUnknownPropertyTypeAsUnsupportedPropertyObject(): void
+    {
+        $rawData = (array) json_decode(
+            (string) file_get_contents('tests/Fixtures/client_data_sources_retrieve_200.json'),
+            true,
+        );
+        $rawData['properties']['Future'] = [
+            'id' => 'future-id',
+            'name' => 'Future',
+            'type' => 'future_type',
+            'future_type' => ['setting' => 'value'],
+        ];
+
+        /** @var DataSource $dataSource */
+        $dataSource = DataSource::fromRawData($rawData);
+
+        $properties = $dataSource->getProperties();
+        $future = $properties['Future'];
+
+        $this->assertInstanceOf(UnsupportedPropertyObject::class, $future);
+        $this->assertSame('future_type', $future->getType());
+        $this->assertSame('Future', $future->getName());
+        $this->assertSame('future-id', $future->getId());
+        $this->assertSame($rawData['properties']['Future'], $future->getRawData());
+        $this->assertInstanceOf(RelationPropertyObject::class, $properties['Projects']);
+        $this->assertArrayNotHasKey('Future', $dataSource->toArrayForUpdate()['properties']);
     }
 
     public function testDataSourceWithIconObject(): void
