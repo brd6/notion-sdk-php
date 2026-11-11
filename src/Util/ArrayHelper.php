@@ -6,6 +6,7 @@ namespace Brd6\NotionSdkPhp\Util;
 
 use function array_keys;
 use function is_array;
+use function is_int;
 
 class ArrayHelper
 {
@@ -18,7 +19,7 @@ class ArrayHelper
             $value = &$data[$key];
             unset($data[$key]);
 
-            $transformedKey = StringHelper::camelCaseToSnakeCase((string) $key);
+            $transformedKey = is_int($key) ? $key : StringHelper::camelCaseToSnakeCase($key);
 
             if (is_array($value)) {
                 if ($transformedKey === 'properties') {
