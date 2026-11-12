@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## 1.12.10 - 2026-11-12
+
+### Fixed
+
+- Rollup array items of every property type now parse. Types without a value class, such as `relation`, `title`, `rich_text`, `people` or `status`, hydrate as their page property value class instead of throwing and failing the whole query.
+- Rollup and formula values of an unknown type hydrate as `UnsupportedValueProperty` and keep their raw data.
+- `toArray()` keeps lists of more than ten items as lists. Request bodies with eleven or more rich text segments, children or filters were sent as JSON objects.
+
 ## 1.12.9 - 2026-10-23
 
 ### Fixed
