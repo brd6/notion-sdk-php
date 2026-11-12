@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Brd6\NotionSdkPhp\Resource\Page\PropertyValue;
 
 use Brd6\NotionSdkPhp\Exception\InvalidPropertyException;
-use Brd6\NotionSdkPhp\Exception\UnsupportedPropertyTypeException;
 use Brd6\NotionSdkPhp\Resource\Property\Value\AbstractValueProperty;
 
 class FormulaPropertyValue extends AbstractPropertyValue
@@ -14,7 +13,6 @@ class FormulaPropertyValue extends AbstractPropertyValue
 
     /**
      * @throws InvalidPropertyException
-     * @throws UnsupportedPropertyTypeException
      */
     protected function initialize(): void
     {
